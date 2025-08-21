@@ -1,0 +1,5 @@
+### 分页查询股票列表
+POST http://127.0.0.1:8080/share/task/shanghaiShareList
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2wiOiJBRE1JTiIsImlzcyI6ImVjaGlzYW4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MzQwNDA0NiwiZXhwIjoxNzQ0MDA4ODQ2fQ.YcZUfVyJz_avlthLYhuLIGWkFjEc4tHmW3l5xqu2-Fo
+Content-Type: application/json
+

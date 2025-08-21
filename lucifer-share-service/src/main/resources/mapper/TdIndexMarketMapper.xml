@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.muniu.cloud.lucifer.share.service.mapper.TdIndexMarketMapper">
+
+    <update id="createTable">
+        CREATE TABLE IF NOT EXISTS td_index_market_${sharding}
+        (
+            `id`             varchar(25)  NOT NULL,
+            `amplitude`      decimal(7, 3)                                         COMMENT '振幅',
+            `change_amount`  decimal(18, 4)                                        COMMENT '涨跌额',
+            `change_rate`    decimal(10, 4)                                        COMMENT '涨跌幅',
+            `create_time`    bigint                                                NOT NULL,
+            `date`           int                                                   NOT NULL COMMENT '日期',
+            `time`           int                                                   COMMENT '请求时间',
+            `highest`        decimal(18, 4)                                        COMMENT '最高价',
+            `latest_price`   decimal(18, 4)                                        COMMENT '最新价',
+            `lowest`         decimal(18, 4)                                        COMMENT '最低价',
+            `opening_price`  decimal(18, 4)                                        COMMENT '今开',
+            `previous_close` decimal(18, 4)                                        COMMENT '昨收',
+            `index_code`     varchar(10)  NOT NULL COMMENT '指数代码',
+            `index_name`     varchar(20)  NOT NULL COMMENT '指数名称',
+            `turnover`       decimal(18, 4)                                        COMMENT '成交额',
+            `volume`         decimal(18, 4)                                        COMMENT '成交量',
+            `volume_ratio`   decimal(7, 3)                                         COMMENT '量比',
+            PRIMARY KEY (`id`) USING BTREE,
+            INDEX `idx_index_code_time` (`index_code` ASC, `time` DESC) USING BTREE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='指数分时行情数据';
+    </update>
+    <select id="selectTable" resultType="java.lang.String">
+        SELECT REPLACE(TABLE_NAME, 'td_index_market_', '')  FROM information_schema.TABLES  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE 'td_index_market_%';
+    </select>
+
+    <insert id="insertBatch" parameterType="java.util.List">
+        insert into td_index_market_${sharding}
+        (id, amplitude, change_amount, change_rate, create_time, date, time, highest, latest_price, 
+        lowest, opening_price, previous_close, index_code, index_name, turnover, volume, volume_ratio)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.amplitude}, #{item.changeAmount}, #{item.changeRate}, #{item.createTime}, 
+            #{item.date}, #{item.time}, #{item.highest}, #{item.latestPrice}, #{item.lowest}, 
+            #{item.openingPrice}, #{item.previousClose}, #{item.indexCode}, #{item.indexName}, 
+            #{item.turnover}, #{item.volume}, #{item.volumeRatio})
+        </foreach>
+    </insert>
+
+</mapper> 

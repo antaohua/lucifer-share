@@ -1,0 +1,31 @@
+CREATE TABLE IF NOT EXISTS td_share_market_${sharding}
+(
+`id`                     varchar(20)  NOT NULL,
+`amplitude`              decimal(7, 3)                                         COMMENT '振幅',
+`change_amount`          decimal(15, 4)                                        COMMENT '涨跌额',
+`change_rate`            decimal(10, 4)                                         COMMENT '涨跌幅',
+`circulating_market_cap` decimal(19, 3)                                        COMMENT '流通市值',
+`create_time`            bigint                                                NOT NULL,
+`date`                   int                                                   NOT NULL COMMENT '日期',
+`dynamic_pe`             decimal(15, 4)                                        COMMENT '市盈率-动态',
+`five_minute_change`     decimal(7, 3)                                         COMMENT '5分钟涨跌',
+`time`                   int                                                   COMMENT '请求时间',
+`highest`                decimal(15, 4)                                        COMMENT '最高价',
+`latest_price`           decimal(15, 4)                                        COMMENT '最新价',
+`lowest`                 decimal(15, 4)                                        COMMENT '最低价',
+`opening_price`          decimal(15, 4)                                        COMMENT '今开',
+`pb_ratio`               decimal(15, 4)                                        COMMENT '市净率',
+`previous_close`         decimal(15, 4)                                        COMMENT '昨收',
+`share_code`             varchar(10)  NOT NULL COMMENT '股票代码',
+`speed`                  decimal(7, 3)                                         COMMENT '涨速',
+`total_market_cap`       decimal(19, 3)                                        COMMENT '总市值',
+`turnover`               decimal(15, 4)                                        COMMENT '成交额',
+`turnover_rate`          decimal(7, 3)                                         COMMENT '换手率',
+`volume`                 decimal(15, 4)                                        COMMENT '成交量',
+`volume_ratio`           decimal(7, 3)                                         COMMENT '量比',
+`limit_down`             decimal(15, 4)                                        COMMENT '跌停价',
+`limit_up`               decimal(15, 4)                                        COMMENT '涨停价',
+PRIMARY KEY (`id`) USING BTREE,
+INDEX `idx_share_code_time` (`share_code` ASC, `time` DESC) USING BTREE
+) ENGINE = InnoDB
+DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '实时行情数据-日期:${sharding}';

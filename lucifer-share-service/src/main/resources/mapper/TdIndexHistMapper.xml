@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.muniu.cloud.lucifer.share.service.mapper.TdIndexHistMapper">
+
+    <update id="createTable">
+        CREATE TABLE IF NOT EXISTS td_index_hist_${sharding}
+        (
+            `id`           varchar(20) NOT NULL,
+            `index_code`   varchar(10) NOT NULL COMMENT '指数代码',
+            `date`         int         NOT NULL COMMENT '日期',
+            `amount`       decimal(18, 4) COMMENT '成交额 单位: 元',
+            `close_price`  decimal(18, 4) COMMENT '收盘价 单位: 元',
+            `create_time`  bigint      NOT NULL COMMENT '创建时间',
+            `high_price`   decimal(18, 4) COMMENT '最高价 单位: 元',
+            `low_price`    decimal(18, 4) COMMENT '最低价 单位: 元',
+            `open_price`   decimal(18, 4) COMMENT '开盘价 单位: 元',
+            `volume`       decimal(18, 4) COMMENT '成交量',
+            PRIMARY KEY (`id`) USING BTREE,
+            UNIQUE INDEX `uk_date_index` (`date` ASC, `index_code` ASC) USING BTREE,
+            INDEX `idx_index_code_date`(`index_code` ASC, `date` ASC) USING BTREE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='指数历史行情数据';
+    </update>
+
+    <select id="selectTable" resultType="java.lang.String">
+        SELECT REPLACE(TABLE_NAME, 'td_index_hist_', '') FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE 'td_index_hist_%';
+    </select>
+
+    <insert id="insertOrUpdateBatch" parameterType="java.util.List">
+        insert into td_index_hist_${year}
+        (id, index_code, date, amount, close_price, create_time, high_price, low_price, open_price, volume)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.indexCode}, #{item.date}, #{item.amount}, #{item.closePrice}, #{item.createTime}, #{item.highPrice}, #{item.lowPrice}, #{item.openPrice}, #{item.volume})
+        </foreach>
+        on duplicate key update
+        amount = values(amount),
+        close_price = values(close_price),
+        high_price = values(high_price),
+        low_price = values(low_price),
+        open_price = values(open_price),
+        volume = values(volume)
+    </insert>
+
+    <select id="selectIndexLastDate" resultType="com.muniu.cloud.lucifer.share.service.entity.TdIndexHist">
+        select id, index_code, date, amount, close_price, create_time, high_price, low_price, open_price, volume  from td_index_hist_${year}  where index_code = #{indexCode} order by date desc limit 1
+    </select>
+</mapper> 

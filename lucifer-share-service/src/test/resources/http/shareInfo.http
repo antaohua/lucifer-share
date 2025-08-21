@@ -1,0 +1,69 @@
+### 分页查询股票列表
+POST http://127.0.0.1:8080/share/page.json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2wiOiJBRE1JTiIsImlzcyI6ImVjaGlzYW4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MzQwNDA0NiwiZXhwIjoxNzQ0MDA4ODQ2fQ.YcZUfVyJz_avlthLYhuLIGWkFjEc4tHmW3l5xqu2-Fo
+Content-Type: application/json
+
+{
+  "pageNum": 1,
+  "pageSize": 2,
+  "params": {
+    "shareCode": "",
+    "shareName": "",
+    "marketType": "",
+    "industry": "",
+    "isValid": true
+  },
+  "orders": [
+    {
+      "column": "shareCode",
+      "asc": true
+    }
+  ]
+}
+
+### 分页查询股票列表(带条件)
+POST http://127.0.0.1:8080/share/page.json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2wiOiJBRE1JTiIsImlzcyI6ImVjaGlzYW4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MzQwNDA0NiwiZXhwIjoxNzQ0MDA4ODQ2fQ.YcZUfVyJz_avlthLYhuLIGWkFjEc4tHmW3l5xqu2-Fo
+Content-Type: application/json
+
+{
+  "pageNum": 1,
+  "pageSize": 2,
+  "params": {
+    "shareCode": "000001",
+    "shareName": "平安",
+    "marketType": "A股",
+    "industry": "银行",
+    "isValid": true
+  },
+  "orders": [
+    {
+      "column": "updateTime",
+      "asc": false
+    }
+  ]
+}
+
+### 分页查询股票列表(多字段排序)
+POST http://127.0.0.1:8080/share/page.json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2wiOiJBRE1JTiIsImlzcyI6ImVjaGlzYW4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MzQwNDA0NiwiZXhwIjoxNzQ0MDA4ODQ2fQ.YcZUfVyJz_avlthLYhuLIGWkFjEc4tHmW3l5xqu2-Fo
+Content-Type: application/json
+
+{
+  "pageNum": 1,
+  "pageSize": 2,
+  "params": {
+    "marketType": "A股",
+    "isValid": true
+  },
+  "orders": [
+    {
+      "column": "industry",
+      "asc": true
+    },
+    {
+      "column": "shareCode",
+      "asc": true
+    }
+  ]
+}

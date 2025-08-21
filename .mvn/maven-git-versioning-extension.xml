@@ -1,0 +1,34 @@
+<configuration xmlns="https://github.com/qoomon/maven-git-versioning-extension"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="https://github.com/qoomon/maven-git-versioning-extension https://qoomon.github.io/maven-git-versioning-extension/configuration-9.1.0.xsd">
+    <updatePom>false</updatePom>
+    <relatedProjects>
+        <project>
+            <groupId>me.qoomon</groupId>
+            <artifactId>base</artifactId>
+        </project>
+    </relatedProjects>
+    <refs>
+
+        <ref type="branch">
+            <pattern>main</pattern>
+            <version>${version}.${build.timestamp.year}${build.timestamp.month}${build.timestamp.day}-${commit.short}</version>
+        </ref>
+        <ref type="branch">
+            <pattern>master</pattern>
+            <version>${version}.${build.timestamp.year}${build.timestamp.month}${build.timestamp.day}-${commit.short}</version>
+        </ref>
+        <ref type="branch">
+            <pattern>release</pattern>
+            <version>${version}.${build.timestamp.year}${build.timestamp.month}${build.timestamp.day}-${commit.short}</version>
+        </ref>
+
+        <ref type="branch">
+            <pattern>beem/beem-dev</pattern>
+            <version>${version}.${build.timestamp.year}${build.timestamp.month}${build.timestamp.day}-${commit.short}</version>
+        </ref>
+    </refs>
+    <rev>
+        <version>{version}.${build.timestamp.year}${build.timestamp.month}${build.timestamp.day}-${commit.short}-SNAPSHOT</version>
+    </rev>
+</configuration>

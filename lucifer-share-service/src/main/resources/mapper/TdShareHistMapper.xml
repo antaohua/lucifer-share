@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.muniu.cloud.lucifer.share.service.mapper.TdShareHistMapper">
+
+    <update id="createTable">
+        CREATE TABLE IF NOT EXISTS td_share_hist_${sharding}
+        (
+            `id`             varchar(20) NOT NULL,
+            `share_code`     varchar(10) NOT NULL COMMENT '股票代码',
+            `date`           int         NOT NULL COMMENT '日期',
+            `previous_close` decimal(15, 4) COMMENT '昨收',
+            `amount`         decimal(15, 4) COMMENT '成交额 单位: 元',
+            `amplitude`      decimal(10, 4) COMMENT '振幅 单位: %',
+            `change_amount`  decimal(15, 4) COMMENT '涨跌额 单位: 元',
+            `change_rate`    decimal(10, 4) COMMENT '涨跌幅 单位: %',
+            `close_price`    decimal(15, 4) COMMENT '收盘价 单位: 元',
+            `create_time`    bigint      NOT NULL COMMENT '创建时间',
+            `high_price`     decimal(15, 4) COMMENT '最高价 单位: 元',
+            `low_price`      decimal(15, 4) COMMENT '最低价 单位: 元',
+            `open_price`     decimal(15, 4) COMMENT '开盘价 单位: 元',
+            `turnover_rate`  decimal(10, 4) COMMENT '换手率 单位: %',
+            `volume`         decimal(15, 4) COMMENT '成交量 单位: 手',
+            `limit_down`     decimal(15, 4) COMMENT '跌停价',
+            `limit_up`       decimal(15, 4) COMMENT '涨停价',
+            `ma5` decimal(15, 4) NULL DEFAULT NULL COMMENT '5日均线',
+            `ma10` decimal(15, 4) NULL DEFAULT NULL COMMENT '10日均线',
+            `ma20` decimal(15, 4) NULL DEFAULT NULL COMMENT '20日均线',
+            `ma30` decimal(15, 4) NULL DEFAULT NULL COMMENT '30日均线',
+            `vma5` decimal(15, 4) NULL DEFAULT NULL COMMENT '5日成交量均线',
+            `vma10` decimal(15, 4) NULL DEFAULT NULL COMMENT '10日成交量均线',
+            `rsi6` decimal(10, 4) NULL DEFAULT NULL COMMENT '6日相对强弱指数',
+            `rsi12` decimal(10, 4) NULL DEFAULT NULL COMMENT '12日相对强弱指数',
+            `macd_diff` decimal(10, 4) NULL DEFAULT NULL COMMENT 'MACD DIFF',
+            `macd_dea` decimal(10, 4) NULL DEFAULT NULL COMMENT 'MACD DEA',
+            `macd` decimal(10, 4) NULL DEFAULT NULL COMMENT 'MACD',
+            `kdj_k` decimal(10, 4) NULL DEFAULT NULL COMMENT 'KDJ_K值',
+            `kdj_d` decimal(10, 4) NULL DEFAULT NULL COMMENT 'KDJ_D值',
+            `kdj_j` decimal(10, 4) NULL DEFAULT NULL COMMENT 'KDJ_J值',
+            `boll_upper` decimal(15, 4) NULL DEFAULT NULL COMMENT '布林带上轨',
+            `boll_middle` decimal(15, 4) NULL DEFAULT NULL COMMENT '布林带中轨',
+            `boll_lower` decimal(15, 4) NULL DEFAULT NULL COMMENT '布林带下轨',
+            `wr6` decimal(10, 4) NULL DEFAULT NULL COMMENT '6日威廉指标',
+            `wr14` decimal(10, 4) NULL DEFAULT NULL COMMENT '14日威廉指标',
+            `cci14` decimal(15, 4) NULL DEFAULT NULL COMMENT '14日顺势指标',
+            `atr14` decimal(15, 4) NULL DEFAULT NULL COMMENT '14日真实波动范围',
+            `obv` decimal(15, 4) NULL DEFAULT NULL COMMENT '能量潮',
+            PRIMARY KEY (`id`) USING BTREE,
+            UNIQUE INDEX `uk_date_share` (`date` ASC, `share_code` ASC) USING BTREE,
+            INDEX `idx_share_code_date`(`share_code` ASC, `date` ASC) USING BTREE
+        ) ENGINE = InnoDB
+          CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '股票历史行情数据-年:${year}';
+    </update>
+
+
+    <select id="selectTable" resultType="java.lang.String">
+        SELECT REPLACE(TABLE_NAME, 'td_share_hist_', '')  FROM information_schema.TABLES  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE 'td_share_hist_%';
+    </select>
+
+
+    <insert id="insertOrUpdateBatch" parameterType="java.util.List">
+        insert into td_share_hist_${year}
+        (id, amount, amplitude, change_amount, change_rate, close_price, create_time, date, high_price, low_price, open_price, share_code, turnover_rate, volume, limit_down, limit_up, previous_close)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.amount}, #{item.amplitude}, #{item.changeAmount}, #{item.changeRate}, #{item.closePrice}, #{item.createTime}, #{item.date}, #{item.highPrice}, #{item.lowPrice}, #{item.openPrice}, #{item.shareCode}, #{item.turnoverRate}, #{item.volume}, #{item.limitDown}, #{item.limitUp}, #{item.previousClose})
+        </foreach>
+        on duplicate key update
+        amount = values(amount),
+        amplitude = values(amplitude),
+        change_amount = values(change_amount),
+        change_rate = values(change_rate),
+        close_price = values(close_price),
+        high_price = values(high_price),
+        low_price = values(low_price),
+        open_price = values(open_price),
+        turnover_rate = values(turnover_rate),
+        volume = values(volume),
+        limit_down = values(limit_down),
+        limit_up = values(limit_up),
+        previous_close = values(previous_close)
+    </insert>
+
+    <insert id="insertOrUpdate" parameterType="com.muniu.cloud.lucifer.share.service.entity.TdShareHist">
+        insert into td_share_hist_${year}
+        (id, amount, amplitude, change_amount, change_rate, close_price, create_time, date, high_price, low_price, open_price, share_code, turnover_rate, volume, limit_down, limit_up, previous_close)
+        values
+        (#{item.id}, #{item.amount}, #{item.amplitude}, #{item.changeAmount}, #{item.changeRate}, #{item.closePrice}, #{item.createTime}, #{item.date}, #{item.highPrice}, #{item.lowPrice}, #{item.openPrice}, #{item.shareCode}, #{item.turnoverRate}, #{item.volume}, #{item.limitDown}, #{item.limitUp}, #{item.previousClose})
+        on duplicate key update
+        amount = values(amount),
+        amplitude = values(amplitude),
+        change_amount = values(change_amount),
+        change_rate = values(change_rate),
+        close_price = values(close_price),
+        high_price = values(high_price),
+        low_price = values(low_price),
+        open_price = values(open_price),
+        turnover_rate = values(turnover_rate),
+        volume = values(volume),
+        limit_down = values(limit_down),
+        limit_up = values(limit_up),
+        previous_close = values(previous_close)
+    </insert>
+
+
+    <select id="selectLastDateShareCodeExcludingToday" resultType="java.lang.String">
+        select share_code
+        from td_share_hist_${yesterday/10000}
+        where date = #{yesterday} and share_code not in (select share_code from td_share_hist_${date/10000} where date = #{date})
+    </select>
+
+    <select id="selectShareLastDate" resultType="com.muniu.cloud.lucifer.share.service.entity.TdShareHist">
+        select id, amount, amplitude, change_amount, change_rate, close_price, create_time, date, high_price, low_price, open_price, share_code, turnover_rate, volume, limit_down, limit_up, previous_close from td_share_hist_${year} where share_code = #{shareCode} order by date desc limit 1
+    </select>
+</mapper>

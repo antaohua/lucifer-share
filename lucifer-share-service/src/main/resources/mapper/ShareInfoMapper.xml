@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.muniu.cloud.lucifer.share.service.mapper.ShareInfoMapper">
+
+    <!-- public void updateShareHistoryUpdateDate(String shareCode, long updateTime); -->
+    <update id="updateShareHistoryUpdateDate">
+        update share_info set history_update_date = #{updateTime} where id = #{shareCode}
+    </update>
+    <!-- public void updateShareHistoryUpdateDate(List<String> shareCodes, long updateTime); -->
+    <update id="updateShareHistoryUpdateDateBatch">
+        update share_info set history_update_date = #{updateTime} where id in
+        <foreach collection="shareCodes" item="shareCode" open="(" separator="," close=")">
+            #{shareCode}
+        </foreach>
+    </update>
+
+
+</mapper>

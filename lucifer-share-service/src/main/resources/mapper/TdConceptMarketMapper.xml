@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.muniu.cloud.lucifer.share.service.mapper.TdConceptMarketMapper">
+
+    <!-- 创建分表 -->
+    <update id="createTable">
+        CREATE TABLE IF NOT EXISTS td_concept_market_${month}
+        (
+            `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+            `board_code` varchar(20) NOT NULL COMMENT '板块代码',
+            `board_name` varchar(50) NOT NULL COMMENT '板块名称',
+            `rank` int DEFAULT NULL COMMENT '排名',
+            `latest_price` decimal(10,2) DEFAULT NULL COMMENT '最新价',
+            `change_amount` decimal(10,2) DEFAULT NULL COMMENT '涨跌额',
+            `change_rate` decimal(10,4) DEFAULT NULL COMMENT '涨跌幅(%)',
+            `total_market_value` bigint DEFAULT NULL COMMENT '总市值(亿元)',
+            `turnover_rate` decimal(10,4) DEFAULT NULL COMMENT '换手率(%)',
+            `up_count` int DEFAULT NULL COMMENT '上涨家数',
+            `down_count` int DEFAULT NULL COMMENT '下跌家数',
+            `leading_stock` varchar(50) DEFAULT NULL COMMENT '领涨股票',
+            `leading_stock_change_rate` decimal(10,4) DEFAULT NULL COMMENT '领涨股票涨跌幅(%)',
+            `update_time` bigint NOT NULL COMMENT '数据更新时间(毫秒时间戳)',
+            PRIMARY KEY (`id`),
+            KEY `idx_board_code_time` (`board_code`, `update_time`),
+            KEY `idx_update_time` (`update_time`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='概念板块表（月份:${month}）';
+    </update>
+
+    <!-- 查询所有已创建的分表 -->
+    <select id="selectTable" resultType="java.lang.String">
+        SELECT REPLACE(TABLE_NAME, 'td_concept_market_', '') FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE 'td_concept_market_%';
+    </select>
+
+    <!-- 批量插入或更新概念板块数据 -->
+    <insert id="batchInsertOrUpdate">
+        INSERT INTO td_concept_market_${month}
+        (
+        board_code,
+        board_name,
+        `rank`,
+        latest_price,
+        change_amount,
+        change_rate,
+        total_market_value,
+        turnover_rate,
+        up_count,
+        down_count,
+        leading_stock,
+        leading_stock_change_rate,
+        update_time
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.boardCode},
+                #{item.boardName},
+                #{item.rank},
+                #{item.latestPrice},
+                #{item.changeAmount},
+                #{item.changeRate},
+                #{item.totalMarketValue},
+                #{item.turnoverRate},
+                #{item.upCount},
+                #{item.downCount},
+                #{item.leadingStock},
+                #{item.leadingStockChangeRate},
+                #{item.updateTime}
+            )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+            board_name = VALUES(board_name),
+            `rank` = VALUES(`rank`),
+            latest_price = VALUES(latest_price),
+            change_amount = VALUES(change_amount),
+            change_rate = VALUES(change_rate),
+            total_market_value = VALUES(total_market_value),
+            turnover_rate = VALUES(turnover_rate),
+            up_count = VALUES(up_count),
+            down_count = VALUES(down_count),
+            leading_stock = VALUES(leading_stock),
+            leading_stock_change_rate = VALUES(leading_stock_change_rate),
+            update_time = VALUES(update_time)
+    </insert>
+
+    <!-- 根据概念板块代码和日期范围查询实时数据 -->
+    <select id="getRealtimeDataByCodeAndDate" resultType="com.muniu.cloud.lucifer.share.service.entity.ConceptMarket">
+        SELECT
+            id,
+            board_code,
+            board_name,
+            rank,
+            latest_price,
+            change_amount,
+            change_rate,
+            total_market_value,
+            turnover_rate,
+            up_count,
+            down_count,
+            leading_stock,
+            leading_stock_change_rate,
+            update_time
+        FROM
+            td_concept_market_${month}
+        WHERE
+            board_code = #{boardCode}
+            AND update_time BETWEEN #{startTime} AND #{endTime}
+        ORDER BY
+            update_time ASC
+    </select>
+
+
+</mapper> 
