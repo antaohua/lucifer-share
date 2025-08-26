@@ -9,26 +9,16 @@
         </project>
     </relatedProjects>
     <refs>
-
         <ref type="branch">
             <pattern>main</pattern>
-            <version>${version}.${build.timestamp.year.2digit}${build.timestamp.month}${build.timestamp.day}-${commit.short}</version>
-        </ref>
-        <ref type="branch">
-            <pattern>master</pattern>
-            <version>${version}.${build.timestamp.year.2digit}${build.timestamp.month}${build.timestamp.day}-${commit.short}</version>
-        </ref>
-        <ref type="branch">
-            <pattern>release</pattern>
-            <version>${version}.${build.timestamp.year.2digit}${build.timestamp.month}${build.timestamp.day}-${commit.short}</version>
-        </ref>
-
-        <ref type="branch">
-            <pattern>beem/beem-dev</pattern>
-            <version>${version}.${build.timestamp.year.2digit}${build.timestamp.month}${build.timestamp.day}-${commit.short}</version>
+            <version>
+                ${version}-${build.timestamp.year.2digit}${build.timestamp.month}${build.timestamp.day}-${commit.short}
+            </version>
         </ref>
     </refs>
     <rev>
-        <version>{version}.${build.timestamp.year.2digit}${build.timestamp.month}${build.timestamp.day}-${commit.short}-SNAPSHOT</version>
+        <version>
+            {version}-${build.timestamp.year.2digit}${build.timestamp.month}${build.timestamp.day}-${commit.short}-SNAPSHOT
+        </version>
     </rev>
 </configuration>

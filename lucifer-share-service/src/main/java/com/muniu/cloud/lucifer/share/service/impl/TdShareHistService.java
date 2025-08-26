@@ -12,6 +12,7 @@ import com.muniu.cloud.lucifer.share.service.entity.TdShareHist;
 import com.muniu.cloud.lucifer.share.service.entity.TdShareMarket;
 import com.muniu.cloud.lucifer.share.service.mapper.TdShareHistMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.muniu.cloud.lucifer.commons.utils.constants.DateConstant.DATE_FORMATTER_YYYYMMDD;
@@ -140,8 +142,12 @@ public class TdShareHistService {
         fastDay = fastDay == 0 ? tradingDayService.getNextTradingDay(cacheValueEntry.getValue().getListDate()) : tradingDayService.getNextTradingDay(fastDay);
         log.info("开始更新股票历史数据 fastDay:{},day:{},shareCode:{}", fastDay, day, cacheValueEntry.getKey());
         String jsonString = akToolsService.stockZhAHist(cacheValueEntry.getKey(), PeriodConstant.DAY, AdjustConstant.NONE, String.valueOf(fastDay), String.valueOf(day));
+        if(StringUtils.isBlank(jsonString)){
+            log.info("股票历史数据为空 fastDay:{},day:{},shareCode:{}", fastDay, day, cacheValueEntry.getKey());
+            return;
+        }
         JSONArray jsonArray = JSON.parseArray(jsonString);
-        List<TdShareHist> list = jsonArray.stream().map(e -> getShareHistEntity((JSONObject) e, System.currentTimeMillis())).toList();
+        List<TdShareHist> list = jsonArray.stream().filter(Objects::nonNull).map(e -> getShareHistEntity((JSONObject) e, System.currentTimeMillis())).toList();
 
         Map<Integer, List<TdShareHist>> map = list.stream().collect(Collectors.groupingBy(e -> e.getDate() / 10000));
         map.forEach((k, v) -> createTable(k));
