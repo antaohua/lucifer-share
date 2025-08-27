@@ -60,7 +60,7 @@ public class ShareRuleGroup implements Serializable {
     /**
      * 规则组描述
      */
-    @Column(name = "description", length = 255)
+    @Column(name = "description", length = 500)
     private String description;
 
     /**
@@ -75,7 +75,7 @@ public class ShareRuleGroup implements Serializable {
     @Column(name = "user_id", length = 50, nullable = false)
     private String userId;
 
-    @Column(name = "name", length = 100, nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
 
