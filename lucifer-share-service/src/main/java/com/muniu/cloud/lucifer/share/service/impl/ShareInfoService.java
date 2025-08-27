@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -42,12 +43,13 @@ public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
     private static final ConcurrentHashMap<String, ShareInfoCacheValue> SHARE_INFO_CACHE = new ConcurrentHashMap<>();
 
     private final TradingDayService tradingDayService;
+
     private final AkToolsService akToolsService;
 
 
 
     @Autowired
-    public ShareInfoService(ShareInfoMapper shareInfoMapper, TradingDayService tradingDayService, AkToolsService akToolsService) {
+    public ShareInfoService(TradingDayService tradingDayService, AkToolsService akToolsService) {
         this.tradingDayService = tradingDayService;
         this.akToolsService = akToolsService;
     }
@@ -58,31 +60,18 @@ public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
     }
 
     public Set<String> getShareCodes() {
-        if (MapUtils.isEmpty(SHARE_INFO_CACHE)) {
-            loadCache();
-        }
-        return Sets.newHashSet(SHARE_INFO_CACHE.keySet());
+        return Sets.newHashSet(getALL().keySet());
     }
 
     public ShareInfoCacheValue getShareInfoCache(String shareCode) {
-        if (MapUtils.isEmpty(SHARE_INFO_CACHE)) {
-            loadCache();
-        }
-        return SHARE_INFO_CACHE.get(shareCode);
+        return getALL().get(shareCode);
     }
 
-    public Map<String, ShareInfoCacheValue> getALL() {
-        if (MapUtils.isEmpty(SHARE_INFO_CACHE)) {
-            loadCache();
-        }
-        return Maps.newHashMap(SHARE_INFO_CACHE);
-    }
+
 
     @Transactional(rollbackFor = Exception.class)
     public void updateShareHistoryUpdateDate(String shareCode, int day) {
-        if (MapUtils.isEmpty(SHARE_INFO_CACHE)) {
-            loadCache();
-        }
+        getALL();
         ShareInfoCacheValue shareInfoCacheValue = SHARE_INFO_CACHE.get(shareCode);
         if (shareInfoCacheValue != null) {
             getBaseMapper().updateShareHistoryUpdateDate(shareCode, day);
@@ -92,12 +81,8 @@ public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
 
     @Transactional(rollbackFor = Exception.class)
     public void updateShareHistoryUpdateDate(List<String> shareCodes, int day) {
-        if (MapUtils.isEmpty(SHARE_INFO_CACHE)) {
-            loadCache();
-        }
+        getALL();
         getBaseMapper().updateShareHistoryUpdateDateBatch(shareCodes, day);
-
-
         for (String shareCode : shareCodes) {
             SHARE_INFO_CACHE.computeIfPresent(shareCode, (k, v) -> {
                 v.setHistoryUpdateDate(day);
@@ -107,14 +92,47 @@ public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
     }
 
 
-    public void loadCache() {
+
+    public synchronized Map<String, ShareInfoCacheValue> getALL() {
+        int currentDay = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+        int infoUpdateDate = SHARE_INFO_CACHE.values().stream().map(ShareInfoCacheValue::getInfoUpdateDate).max(Integer::compareTo).orElse(0);
+        if (MapUtils.isEmpty(SHARE_INFO_CACHE) || (infoUpdateDate != currentDay) && tradingDayService.isTradingDay(currentDay)) {
+            SpringContextUtils.getBean(ShareInfoService.class).loadCacheData();
+        }
+        return Maps.newHashMap(SHARE_INFO_CACHE);
+    }
+
+
+
+
+    @Transactional(rollbackFor = Exception.class)
+    public void loadCacheData() {
+        int currentDay = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
         List<ShareInfo> shareInfoEntities = getBaseMapper().selectList(new QueryWrapper<>());
-        if(CollectionUtils.isEmpty(shareInfoEntities)) {
+        int infoUpdateDate = shareInfoEntities.stream().map(ShareInfo::getInfoUpdateDate).max(Integer::compareTo).orElse(0);
+        if (CollectionUtils.isEmpty(shareInfoEntities) || (infoUpdateDate != currentDay) && tradingDayService.isTradingDay(currentDay)) {
             try {
-                SpringContextUtils.getBean(ShareInfoService.class).shanghaiShareList();
-                shareInfoEntities = getBaseMapper().selectList(new QueryWrapper<>());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                List<SimpleShareInfo> shanghai = akToolsService.stockInfoShNameCode();
+                List<SimpleShareInfo> shenzhen = akToolsService.stockInfoSzNameCode();
+                List<SimpleShareInfo> beijing = akToolsService.stockInfoBjNameCode();
+                List<SimpleShareInfo> shareInfos = Lists.newArrayList();
+                shareInfos.addAll(shanghai);
+                shareInfos.addAll(shenzhen);
+                shareInfos.addAll(beijing);
+                long time = System.currentTimeMillis();
+                List<ShareInfo> saveData = shareInfos.stream().map(e -> getShareInfoEntity(e, time)).toList();
+                List<String> shareCodes = saveData.stream().map(ShareInfo::getId).toList();
+                log.info("shareInfoEntities-size:{}", saveData.size());
+                saveData.forEach(e -> e.setCreateTime(time));
+                saveData.forEach(e -> e.setUpdateTime(time));
+                saveData.forEach(e -> e.setInfoUpdateDate(currentDay));
+                saveData.forEach(e -> e.setStatusUpdateTime(time));
+                getBaseMapper().insertOrUpdate(saveData, saveData.size());
+                int row = getBaseMapper().updateShareDemisted(shareCodes, time);
+                shareInfoEntities = saveData;
+                log.info("updateShare to Demisted :{}", row);
+            }catch (Exception e) {
+                log.error("update share info exception:", e);
             }
         }
         Map<String, ShareInfoCacheValue> shareInfoCacheValueMap = shareInfoEntities.stream().collect(Collectors.toMap(ShareInfo::getId, ShareInfoCacheValue::new));
@@ -126,36 +144,7 @@ public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
     @Transactional(rollbackFor = Exception.class)
     @Scheduled(cron = "0 0 01 * * ?")
     public void shanghaiShareList() throws IOException {
-
-        int day = Integer.parseInt(LocalDate.now().format(DATE_FORMATTER_YYYYMMDD));
-        if (!tradingDayService.isTradingDay(day)) {
-            return;
-        }
-        List<SimpleShareInfo> shanghai = akToolsService.stockInfoShNameCode();
-        List<SimpleShareInfo> shenzhen = akToolsService.stockInfoSzNameCode();
-        List<SimpleShareInfo> beijing = akToolsService.stockInfoBjNameCode();
-        List<SimpleShareInfo> shareInfos = Lists.newArrayList();
-        shareInfos.addAll(shanghai);
-        shareInfos.addAll(shenzhen);
-        shareInfos.addAll(beijing);
-        long time = System.currentTimeMillis();
-        List<ShareInfo> saveData = shareInfos.stream().map(e -> getShareInfoEntity(e, time)).toList();
-        List<String> shareCodes = saveData.stream().map(ShareInfo::getId).toList();
-        log.info("shareInfoEntities-size:{}", saveData.size());
-        saveData.forEach(e -> e.setCreateTime(time));
-        saveData.forEach(e -> e.setUpdateTime(time));
-        saveData.forEach(e -> e.setInfoUpdateTime(time));
-        saveData.forEach(e -> e.setStatusUpdateTime(time));
-        getBaseMapper().insertOrUpdate(saveData, saveData.size());
-        List<ShareInfo> demistedList = getBaseMapper().selectList(new QueryWrapper<ShareInfo>().notIn("id", shareCodes));
-        demistedList.forEach(e -> {
-            e.setShareStatus(ShareStatus.DEMISTED.getCode());
-            e.setStatusUpdateTime(System.currentTimeMillis());
-        });
-        List<ShareInfo> shareInfoEntities = getBaseMapper().selectList(new QueryWrapper<>());
-        Map<String, ShareInfoCacheValue> shareInfoCacheValueMap = shareInfoEntities.stream().collect(Collectors.toMap(ShareInfo::getId, ShareInfoCacheValue::new));
-        SHARE_INFO_CACHE.clear();
-        SHARE_INFO_CACHE.putAll(shareInfoCacheValueMap);
+        getALL();
     }
 
     private ShareInfo getShareInfoEntity(SimpleShareInfo simpleShareInfo, long time) {

@@ -17,9 +17,11 @@ import java.util.List;
 public interface ShareInfoMapper extends BaseMapper<ShareInfo> {
 
 
-    void updateShareHistoryUpdateDate(@Param("shareCode") String shareCode, @Param("updateTime") long updateTime);
+    void updateShareHistoryUpdateDate(@Param("shareCode") String shareCode, @Param("shareHistoryUpdateDate") int shareHistoryUpdateDate);
 
-    void updateShareHistoryUpdateDateBatch(@Param("shareCodes") List<String> shareCodes, @Param("updateTime") long updateTime);
+    void updateShareHistoryUpdateDateBatch(@Param("shareCodes") List<String> shareCodes, @Param("shareHistoryUpdateDate") int shareHistoryUpdateDate);
+
+    int updateShareDemisted(@Param("shareCodes") List<String> shareCodes, @Param("updateTime") long updateTime);
 }
 
 

@@ -13,7 +13,7 @@ import java.io.Serializable;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author antaohua
@@ -123,8 +123,8 @@ public class ShareInfo implements Serializable {
     /**
      * 信息更新时间
      */
-    @Column(name = "info_update_time")
-    private Long infoUpdateTime;
+    @Column(name = "info_update_date")
+    private Integer infoUpdateDate;
 
 
 }
