@@ -1,6 +1,7 @@
 package com.muniu.cloud.lucifer.share.service.model.rule;
 
 import com.google.common.collect.Maps;
+import com.muniu.cloud.lucifer.commons.model.base.BaseModel;
 import com.muniu.cloud.lucifer.share.service.constant.RulesFields;
 import com.muniu.cloud.lucifer.share.service.constant.RulesOperator;
 import com.muniu.cloud.lucifer.share.service.entity.ShareRuleItem;
@@ -9,7 +10,6 @@ import com.muniu.cloud.lucifer.share.service.impl.function.RuleFunction;
 import com.muniu.cloud.lucifer.share.service.utils.FunctionParser;
 import lombok.Getter;
 import lombok.Setter;
-import com.muniu.cloud.lucifer.commons.model.base.BaseModel;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

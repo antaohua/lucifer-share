@@ -1,7 +1,7 @@
 package com.muniu.cloud.lucifer.share.service.model;
 
-import lombok.Data;
 import com.muniu.cloud.lucifer.commons.model.base.BaseModel;
+import lombok.Data;
 
 @Data
 public class ShareHisTimeData extends BaseModel {

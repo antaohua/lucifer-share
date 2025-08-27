@@ -1,6 +1,5 @@
 package com.muniu.cloud.lucifer.share.service.impl;
 
-import cn.hutool.log.Log;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
@@ -10,8 +9,6 @@ import com.muniu.cloud.lucifer.share.service.entity.TdIndexHist;
 import com.muniu.cloud.lucifer.share.service.mapper.TdIndexHistMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;

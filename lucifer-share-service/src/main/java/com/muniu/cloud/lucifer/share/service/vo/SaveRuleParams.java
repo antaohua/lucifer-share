@@ -1,8 +1,8 @@
 package com.muniu.cloud.lucifer.share.service.vo;
 
+import com.muniu.cloud.lucifer.commons.model.base.BaseModel;
 import com.muniu.cloud.lucifer.share.service.constant.RuleDataSource;
 import com.muniu.cloud.lucifer.share.service.constant.RuleDateType;
-import com.muniu.cloud.lucifer.commons.model.base.BaseModel;
 
 public class SaveRuleParams extends BaseModel {
 

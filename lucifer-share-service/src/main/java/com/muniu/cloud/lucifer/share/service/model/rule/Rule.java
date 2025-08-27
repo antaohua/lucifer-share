@@ -2,12 +2,12 @@ package com.muniu.cloud.lucifer.share.service.model.rule;
 
 import com.alibaba.fastjson2.annotation.JSONField;
 import com.google.common.collect.Lists;
+import com.muniu.cloud.lucifer.commons.model.base.BaseModel;
 import com.muniu.cloud.lucifer.share.service.constant.RulesConnect;
 import com.muniu.cloud.lucifer.share.service.entity.ShareRuleItem;
 import com.muniu.cloud.lucifer.share.service.exception.FunctionException;
 import com.muniu.cloud.lucifer.share.service.impl.function.RuleFunction;
 import lombok.Setter;
-import com.muniu.cloud.lucifer.commons.model.base.BaseModel;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;

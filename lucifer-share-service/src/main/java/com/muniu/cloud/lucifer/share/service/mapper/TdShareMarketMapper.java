@@ -1,6 +1,5 @@
 package com.muniu.cloud.lucifer.share.service.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.Mapper;
 import com.muniu.cloud.lucifer.share.service.entity.TdShareMarket;
 import org.apache.ibatis.annotations.Param;
 

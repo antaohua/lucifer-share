@@ -1,18 +1,15 @@
 package com.muniu.cloud.lucifer.share.service.impl;
 
-import java.util.List;
-import java.time.LocalDate;
-
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.muniu.cloud.lucifer.share.service.entity.MarketFundFlow;
+import com.muniu.cloud.lucifer.share.service.mapper.MarketFundFlowMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.muniu.cloud.lucifer.share.service.entity.MarketFundFlow;
-import com.muniu.cloud.lucifer.share.service.mapper.MarketFundFlowMapper;
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @Slf4j

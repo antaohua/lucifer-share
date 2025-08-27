@@ -1,7 +1,6 @@
 package com.muniu.cloud.lucifer.share.service.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.mapper.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

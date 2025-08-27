@@ -1,7 +1,7 @@
 package com.muniu.cloud.lucifer.share.service.mapper;
 
-import com.muniu.cloud.lucifer.share.service.entity.ShareRuleItem;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.muniu.cloud.lucifer.share.service.entity.ShareRuleItem;
 
 /**
  * <p>

@@ -4,13 +4,11 @@ package com.muniu.cloud.lucifer.share.service.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.ToString;
+import lombok.Data;
 
 @Entity
 @Table(name = "share_indices")
