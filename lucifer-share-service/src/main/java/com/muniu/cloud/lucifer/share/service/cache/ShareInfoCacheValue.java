@@ -8,6 +8,8 @@ import com.muniu.cloud.lucifer.share.service.entity.ShareInfo;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Optional;
+
 @Setter
 @Getter
 public class ShareInfoCacheValue {
@@ -51,7 +53,7 @@ public class ShareInfoCacheValue {
         this.listDate = entity.getListDate() == null ? 0 : entity.getListDate();
         this.exchange = ShareExchange.getExchangeConstant(entity.getExchange());
         this.status = ShareStatus.fromCode(entity.getShareStatus());
-        this.historyUpdateDate = entity.getHistoryUpdateDate();
-        this.infoUpdateDate = entity.getInfoUpdateDate();
+        this.historyUpdateDate = Optional.ofNullable(entity.getHistoryUpdateDate()).orElse(0);
+        this.infoUpdateDate = Optional.ofNullable(entity.getInfoUpdateDate()).orElse(0);
     }
 }
