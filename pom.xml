@@ -53,6 +53,10 @@
                 <artifactId>lucifer-system-api</artifactId>
                 <version>${lucifer.system.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.spring</groupId>
+                <artifactId>springboot-starter-data-jpa</artifactId>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
