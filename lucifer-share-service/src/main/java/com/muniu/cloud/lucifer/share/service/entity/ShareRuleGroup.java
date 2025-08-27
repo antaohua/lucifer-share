@@ -84,4 +84,24 @@ public class ShareRuleGroup implements Serializable {
     public ShareRuleGroup() {
     }
 
+    public ShareRuleGroup(Long id, Long createTime, Boolean deleted, String description, Long updateTime, String userId, String name) {
+        this.id = id;
+        this.createTime = createTime;
+        this.deleted = deleted;
+        this.description = description;
+        this.updateTime = updateTime;
+        this.userId = userId;
+        this.name = name;
+    }
+
+    //新增构造函数
+    public ShareRuleGroup(Long createTime, String userId, SaveRuleGroupParams saveRuleGroupParams) {
+        this.createTime = createTime;
+        this.deleted = false;
+        this.description = StringUtils.isBlank(saveRuleGroupParams.description()) ? "" : saveRuleGroupParams.description();
+        this.updateTime = createTime;
+        this.userId = userId;
+        this.name = saveRuleGroupParams.name();
+    }
+
 }
