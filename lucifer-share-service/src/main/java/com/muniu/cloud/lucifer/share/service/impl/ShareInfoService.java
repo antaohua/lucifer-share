@@ -13,6 +13,7 @@ import com.muniu.cloud.lucifer.share.service.constant.ShareStatus;
 import com.muniu.cloud.lucifer.share.service.entity.ShareInfo;
 import com.muniu.cloud.lucifer.share.service.mapper.ShareInfoMapper;
 import com.muniu.cloud.lucifer.share.service.model.SimpleShareInfo;
+import com.muniu.cloud.lucifer.share.service.utils.SpringContextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -110,7 +111,7 @@ public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
         List<ShareInfo> shareInfoEntities = getBaseMapper().selectList(new QueryWrapper<>());
         if(CollectionUtils.isEmpty(shareInfoEntities)) {
             try {
-                shanghaiShareList();
+                SpringContextUtils.getBean(ShareInfoService.class).shanghaiShareList();
                 shareInfoEntities = getBaseMapper().selectList(new QueryWrapper<>());
             } catch (IOException e) {
                 throw new RuntimeException(e);
