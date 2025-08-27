@@ -3,7 +3,11 @@ package com.muniu.cloud.lucifer.share.service.vo;
 import com.muniu.cloud.lucifer.commons.model.base.BaseModel;
 import com.muniu.cloud.lucifer.share.service.constant.RuleDataSource;
 import com.muniu.cloud.lucifer.share.service.constant.RuleDateType;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class SaveRuleParams extends BaseModel {
 
     /**
@@ -36,59 +40,4 @@ public class SaveRuleParams extends BaseModel {
     private String dateValue;
 
 
-    public String getCron() {
-        return cron;
-    }
-
-    public void setCron(String cron) {
-        this.cron = cron;
-    }
-
-    public Long getRuleGroup() {
-        return ruleGroup;
-    }
-
-    public void setRuleGroup(Long ruleGroup) {
-        this.ruleGroup = ruleGroup;
-    }
-
-    public RuleDataSource getDataSource() {
-        return dataSource;
-    }
-
-    public void setDataSource(RuleDataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    public String getRuleValue() {
-        return ruleValue;
-    }
-
-    public void setRuleValue(String ruleValue) {
-        this.ruleValue = ruleValue;
-    }
-
-    public int getSort() {
-        return sort;
-    }
-
-    public void setSort(int sort) {
-        this.sort = sort;
-    }
-
-    public RuleDateType getDateType() {
-        return dateType;
-    }
-
-    public void setDateType(RuleDateType dateType) {
-        this.dateType = dateType;
-    }
-
-    public String getDateValue() {
-        return dateValue;
-    }
-
-    public void setDateValue(String dateValue) {
-        this.dateValue = dateValue;
-    }
 }
