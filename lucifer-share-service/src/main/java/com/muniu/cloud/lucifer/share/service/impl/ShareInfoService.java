@@ -14,6 +14,7 @@ import com.muniu.cloud.lucifer.share.service.model.SimpleShareInfo;
 import lombok.extern.slf4j.Slf4j;
 import com.muniu.cloud.lucifer.commons.model.page.PageParams;
 import com.muniu.cloud.lucifer.commons.model.page.PageResult;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,6 +108,14 @@ public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
 
     public void loadCache() {
         List<ShareInfo> shareInfoEntities = getBaseMapper().selectList(new QueryWrapper<>());
+        if(CollectionUtils.isEmpty(shareInfoEntities)) {
+            try {
+                shanghaiShareList();
+                shareInfoEntities = getBaseMapper().selectList(new QueryWrapper<>());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         Map<String, ShareInfoCacheValue> shareInfoCacheValueMap = shareInfoEntities.stream().collect(Collectors.toMap(ShareInfo::getId, ShareInfoCacheValue::new));
         SHARE_INFO_CACHE.clear();
         SHARE_INFO_CACHE.putAll(shareInfoCacheValueMap);
