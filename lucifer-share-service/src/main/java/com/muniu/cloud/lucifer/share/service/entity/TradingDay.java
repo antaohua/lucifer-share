@@ -42,4 +42,13 @@ public class TradingDay {
      */
     @Column(name = "update_time", nullable = false)
     private Long updateTime;
+
+    public TradingDay(Integer day, Long createTime, Long updateTime) {
+        this.day = day;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+    }
+
+    public TradingDay() {
+    }
 }
