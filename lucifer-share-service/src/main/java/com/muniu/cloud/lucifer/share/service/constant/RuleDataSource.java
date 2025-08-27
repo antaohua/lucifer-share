@@ -1,5 +1,8 @@
 package com.muniu.cloud.lucifer.share.service.constant;
 
+import lombok.Getter;
+
+@Getter
 public enum RuleDataSource {
 
     /**
@@ -32,14 +35,6 @@ public enum RuleDataSource {
         this.description = description;
     }
 
-
-    public RulesType getType() {
-        return type;
-    }
-
-    public String getDescription() {
-        return description;
-    }
 
     public record RuleSourceBean(String key, String label,String type){
         public RuleSourceBean(RuleDataSource ruleDataSource) {

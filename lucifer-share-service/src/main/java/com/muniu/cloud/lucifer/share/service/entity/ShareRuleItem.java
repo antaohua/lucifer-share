@@ -105,7 +105,18 @@ public class ShareRuleItem implements Serializable {
 
 
 
-
     public ShareRuleItem() {
+    }
+
+
+    public ShareRuleItem(Long createTime, Long groupId, SaveRuleParams saveRuleParams) {
+        this.createTime = createTime;
+        this.cron = saveRuleParams.getCron();
+        this.ruleGroup = groupId;
+        this.dataSource = saveRuleParams.getDataSource();
+        this.ruleValue = saveRuleParams.getRuleValue();
+        this.sort = saveRuleParams.getSort();
+        this.dateType = saveRuleParams.getDateType();
+        this.dateValue = saveRuleParams.getDateValue();
     }
 }
