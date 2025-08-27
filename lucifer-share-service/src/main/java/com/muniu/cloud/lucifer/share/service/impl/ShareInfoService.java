@@ -152,7 +152,10 @@ public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
             e.setShareStatus(ShareStatus.DEMISTED.getCode());
             e.setStatusUpdateTime(System.currentTimeMillis());
         });
-        loadCache();
+        List<ShareInfo> shareInfoEntities = getBaseMapper().selectList(new QueryWrapper<>());
+        Map<String, ShareInfoCacheValue> shareInfoCacheValueMap = shareInfoEntities.stream().collect(Collectors.toMap(ShareInfo::getId, ShareInfoCacheValue::new));
+        SHARE_INFO_CACHE.clear();
+        SHARE_INFO_CACHE.putAll(shareInfoCacheValueMap);
     }
 
     private ShareInfo getShareInfoEntity(SimpleShareInfo simpleShareInfo, long time) {
