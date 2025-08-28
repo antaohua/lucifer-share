@@ -37,6 +37,7 @@ import static com.muniu.cloud.lucifer.commons.utils.constants.DateConstant.DATE_
 
 @Service
 @Slf4j
+@Transactional(rollbackFor = Exception.class)
 public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
 
 
@@ -123,11 +124,9 @@ public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
                 List<ShareInfo> saveData = shareInfos.stream().map(e -> getShareInfoEntity(e, time)).toList();
                 List<String> shareCodes = saveData.stream().map(ShareInfo::getId).toList();
                 log.info("shareInfoEntities-size:{}", saveData.size());
-                saveData.forEach(e -> e.setCreateTime(time));
-                saveData.forEach(e -> e.setUpdateTime(time));
                 saveData.forEach(e -> e.setInfoUpdateDate(currentDay));
                 saveData.forEach(e -> e.setStatusUpdateTime(time));
-                getBaseMapper().insertOrUpdate(saveData, saveData.size());
+                getBaseMapper().insertOrUpdate(saveData);
                 int row = getBaseMapper().updateShareDemisted(shareCodes, time);
                 shareInfoEntities = saveData;
                 log.info("updateShare to Demisted :{}", row);
@@ -156,6 +155,8 @@ public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
         shareInfoEntity.setListDate(simpleShareInfo.getListDate());
         shareInfoEntity.setShareStatus(ShareStatus.getStatus(simpleShareInfo.getShareName(), simpleShareInfo.getListDate(), simpleShareInfo.getShareBoard(), tradingDayService).getCode());
         shareInfoEntity.setStatusUpdateTime(time);
+        shareInfoEntity.setCreateTime(time);
+        shareInfoEntity.setFloatShares(time);
         return shareInfoEntity;
     }
 

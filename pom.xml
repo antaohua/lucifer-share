@@ -15,6 +15,7 @@
     <version>1.0</version>
     <modules>
         <module>lucifer-share-service</module>
+        <module>lucifer-share-boot</module>
     </modules>
 
     <properties>
@@ -45,13 +46,13 @@
             </dependency>
             <dependency>
                 <groupId>com.muniu.cloud</groupId>
-                <artifactId>lucifer-system-service</artifactId>
-                <version>${project.version}</version>
+                <artifactId>lucifer-system-api</artifactId>
+                <version>${lucifer.system.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.muniu.cloud</groupId>
-                <artifactId>lucifer-system-api</artifactId>
-                <version>${lucifer.system.version}</version>
+                <artifactId>lucifer-share-service</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.spring</groupId>

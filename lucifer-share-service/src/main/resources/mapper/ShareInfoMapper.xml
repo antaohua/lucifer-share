@@ -16,10 +16,21 @@
 
 
     <update id="updateShareDemisted">
-        update share_info set update_time = #{updateTime}, share_status = 'D' where id in
+        update share_info set update_time = #{updateTime}, share_status = 'D' where id not in
         <foreach collection="shareCodes" item="shareCode" open="(" separator="," close=")">
             #{shareCode}
         </foreach>
+    </update>
+
+
+    <update id="insertOrUpdateShareInfo">
+        INSERT INTO share_info (id, create_time, exchange, list_date, section, share_name, share_status,
+                                status_update_time, update_time, info_update_date)
+        VALUES (#{shareInfo.id}, #{shareInfo.createTime}, #{shareInfo.exchange}, #{shareInfo.listDate},
+                #{shareInfo.section}, #{shareInfo.shareName}, #{shareInfo.shareStatus}, #{shareInfo.statusUpdateTime},
+                #{shareInfo.updateTime}, #{shareInfo.infoUpdateDate})
+        ON DUPLICATE KEY UPDATE info_update_date = VALUES(info_update_date), share_name=VALUES(share_name),share_status
+
     </update>
 
 </mapper>

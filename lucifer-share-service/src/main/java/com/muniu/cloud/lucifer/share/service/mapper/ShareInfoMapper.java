@@ -22,6 +22,8 @@ public interface ShareInfoMapper extends BaseMapper<ShareInfo> {
     void updateShareHistoryUpdateDateBatch(@Param("shareCodes") List<String> shareCodes, @Param("shareHistoryUpdateDate") int shareHistoryUpdateDate);
 
     int updateShareDemisted(@Param("shareCodes") List<String> shareCodes, @Param("updateTime") long updateTime);
+
+    int insertOrUpdateShareInfo(@Param("shareInfo") ShareInfo shareInfo);
 }
 
 
