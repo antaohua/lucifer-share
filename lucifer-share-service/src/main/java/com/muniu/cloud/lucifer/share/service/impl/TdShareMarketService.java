@@ -6,7 +6,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
-import com.muniu.cloud.lucifer.share.service.cache.ShareInfoCacheValue;
+import com.muniu.cloud.lucifer.share.service.model.cache.ShareInfoCacheValue;
 import com.muniu.cloud.lucifer.share.service.entity.TdShareMarket;
 import com.muniu.cloud.lucifer.share.service.mapper.TdShareMarketMapper;
 import lombok.extern.slf4j.Slf4j;

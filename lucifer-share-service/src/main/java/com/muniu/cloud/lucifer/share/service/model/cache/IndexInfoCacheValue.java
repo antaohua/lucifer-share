@@ -1,10 +1,11 @@
-package com.muniu.cloud.lucifer.share.service.cache;
+package com.muniu.cloud.lucifer.share.service.model.cache;
 
 import com.muniu.cloud.lucifer.share.service.entity.IndexInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * 指数信息缓存对象
+ * @author antaohua
  */
 @Schema(description = "指数信息缓存对象")
 public class IndexInfoCacheValue {

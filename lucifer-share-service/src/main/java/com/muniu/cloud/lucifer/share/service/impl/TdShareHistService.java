@@ -4,7 +4,7 @@ import cn.hutool.core.collection.ConcurrentHashSet;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.muniu.cloud.lucifer.share.service.cache.ShareInfoCacheValue;
+import com.muniu.cloud.lucifer.share.service.model.cache.ShareInfoCacheValue;
 import com.muniu.cloud.lucifer.share.service.constant.AdjustConstant;
 import com.muniu.cloud.lucifer.share.service.constant.PeriodConstant;
 import com.muniu.cloud.lucifer.share.service.constant.ShareStatus;

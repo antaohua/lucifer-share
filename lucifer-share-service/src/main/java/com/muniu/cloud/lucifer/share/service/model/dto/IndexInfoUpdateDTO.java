@@ -1,4 +1,4 @@
-package com.muniu.cloud.lucifer.share.service.dto;
+package com.muniu.cloud.lucifer.share.service.model.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

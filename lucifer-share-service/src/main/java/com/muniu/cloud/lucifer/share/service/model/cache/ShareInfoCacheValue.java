@@ -1,4 +1,4 @@
-package com.muniu.cloud.lucifer.share.service.cache;
+package com.muniu.cloud.lucifer.share.service.model.cache;
 
 
 import com.muniu.cloud.lucifer.share.service.constant.ShareBoard;
@@ -10,6 +10,9 @@ import lombok.Setter;
 
 import java.util.Optional;
 
+/**
+ * @author antaohua
+ */
 @Setter
 @Getter
 public class ShareInfoCacheValue {

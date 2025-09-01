@@ -1,9 +1,9 @@
 package com.muniu.cloud.lucifer.share.service.controller;
 
 import com.muniu.cloud.lucifer.commons.model.vo.RestResponse;
-import com.muniu.cloud.lucifer.share.service.cache.IndexInfoCacheValue;
-import com.muniu.cloud.lucifer.share.service.dto.IndexInfoQueryDTO;
-import com.muniu.cloud.lucifer.share.service.dto.IndexInfoUpdateDTO;
+import com.muniu.cloud.lucifer.share.service.model.cache.IndexInfoCacheValue;
+import com.muniu.cloud.lucifer.share.service.model.dto.IndexInfoQueryDTO;
+import com.muniu.cloud.lucifer.share.service.model.dto.IndexInfoUpdateDTO;
 import com.muniu.cloud.lucifer.share.service.entity.IndexInfo;
 import com.muniu.cloud.lucifer.share.service.impl.IndexInfoService;
 import com.muniu.cloud.lucifer.share.service.impl.TdIndexHistService;
