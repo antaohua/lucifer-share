@@ -1,6 +1,6 @@
 package com.muniu.cloud.lucifer.share.service.vo;
 
-import com.muniu.cloud.lucifer.commons.model.base.BaseModel;
+import com.muniu.cloud.lucifer.commons.model.dto.BaseModel;
 import com.muniu.cloud.lucifer.share.service.constant.RuleDataSource;
 import com.muniu.cloud.lucifer.share.service.constant.RuleDateType;
 import lombok.Getter;

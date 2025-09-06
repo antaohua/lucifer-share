@@ -2,7 +2,6 @@ package com.muniu.cloud.lucifer.share.service.controller;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONReader;
-import com.muniu.cloud.lucifer.commons.model.base.KeyValue;
 import com.muniu.cloud.lucifer.commons.model.vo.RestResponse;
 import com.muniu.cloud.lucifer.share.service.constant.RuleDataSource;
 import com.muniu.cloud.lucifer.share.service.constant.RuleDateType;
@@ -19,6 +18,7 @@ import com.muniu.cloud.lucifer.share.service.vo.SaveRuleGroupParams;
 import com.muniu.cloud.lucifer.share.service.vo.SaveRuleItemsParams;
 import com.muniu.cloud.lucifer.share.service.vo.UpdateRuleGroupParams;
 import com.muniu.cloud.lucifer.system.api.annotation.CurrentUser;
+import com.muniu.cloud.lucifer.commons.model.dto.KeyValue;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,6 +36,7 @@ import java.util.Set;
 
 /**
  * 股票规则管理控制器
+ * @author antaohua
  */
 @RestController
 @RequestMapping("/share/rules")
@@ -72,6 +73,7 @@ public class ShareRulesController {
         }
     )
     public RestResponse<Map<String, List<?>>> getAllCommonConfig() {
+
         return RestResponse.success(Map.of(
                 "rulesDataSource", Arrays.stream(RuleDataSource.values()).map(e -> new KeyValue(e.name(), e.getDescription())).toList(),
                 "rulesConnect", Arrays.stream(RulesConnect.values()).map(e -> new KeyValue(e.getCode(), e.getName())).toList(),

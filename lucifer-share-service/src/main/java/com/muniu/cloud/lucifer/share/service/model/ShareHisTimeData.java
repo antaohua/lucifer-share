@@ -1,6 +1,6 @@
 package com.muniu.cloud.lucifer.share.service.model;
 
-import com.muniu.cloud.lucifer.commons.model.base.BaseModel;
+import com.muniu.cloud.lucifer.commons.model.dto.BaseModel;
 import lombok.Data;
 
 @Data

@@ -1,7 +1,7 @@
 package com.muniu.cloud.lucifer.share.service.model.rule;
 
 import com.google.common.collect.Maps;
-import com.muniu.cloud.lucifer.commons.model.base.BaseModel;
+import com.muniu.cloud.lucifer.commons.model.dto.BaseModel;
 import com.muniu.cloud.lucifer.share.service.constant.RulesFields;
 import com.muniu.cloud.lucifer.share.service.constant.RulesOperator;
 import com.muniu.cloud.lucifer.share.service.entity.ShareRuleItem;
