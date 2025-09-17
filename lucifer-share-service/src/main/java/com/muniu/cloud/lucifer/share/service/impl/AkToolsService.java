@@ -6,7 +6,8 @@ import com.alibaba.fastjson2.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.muniu.cloud.lucifer.commons.utils.exception.HttpClientException;
-import com.muniu.cloud.lucifer.commons.utils.http.OkHttpClient3Util;
+import com.muniu.cloud.lucifer.commons.utils.http.LuciferHttpClient;
+import com.muniu.cloud.lucifer.commons.utils.http.LuciferProxySelector;
 import com.muniu.cloud.lucifer.share.service.constant.AdjustConstant;
 import com.muniu.cloud.lucifer.share.service.constant.PeriodConstant;
 import com.muniu.cloud.lucifer.share.service.constant.ShareBoard;
@@ -34,6 +35,8 @@ public class AkToolsService {
     private String baseUrl;
 
 
+    private final LuciferHttpClient okHttpClient = new LuciferHttpClient();
+
     private String get(String method, Map<String, String> parameter) throws IOException {
         StringBuilder urlBuilder = new StringBuilder(baseUrl).append(method);
         // 添加查询参数
@@ -50,7 +53,7 @@ public class AkToolsService {
         }
         log.info("请求数据：{}", urlBuilder);
         try {
-            return OkHttpClient3Util.get(urlBuilder.toString());
+            return okHttpClient.get(urlBuilder.toString());
         } catch (HttpClientException e) {
             log.error("请求失败: {}", e.getMessage(), e);
             return null;
