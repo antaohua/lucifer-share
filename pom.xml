@@ -19,7 +19,7 @@
     </modules>
 
     <properties>
-        <lucifer.commons.version>1.0.250917-550078a</lucifer.commons.version>
+        <lucifer.commons.version>1.0.250922-a222622</lucifer.commons.version>
         <lucifer.system.version>1.0.20250821-7f53f8b</lucifer.system.version>
     </properties>
     <dependencyManagement>

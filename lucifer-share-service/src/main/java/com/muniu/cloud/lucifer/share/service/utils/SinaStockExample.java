@@ -22,6 +22,8 @@ public class SinaStockExample {
                 .get()
                 .build();
 
+
+
         try (Response response = client.newCall(request).execute()) {
             if (response.isSuccessful() && response.body() != null) {
                 String body = response.body().string();
