@@ -3,20 +3,46 @@ package com.muniu.cloud.lucifer.share.service.clients;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.muniu.cloud.lucifer.commons.utils.exception.HttpClientException;
+import com.muniu.cloud.lucifer.commons.utils.http.LuciferHttpCallback;
 import com.muniu.cloud.lucifer.commons.utils.http.LuciferHttpClient;
 import com.muniu.cloud.lucifer.commons.utils.http.LuciferProxySelector;
 import com.muniu.cloud.lucifer.share.service.model.dto.StockMarketItem;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class ShareMarketApiClient {
 
-    private static String apiUrl = "http://proxy.siyetian.com/apis_get2.html?token=hVHavFGduFWLORUT49EVJdXTqV1dPRVS55EVnh3TR1STqFUeORVQ10kaJFjTUFleNR0Y35EVJRjTUdGN.QOxgzNyUDO1cTM&limit=1&type=0&time=&data_format=json&showTimeEnd=true";
-    private static String authKey = "antaohua";
-    private static String password = "1q2w3e4rQ663463";
+
+
+
+    private final LuciferHttpClient luciferHttpClient ;
+
+    @Value("${proxy.auth-key}")
+    private String authKey;
+
+    @Value("${proxy.password}")
+    private String password;
+
+    @Autowired
+    public ShareMarketApiClient(@Qualifier("proxyHttpClient") LuciferHttpClient luciferHttpClient) {
+        this.luciferHttpClient = luciferHttpClient;
+    }
+
+
+
 
     public static void main(String[] args) throws UnsupportedEncodingException {
         ShareMarketApiClient shareMarketApiClient = new ShareMarketApiClient();
@@ -38,16 +64,38 @@ public class ShareMarketApiClient {
 
 
     }
-
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public void sinaShareMarketApiClient(Proxy proxy) throws UnsupportedEncodingException {
         LuciferHttpClient okHttpClient = new LuciferHttpClient(LuciferProxySelector.ROUND_ROBIN);
-        okHttpClient.addProxy(java.net.Proxy.Type.HTTP, proxy.getIp(), proxy.getPort(), authKey, password);
-        String data = okHttpClient.get("https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=100&sort=symbol&asc=1&node=hs_a&symbol=&_s_r_a=page");
-        String jsonString = new String(data.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-        List<StockMarketItem> stockMarketItemList = JSON.parseArray(jsonString, StockMarketItem.class);
-        System.out.println(stockMarketItemList.size());
-        System.out.println(jsonString);
-        System.out.println(URLDecoder.decode(stockMarketItemList.getFirst().getName(), StandardCharsets.UTF_8));
+
+        LocalDateTime localDateTime = LocalDateTime.parse(proxy.getEndTime(), formatter);
+        // 转成时间戳（毫秒）
+        long timestamp = localDateTime.atZone(ZoneId.of("Asia/Shanghai")).toInstant().toEpochMilli();
+        okHttpClient.addProxy(java.net.Proxy.Type.HTTP, proxy.getIp(), proxy.getPort(), authKey, password, timestamp);
+        System.out.println(timestamp - System.currentTimeMillis());
+
+
+        List<StockMarketItem> list = new ArrayList<>();
+        int pageSize = 100;
+        for(int i = 0; i < 55; i++){
+            int page = i + 1;
+            okHttpClient.getAsync("https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=" + page + "&num=" + pageSize + "&sort=symbol&asc=1&node=hs_a&symbol=&_s_r_a=page", new LuciferHttpCallback(){
+                @Override
+                public void onSuccess(String response) {
+                    String jsonString = new String(response.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+                    List<StockMarketItem> stockMarketItemList = JSON.parseArray(jsonString, StockMarketItem.class);
+                    list.addAll(stockMarketItemList);
+                    System.out.println(stockMarketItemList.size());
+////                    System.out.println(jsonString);
+//                    System.out.println(URLDecoder.decode(stockMarketItemList.getFirst().getName(), StandardCharsets.UTF_8));
+                }
+                @Override
+                public void onFailure(HttpClientException e) {
+
+                }
+            });
+        }
+        System.out.println(list.size());
     }
 }

@@ -5,12 +5,12 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface  BaseShardingMapper<E>  extends BaseMapper<E> {
-
+public interface BaseShardingMapper<E> extends BaseMapper<E> {
 
 
     /**
      * 查询所有表
+     *
      * @return 表名集合（不含前缀）
      */
     List<String> selectTable();
@@ -18,6 +18,7 @@ public interface  BaseShardingMapper<E>  extends BaseMapper<E> {
 
     /**
      * 创建表
+     *
      * @param sharding 分表标识，格式为yyyyMMdd
      */
     void createTable(@Param("sharding") String sharding);
