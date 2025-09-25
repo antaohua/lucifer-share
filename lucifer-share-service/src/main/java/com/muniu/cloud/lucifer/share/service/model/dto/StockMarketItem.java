@@ -1,9 +1,13 @@
 package com.muniu.cloud.lucifer.share.service.model.dto;
 
+import com.muniu.cloud.lucifer.commons.model.dto.BaseModel;
 import lombok.Data;
 
+/**
+ * @author antaohua
+ */
 @Data
-public class StockMarketItem {
+public class StockMarketItem extends BaseModel {
     private String symbol;
     private String code;
     private String name;

@@ -5,9 +5,8 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.muniu.cloud.lucifer.commons.core.http.LuciferHttpClient;
 import com.muniu.cloud.lucifer.commons.utils.exception.HttpClientException;
-import com.muniu.cloud.lucifer.commons.utils.http.LuciferHttpClient;
-import com.muniu.cloud.lucifer.commons.utils.http.LuciferProxySelector;
 import com.muniu.cloud.lucifer.share.service.constant.AdjustConstant;
 import com.muniu.cloud.lucifer.share.service.constant.PeriodConstant;
 import com.muniu.cloud.lucifer.share.service.constant.ShareBoard;
@@ -17,6 +16,7 @@ import com.muniu.cloud.lucifer.share.service.entity.MarketFundFlow;
 import com.muniu.cloud.lucifer.share.service.model.SimpleShareInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +35,11 @@ public class AkToolsService {
     private String baseUrl;
 
 
-    private final LuciferHttpClient okHttpClient = new LuciferHttpClient();
+    private final LuciferHttpClient okHttpClient;
+
+    public AkToolsService(@Qualifier("httpClient") LuciferHttpClient okHttpClient) {
+        this.okHttpClient = okHttpClient;
+    }
 
     private String get(String method, Map<String, String> parameter) throws IOException {
         StringBuilder urlBuilder = new StringBuilder(baseUrl).append(method);

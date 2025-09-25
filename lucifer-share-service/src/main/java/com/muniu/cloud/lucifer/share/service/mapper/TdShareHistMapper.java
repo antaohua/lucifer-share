@@ -18,9 +18,9 @@ public interface TdShareHistMapper extends BaseShardingMapper<TdShareHist> {
 
 
 
-    int insertOrUpdateBatch(@Param("list") List<TdShareHist> list, @Param("year") int year);
+    int insertOrUpdateBatch(@Param("list") List<TdShareHist> list, @Param("sharding") int sharding);
 
-    int insertOrUpdate(@Param("item") TdShareHist tdShareHist, @Param("year") int year);
+    int insertOrUpdate(@Param("item") TdShareHist tdShareHist, @Param("sharding") int sharding);
 
 
     /**
@@ -31,5 +31,5 @@ public interface TdShareHistMapper extends BaseShardingMapper<TdShareHist> {
     /**
      * 查询某只股票最后一条数据
      * */
-    TdShareHist selectShareLastDate(@Param("shareCode") String shareCode, @Param("year") int year);
+    TdShareHist selectShareLastDate(@Param("shareCode") String shareCode, @Param("sharding") int year);
 }

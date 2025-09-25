@@ -19,7 +19,7 @@ public interface BaseShardingMapper<E> extends BaseMapper<E> {
     /**
      * 创建表
      *
-     * @param sharding 分表标识，格式为yyyyMMdd
+     * @param sharding
      */
     void createTable(@Param("sharding") String sharding);
 }

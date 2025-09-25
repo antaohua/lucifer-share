@@ -75,7 +75,7 @@ public class TdShareHistService {
             return;
         }
         int day = Integer.parseInt(LocalDate.now().format(DATE_FORMATTER_YYYYMMDD));
-        Map<String, ShareInfoCacheValue> shareInfoCacheValueMap = shareInfoService.getALL();
+        Map<String, ShareInfoCacheValue> shareInfoCacheValueMap = shareInfoService.getAll();
 
         List<String> codes = tdShareHistMapper.selectLastDateShareCodeExcludingToday(day, tradingDayService.getPreviousTradingDay(day));
 
@@ -105,7 +105,7 @@ public class TdShareHistService {
             day = tradingDayService.getPreviousTradingDay(day);
         }
 
-        Map<String, ShareInfoCacheValue> shareInfoCacheValueMap = shareInfoService.getALL();
+        Map<String, ShareInfoCacheValue> shareInfoCacheValueMap = shareInfoService.getAll();
         Map.Entry<String, ShareInfoCacheValue> cacheValueEntry = null;
         for (Map.Entry<String, ShareInfoCacheValue> entry : shareInfoCacheValueMap.entrySet()) {
             if (entry.getValue().getStatus() != ShareStatus.DEMISTED && entry.getValue().getHistoryUpdateDate() < day && entry.getValue().getListDate() < day) {

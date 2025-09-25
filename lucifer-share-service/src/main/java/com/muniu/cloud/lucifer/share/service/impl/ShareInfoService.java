@@ -9,6 +9,7 @@ import com.google.common.collect.Sets;
 import com.muniu.cloud.lucifer.commons.core.utls.SpringContextUtils;
 import com.muniu.cloud.lucifer.commons.model.page.PageParams;
 import com.muniu.cloud.lucifer.commons.model.page.PageResult;
+import com.muniu.cloud.lucifer.share.service.dao.ShareInfoDao;
 import com.muniu.cloud.lucifer.share.service.model.cache.ShareInfoCacheValue;
 import com.muniu.cloud.lucifer.share.service.constant.ShareStatus;
 import com.muniu.cloud.lucifer.share.service.entity.ShareInfo;
@@ -45,32 +46,34 @@ public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
 
     private final AkToolsService akToolsService;
 
+    private final ShareInfoDao shareInfoDao ;
 
 
     @Autowired
-    public ShareInfoService(TradingDayService tradingDayService, AkToolsService akToolsService) {
+    public ShareInfoService(TradingDayService tradingDayService, AkToolsService akToolsService, ShareInfoDao shareInfoDao) {
         this.tradingDayService = tradingDayService;
         this.akToolsService = akToolsService;
+        this.shareInfoDao = shareInfoDao;
     }
 
 
     public List<ShareInfo> getByShareCodes(List<String> shareCodes) {
-        return getBaseMapper().selectByIds(shareCodes);
+        return shareInfoDao.getByIds(shareCodes);
     }
 
     public Set<String> getShareCodes() {
-        return Sets.newHashSet(getALL().keySet());
+        return Sets.newHashSet(getAll().keySet());
     }
 
     public ShareInfoCacheValue getShareInfoCache(String shareCode) {
-        return getALL().get(shareCode);
+        return getAll().get(shareCode);
     }
 
 
 
     @Transactional(rollbackFor = Exception.class)
     public void updateShareHistoryUpdateDate(String shareCode, int day) {
-        getALL();
+        getAll();
         ShareInfoCacheValue shareInfoCacheValue = SHARE_INFO_CACHE.get(shareCode);
         if (shareInfoCacheValue != null) {
             getBaseMapper().updateShareHistoryUpdateDate(shareCode, day);
@@ -80,7 +83,7 @@ public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
 
     @Transactional(rollbackFor = Exception.class)
     public void updateShareHistoryUpdateDate(List<String> shareCodes, int day) {
-        getALL();
+        getAll();
         getBaseMapper().updateShareHistoryUpdateDateBatch(shareCodes, day);
         for (String shareCode : shareCodes) {
             SHARE_INFO_CACHE.computeIfPresent(shareCode, (k, v) -> {
@@ -92,7 +95,7 @@ public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
 
 
 
-    public synchronized Map<String, ShareInfoCacheValue> getALL() {
+    public synchronized Map<String, ShareInfoCacheValue> getAll() {
         int currentDay = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
         int infoUpdateDate = SHARE_INFO_CACHE.values().stream().map(ShareInfoCacheValue::getInfoUpdateDate).max(Integer::compareTo).orElse(0);
         if (MapUtils.isEmpty(SHARE_INFO_CACHE) || (infoUpdateDate != currentDay) && tradingDayService.isTradingDay(currentDay)) {
@@ -122,10 +125,14 @@ public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
                 List<ShareInfo> saveData = shareInfos.stream().map(e -> getShareInfoEntity(e, time)).toList();
                 List<String> shareCodes = saveData.stream().map(ShareInfo::getId).toList();
                 log.info("shareInfoEntities-size:{}", saveData.size());
-                saveData.forEach(e -> e.setInfoUpdateDate(currentDay));
-                saveData.forEach(e -> e.setStatusUpdateTime(time));
-                getBaseMapper().insertOrUpdate(saveData);
+                saveData.forEach(e -> {
+                    e.setInfoUpdateDate(currentDay);
+                    e.setStatusUpdateTime(time);
+                });
+                shareInfoDao.batchSaveOrUpdate(saveData);
+//                getBaseMapper().insertOrUpdate(saveData);
                 int row = getBaseMapper().updateShareDemisted(shareCodes, time);
+
                 shareInfoEntities = saveData;
                 log.info("updateShare to Demisted :{}", row);
             }catch (Exception e) {
@@ -141,7 +148,7 @@ public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
     @Transactional(rollbackFor = Exception.class)
     @Scheduled(cron = "0 0 01 * * ?")
     public void shanghaiShareList() throws IOException {
-        getALL();
+        getAll();
     }
 
     private ShareInfo getShareInfoEntity(SimpleShareInfo simpleShareInfo, long time) {
