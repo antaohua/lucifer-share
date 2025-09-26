@@ -2,6 +2,7 @@ package com.muniu.cloud.lucifer.share.service.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 
@@ -10,7 +11,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
-@ToString
 public class TdShareMarket implements Serializable {
 
 
@@ -61,11 +61,6 @@ public class TdShareMarket implements Serializable {
      * 市盈率-动态
      */
     private BigDecimal dynamicPe;
-
-    /**
-     * 5分钟涨跌
-     */
-    private BigDecimal fiveMinuteChange;
 
     /**
      * 最高价

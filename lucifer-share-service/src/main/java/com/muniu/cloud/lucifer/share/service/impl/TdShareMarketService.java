@@ -9,10 +9,12 @@ import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
 import com.muniu.cloud.lucifer.share.service.model.cache.ShareInfoCacheValue;
 import com.muniu.cloud.lucifer.share.service.entity.TdShareMarket;
 import com.muniu.cloud.lucifer.share.service.mapper.TdShareMarketMapper;
+import com.muniu.cloud.lucifer.share.service.model.dto.SinaStockMarketSaveEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,6 +80,46 @@ public class TdShareMarketService extends BaseShardingService<TdShareMarketMappe
             createTable(entry.getKey());
             int rowCount = tdShareMarketMapper.insertBatch(entry.getValue(),entry.getKey());
             log.info("fetchRemoteStockRealTimeData - rowCount:{}", rowCount);
+        }
+    }
+
+
+
+
+    // 监听事件
+    @EventListener
+    public void sinaStockMarketSaveEventHandle(SinaStockMarketSaveEvent event) {
+        int day =  Integer.parseInt(DateUtil.format(new Date(event.getLoadTime()), DateConstant.DATE_FORMAT_YYYYMMDD));
+        TdShareMarket shareMarketEntity = new TdShareMarket();
+        shareMarketEntity.setDate(day);
+        shareMarketEntity.setCreateTime(event.getLoadTime());
+        shareMarketEntity.setTime(Integer.parseInt(StringUtils.replaceAll(event.getTicktime(), ":", "")));
+        shareMarketEntity.setShareCode(event.getCode());
+        shareMarketEntity.setId(shareMarketEntity.getShareCode() + "-" + shareMarketEntity.getTime());
+        shareMarketEntity.setLatestPrice(new BigDecimal(event.getTrade()));
+        shareMarketEntity.setChangeRate(new BigDecimal(event.getChangepercent()));
+        shareMarketEntity.setChangeAmount(new BigDecimal(event.getPricechange()));
+        shareMarketEntity.setVolume(new BigDecimal(event.getVolume()));
+        shareMarketEntity.setTurnover(new BigDecimal(event.getAmount()));
+        shareMarketEntity.setAmplitude(event.getAmplitude());
+        shareMarketEntity.setHighest(new BigDecimal(event.getHigh()));
+        shareMarketEntity.setLowest(new BigDecimal(event.getLow()));
+        shareMarketEntity.setOpeningPrice(new BigDecimal(event.getOpen()));
+        shareMarketEntity.setPreviousClose(new BigDecimal(event.getSettlement()));
+        shareMarketEntity.setVolumeRatio(jsonObject.getBigDecimal("量比"));
+        shareMarketEntity.setTurnoverRate(new BigDecimal(event.getTurnoverratio()));
+        shareMarketEntity.setDynamicPe(new BigDecimal(event.getPer()));
+        shareMarketEntity.setPbRatio(new BigDecimal(event.getPb()));
+        shareMarketEntity.setTotalMarketCap(new BigDecimal(event.getMktcap()));
+        shareMarketEntity.setCirculatingMarketCap(new BigDecimal(event.getNmc()));
+
+        //没有昨日收盘价时和今日开盘价 不做涨停和跌停计算
+        if (shareMarketEntity.getPreviousClose() != null && shareMarketEntity.getOpeningPrice() != null) {
+            ShareInfoCacheValue cacheValue = shareInfoService.getShareInfoCache(shareMarketEntity.getShareCode());
+            BigDecimal limitDown = cacheValue == null ? BigDecimal.ZERO : cacheValue.getSection().minPrice(shareMarketEntity.getPreviousClose(), cacheValue.getStatus());
+            BigDecimal limitUp = cacheValue == null ? BigDecimal.ZERO : cacheValue.getSection().maxPrice(shareMarketEntity.getPreviousClose(), cacheValue.getStatus());
+            shareMarketEntity.setLimitUp(limitUp);
+            shareMarketEntity.setLimitDown(limitDown);
         }
     }
 
