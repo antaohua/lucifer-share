@@ -230,7 +230,7 @@ public class TradingDayService {
     }
 
     /**
-     *
+     * 获取最近一个交易日
      * */
     public int getLstTradingDay() {
         int dateInt = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE));
@@ -280,6 +280,39 @@ public class TradingDayService {
         
         return targetDay;
     }
+
+
+    /**
+     * 获取指定日期之前的第N个交易日（不包含传入日期）
+     *
+     * @param date 日期，格式：yyyyMMdd
+     * @param off  前几日
+     * @return 日期列表
+     */
+    public List<Integer> getPreviousTradingDays(int date, int off) {
+        if (off <= 0) {
+            return Lists.newArrayList();
+        }
+        // 从交易日缓存中直接获取数据
+        NavigableSet<Integer> tradingDaysSet = getTradingDaysSet();
+        if (CollectionUtils.isEmpty(tradingDaysSet)) {
+            log.error("交易日历数据为空，无法获取前{}个交易日", off);
+            return Lists.newArrayList();
+        }
+        List<Integer> result = Lists.newArrayList();
+        do {
+            Integer previousTradingDay = tradingDaysSet.lower(date);
+            if (previousTradingDay == null) {
+                continue;
+            }
+            date = previousTradingDay;
+            result.add(previousTradingDay);
+        } while (result.size() < off);
+        return result;
+    }
+
+
+
 
     /**
      * 获取指定日期之后的第N个交易日

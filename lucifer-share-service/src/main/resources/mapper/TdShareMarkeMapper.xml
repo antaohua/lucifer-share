@@ -13,7 +13,6 @@
             `create_time`            bigint                                                NOT NULL,
             `date`                   int                                                   NOT NULL COMMENT '日期',
             `dynamic_pe`             decimal(15, 4)                                        COMMENT '市盈率-动态',
-            `five_minute_change`     decimal(7, 3)                                         COMMENT '5分钟涨跌',
             `time`                   int                                                   COMMENT '请求时间',
             `highest`                decimal(15, 4)                                        COMMENT '最高价',
             `latest_price`           decimal(15, 4)                                        COMMENT '最新价',
@@ -43,13 +42,12 @@
 
     <insert id="insertBatch" parameterType="java.util.List">
         insert into td_share_market_${sharding}
-        (id, amplitude, change_amount, change_rate, circulating_market_cap, create_time, date, dynamic_pe,
-        five_minute_change, time, highest, latest_price, lowest, opening_price, pb_ratio, previous_close,
+        (id, amplitude, change_amount, change_rate, circulating_market_cap, create_time, date, dynamic_pe, time, highest, latest_price, lowest, opening_price, pb_ratio, previous_close,
         share_code, speed, total_market_cap, turnover, turnover_rate, volume, volume_ratio, limit_down, limit_up)
         values
         <foreach collection="list" item="item" separator=",">
             (#{item.id}, #{item.amplitude}, #{item.changeAmount}, #{item.changeRate}, #{item.circulatingMarketCap},
-            #{item.createTime}, #{item.date}, #{item.dynamicPe}, #{item.fiveMinuteChange}, #{item.time}, #{item.highest},
+            #{item.createTime}, #{item.date}, #{item.dynamicPe}, #{item.time}, #{item.highest},
             #{item.latestPrice}, #{item.lowest}, #{item.openingPrice}, #{item.pbRatio}, #{item.previousClose},
             #{item.shareCode}, #{item.speed}, #{item.totalMarketCap}, #{item.turnover}, #{item.turnoverRate},
             #{item.volume}, #{item.volumeRatio}, #{item.limitDown}, #{item.limitUp})

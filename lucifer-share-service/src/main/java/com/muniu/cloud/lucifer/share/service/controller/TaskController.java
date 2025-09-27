@@ -49,7 +49,7 @@ public class TaskController {
         @ApiResponse(responseCode = "500", description = "任务启动失败")
     })
     public String fetchRemoteStockHistData() throws Exception {
-        tdShareHistService.fetchRemoteStockHistData();
+
         return "success";
     }
 
@@ -87,7 +87,7 @@ public class TaskController {
         @ApiResponse(responseCode = "500", description = "任务启动失败")
     })
     public String fetchRemoteStockRealTimeData() throws Exception {
-        tdShareMarketService.fetchRemoteStockRealTimeData();
+
         return "success";
     }
 
@@ -106,7 +106,7 @@ public class TaskController {
         @ApiResponse(responseCode = "500", description = "任务启动失败")
     })
     public String updateShareHistByRealTimeData() throws Exception {
-        tdShareHistService.updateShareHistByRealTimeData();
+
         return "success";
     }
 

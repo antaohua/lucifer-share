@@ -2,6 +2,7 @@ package com.muniu.cloud.lucifer.share.service.impl;
 
 import com.alibaba.fastjson2.JSON;
 import com.google.common.collect.Lists;
+import com.muniu.cloud.lucifer.share.service.config.ScheduledInterface;
 import com.muniu.cloud.lucifer.share.service.entity.ConceptMarket;
 import com.muniu.cloud.lucifer.share.service.mapper.TdConceptMarketMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +10,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class TdConceptMarketService extends BaseShardingService<TdConceptMarketMapper,ConceptMarket>{
+public class TdConceptMarketService extends BaseShardingService<TdConceptMarketMapper,ConceptMarket> implements ScheduledInterface {
     /**
      * 概念板块市场数据Redis缓存key前缀
      */
@@ -108,8 +108,7 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
      * 同步概念板块数据
      */
     @Transactional(rollbackFor = Exception.class)
-    @Scheduled(cron = "0 * * * * MON-FRI")
-    public void syncConceptBoardData() throws IOException {
+    public void scheduled() throws Exception {
         if(!tradingDayService.isTradingTime(true)){
             return;
         }

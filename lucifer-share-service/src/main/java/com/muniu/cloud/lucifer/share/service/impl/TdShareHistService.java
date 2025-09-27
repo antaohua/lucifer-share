@@ -1,15 +1,14 @@
 package com.muniu.cloud.lucifer.share.service.impl;
 
-import cn.hutool.core.collection.ConcurrentHashSet;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.muniu.cloud.lucifer.share.service.config.ScheduledInterface;
 import com.muniu.cloud.lucifer.share.service.model.cache.ShareInfoCacheValue;
 import com.muniu.cloud.lucifer.share.service.constant.AdjustConstant;
 import com.muniu.cloud.lucifer.share.service.constant.PeriodConstant;
 import com.muniu.cloud.lucifer.share.service.constant.ShareStatus;
 import com.muniu.cloud.lucifer.share.service.entity.TdShareHist;
-import com.muniu.cloud.lucifer.share.service.entity.TdShareMarket;
 import com.muniu.cloud.lucifer.share.service.mapper.TdShareHistMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -31,75 +30,32 @@ import static com.muniu.cloud.lucifer.commons.utils.constants.DateConstant.DATE_
 
 @Service
 @Slf4j
-public class TdShareHistService {
+public class TdShareHistService extends BaseShardingService<TdShareHistMapper, TdShareHist> implements ScheduledInterface {
 
 
     private final ShareInfoService shareInfoService;
-
-    private final TdShareMarketService tdShareMarketService;
-
-    private final TdShareHistMapper tdShareHistMapper;
 
     private final TradingDayService tradingDayService;
 
     private final AkToolsService akToolsService;
 
-    private final Object lock = new Object();
-
-    private final ConcurrentHashSet<Integer> tables = new ConcurrentHashSet<>();
 
     @Autowired
     public TdShareHistService(ShareInfoService shareInfoService,
-                              TdShareMarketService tdShareMarketService, TdShareHistMapper tdShareHistMapper,
                               TradingDayService tradingDayService, AkToolsService akToolsService) {
         this.shareInfoService = shareInfoService;
-        this.tdShareMarketService = tdShareMarketService;
-        this.tdShareHistMapper = tdShareHistMapper;
         this.tradingDayService = tradingDayService;
         this.akToolsService = akToolsService;
     }
 
 
-    /**
-     * 根据实数数据更新股票历史数据
-     */
-    @Scheduled(cron = "0 0 16 * * ?")
+
+
+
+
     @Transactional(rollbackFor = Exception.class)
-    public void updateShareHistByRealTimeData() throws Exception {
-
-        if (!tradingDayService.isTradingDay(LocalDate.now())) {
-            return;
-        }
-        List<TdShareMarket> marketEntities = tdShareMarketService.getOnlineShareMarket();
-        if (marketEntities == null) {
-            return;
-        }
-        int day = Integer.parseInt(LocalDate.now().format(DATE_FORMATTER_YYYYMMDD));
-        Map<String, ShareInfoCacheValue> shareInfoCacheValueMap = shareInfoService.getAll();
-
-        List<String> codes = tdShareHistMapper.selectLastDateShareCodeExcludingToday(day, tradingDayService.getPreviousTradingDay(day));
-
-        List<TdShareHist> list = marketEntities.stream().filter(e -> shareInfoCacheValueMap.get(e.getShareCode()) != null)
-                .filter(e -> shareInfoCacheValueMap.get(e.getShareCode()).getListDate() == day || codes.contains(e.getShareCode()))
-                .filter(e -> shareInfoCacheValueMap.get(e.getShareCode()).getHistoryUpdateDate() == tradingDayService.getPreviousTradingDay(day))
-                .map(e -> new TdShareHist(e, System.currentTimeMillis())).toList();
-        if (list.isEmpty()) {
-            return;
-        }
-        createTable(day / 10000);
-        int count = tdShareHistMapper.insertOrUpdateBatch(list, day / 10000);
-        log.info("更新股票历史数据完成 day:{},listSize:{}", day, count);
-        shareInfoService.updateShareHistoryUpdateDate(list.stream().map(TdShareHist::getShareCode).toList(), day);
-    }
-
-
-    @Scheduled(cron = "*/6 * * * * *")
-    @Transactional(rollbackFor = Exception.class)
-    public void fetchRemoteStockHistData() throws IOException {
+    public void scheduled() throws Exception {
         LocalTime now = LocalTime.now();
-        if (tradingDayService.isTradingDay(LocalDate.now()) && (now.isAfter(LocalTime.of(8, 15)) && now.isBefore(LocalTime.of(18, 0)))) {
-            return;
-        }
         int day = Integer.parseInt(LocalDate.now().format(DATE_FORMATTER_YYYYMMDD));
         if (!tradingDayService.isTradingDay(LocalDate.now()) || now.isBefore(LocalTime.of(9, 0))) {
             day = tradingDayService.getPreviousTradingDay(day);
@@ -123,7 +79,7 @@ public class TdShareHistService {
             int listYear = cacheValueEntry.getValue().getListDate() > 0 ? cacheValueEntry.getValue().getListDate() / 10000 : 1990;
             do {
                 createTable(year);
-                hist = tdShareHistMapper.selectShareLastDate(cacheValueEntry.getKey(), year);
+                hist = getBaseMapper().selectShareLastDate(cacheValueEntry.getKey(), year);
                 if (hist != null) {
                     fastDay = hist.getDate();
                     break;
@@ -151,7 +107,7 @@ public class TdShareHistService {
 
         Map<Integer, List<TdShareHist>> map = list.stream().collect(Collectors.groupingBy(e -> e.getDate() / 10000));
         map.forEach((k, v) -> createTable(k));
-        map.forEach((k, v) -> tdShareHistMapper.insertOrUpdateBatch(v, k));
+        map.forEach((k, v) -> getBaseMapper().insertOrUpdateBatch(v, k));
         shareInfoService.updateShareHistoryUpdateDate(cacheValueEntry.getKey(), day);
         log.info("更新股票历史数据完成 fastDay:{},day:{},shareCode:{},listSize:{}", fastDay, day, cacheValueEntry.getKey(), list.size());
     }
@@ -183,21 +139,6 @@ public class TdShareHistService {
     }
 
 
-    @Transactional(rollbackFor = Exception.class)
-    public void createTable(int year) {
-        if (tables.contains(year)) {
-            return;
-        }
-        synchronized (lock) {
-            if (tables.isEmpty()) {
-                tables.addAll(tdShareHistMapper.selectTable().stream().map(Integer::valueOf).toList());
-            }
-            if (tables.contains(year)) {
-                return;
-            }
-            tdShareHistMapper.createTable(String.valueOf(year));
-            tables.add(year);
-        }
-    }
+
 
 }

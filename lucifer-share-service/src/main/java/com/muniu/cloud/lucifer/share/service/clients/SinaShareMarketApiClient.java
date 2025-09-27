@@ -4,46 +4,34 @@ import com.alibaba.fastjson2.JSON;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferHttpCallback;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferHttpClient;
 import com.muniu.cloud.lucifer.commons.utils.exception.HttpClientException;
-import com.muniu.cloud.lucifer.share.service.impl.TradingDayService;
+import com.muniu.cloud.lucifer.share.service.config.ScheduledInterface;
 import com.muniu.cloud.lucifer.share.service.model.dto.SinaStockMarketSaveEvent;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Component
-public class SinaShareMarketApiClient {
+public class SinaShareMarketApiClient implements ScheduledInterface {
 
 
     private final ApplicationEventPublisher publisher;
 
     private final LuciferHttpClient autoProxyHttpClient;
 
-    private final TradingDayService tradingDayService;
-
-
-
-
     @Autowired
-    public SinaShareMarketApiClient(@Qualifier("autoProxyHttpClient") LuciferHttpClient autoProxyHttpClient, ApplicationEventPublisher publisher, TradingDayService tradingDayService) {
+    public SinaShareMarketApiClient(@Qualifier("autoProxyHttpClient") LuciferHttpClient autoProxyHttpClient, ApplicationEventPublisher publisher) {
         this.publisher = publisher;
-        this.tradingDayService = tradingDayService;
         this.autoProxyHttpClient = autoProxyHttpClient;
     }
 
-    @Scheduled(cron = "0 * * * * MON-FRI")
     @Transactional(rollbackFor = Exception.class)
-    public void sinaShareMarketApiClient() throws UnsupportedEncodingException {
-        if(!tradingDayService.isTradingTime(true)){
-            return;
-        }
+    public void scheduled() {
         long loadTime = System.currentTimeMillis();
         int pageSize = 100;
         for (int i = 0; i < 55; i++) {
@@ -66,5 +54,12 @@ public class SinaShareMarketApiClient {
                 }
             });
         }
+    }
+
+    public static void main(String[] args) {
+        LuciferHttpClient luciferHttpClient = new LuciferHttpClient();
+        String jsonString = luciferHttpClient.get("https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=100&sort=symbol&asc=1&node=hs_a&symbol=&_s_r_a=page");
+        List<SinaStockMarketSaveEvent> sinaStockMarketSaveEventList = JSON.parseArray(jsonString, SinaStockMarketSaveEvent.class);
+
     }
 }

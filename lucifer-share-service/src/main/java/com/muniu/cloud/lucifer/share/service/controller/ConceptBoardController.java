@@ -45,7 +45,6 @@ public class ConceptBoardController {
     @PostMapping("/sync")
     @Operation(summary = "手动触发同步概念板块数据", description = "从东方财富获取最新概念板块数据并保存到数据库")
     public RestResponse<String> manualSync() throws IOException {
-        tdConceptMarketService.syncConceptBoardData();
         return RestResponse.success();
     }
 } 

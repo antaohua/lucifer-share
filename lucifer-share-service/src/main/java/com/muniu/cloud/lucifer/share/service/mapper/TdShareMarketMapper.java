@@ -17,4 +17,6 @@ public interface TdShareMarketMapper extends BaseShardingMapper<TdShareMarket> {
 
     int insertBatch(@Param("list") List<TdShareMarket> list, @Param("sharding") String sharding);
 
+
+
 }

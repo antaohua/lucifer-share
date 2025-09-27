@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.muniu.cloud.lucifer.share.service.config.ScheduledInterface;
 import com.muniu.cloud.lucifer.share.service.entity.BoardStock;
 import com.muniu.cloud.lucifer.share.service.mapper.ConceptStockMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class ConceptStockService extends ServiceImpl<ConceptStockMapper, BoardStock> {
+public class ConceptStockService extends ServiceImpl<ConceptStockMapper, BoardStock> implements ScheduledInterface {
 
     private final AkToolsService akToolsService;
     private final TradingDayService tradingDayService;
@@ -51,12 +52,9 @@ public class ConceptStockService extends ServiceImpl<ConceptStockMapper, BoardSt
     }
     
     
-    /**
-     * 每6秒执行一次同步，从凌晨1点到早上8点
-     */
-    @Scheduled(fixedRate = 6000)
+
     @Transactional
-    public void scheduledSyncAllBoardStocks() {
+    public void scheduled() throws Exception {
         LocalTime now = LocalTime.now();
         if (tradingDayService.isTradingDay() && !(now.isAfter(LocalTime.of(1, 0)) && now.isBefore(LocalTime.of(8, 0)))) {
             return;
@@ -185,4 +183,6 @@ public class ConceptStockService extends ServiceImpl<ConceptStockMapper, BoardSt
             return "同步失败: " + e.getMessage();
         }
     }
-} 
+
+
+}

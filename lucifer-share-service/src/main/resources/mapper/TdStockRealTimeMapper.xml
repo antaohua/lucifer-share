@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.muniu.cloud.lucifer.share.service.mapper.TdStockRealTimeMapper">
+
+    <select id="createTable" parameterType="string" resultType="int" statementType="STATEMENT">
+        CREATE TABLE IF NOT EXISTS ${tableNamePrefix}_${sharding}
+        (
+            `id`                     varchar(20)  NOT NULL,
+            `code`                   varchar(10)  NOT NULL COMMENT '股票代码',
+            `tickTime`               TIME         COMMENT '交易时间',
+            `tickDate`               decimal(15, 4) COMMENT '交易日期',
+            `price`                  decimal(15, 4) COMMENT '最新价',
+            `volume`                 BIGINT       COMMENT '成交量',
+            `prevPrice`             decimal(15, 4) COMMENT '前一个价格',
+            `kind`                   BIT         COMMENT '类型',
+            PRIMARY KEY (`id`) USING BTREE,
+            UNIQUE INDEX `idx_code_date_time` (`code` ASC, `tickDate` DESC, `tickTime` ASC) USING BTREE
+        ) ENGINE = InnoDB
+          DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '实时行情数据-日期:${sharding}';
+    </select>
+
+
+    <insert id="insertOrUpdate" parameterType="com.muniu.cloud.lucifer.share.service.entity.TdStockRealTime">
+        INSERT INTO td_share_market_${sharding}
+            (id, code, tickTime, tickDate, price, volume, prevPrice, kind)
+        VALUES (#{id}, #{code}, #{tickTime}, #{tickDate}, #{price}, #{volume}, #{prevPrice}, #{kind})
+        ON DUPLICATE KEY UPDATE price     = VALUES(price),
+                                volume    = VALUES(volume),
+                                prevPrice = VALUES(prevPrice),
+                                kind      = VALUES(kind);
+    </insert>
+
+
+    <insert id="insertOrUpdateBatch" parameterType="java.util.List">
+        INSERT INTO td_share_market_${sharding}
+        (id, code, tickTime, tickDate, price, volume, prevPrice, kind)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.code}, #{item.tickTime}, #{item.tickDate}, #{item.price},
+            #{item.volume}, #{item.prevPrice}, #{item.kind})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        price = VALUES(price),
+        volume = VALUES(volume),
+        prevPrice = VALUES(prevPrice),
+        kind = VALUES(kind);
+    </insert>
+
+</mapper>
