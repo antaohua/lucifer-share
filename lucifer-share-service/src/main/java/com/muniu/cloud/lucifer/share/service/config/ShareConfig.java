@@ -3,12 +3,15 @@ package com.muniu.cloud.lucifer.share.service.config;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.muniu.cloud.lucifer.commons.core.config.LuciferLoadStrategy;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferAutoProxyHttpClient;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferHttpClient;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferProxy;
+import com.muniu.cloud.lucifer.commons.core.http.LuciferStaticProxyHttpClient;
 import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
 import com.muniu.cloud.lucifer.commons.utils.exception.HttpClientException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,6 +44,9 @@ public class ShareConfig {
 
     @Value("${siyetian.proxy.url}")
     private String proxyUrl;
+
+    @Autowired
+    private ProxyStaticProperties staticProperties;
 
     @Bean(name = "taskExecutor")
     public Executor taskExecutor() {
@@ -95,6 +101,21 @@ public class ShareConfig {
     @Bean(name = "httpClient")
     public LuciferHttpClient httpClient() {
         return new LuciferHttpClient();
+    }
+
+
+    @Bean(name = "staticProxyClient")
+    public LuciferHttpClient staticProxyClient() {
+        LuciferStaticProxyHttpClient staticProxyHttpClient = new LuciferStaticProxyHttpClient(LuciferLoadStrategy.ROUND_ROBIN, true);
+        for (ProxyStaticProperties.ProxyConfig proxyConfig : staticProperties.getConfig()) {
+            if ("http".equalsIgnoreCase(proxyConfig.getType())) {
+                staticProxyHttpClient.addProxy(Proxy.Type.HTTP, proxyConfig.getHost(), proxyConfig.getPort(), proxyConfig.getUsername(), proxyConfig.getPassword());
+            }
+            if ("socks".equalsIgnoreCase(proxyConfig.getType())) {
+                staticProxyHttpClient.addProxy(Proxy.Type.SOCKS, proxyConfig.getHost(), proxyConfig.getPort(), proxyConfig.getUsername(), proxyConfig.getPassword());
+            }
+        }
+        return staticProxyHttpClient;
     }
 
     @Bean(name = "autoProxyHttpClient")

@@ -3,9 +3,11 @@ package com.muniu.cloud.lucifer.share.service.utils;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.muniu.cloud.lucifer.commons.core.config.LuciferLoadStrategy;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferAutoProxyHttpClient;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferHttpClient;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferProxy;
+import com.muniu.cloud.lucifer.commons.core.http.LuciferStaticProxyHttpClient;
 import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.HttpUrl;
@@ -42,7 +44,8 @@ public class TestStockZhAHist {
 //            log.info("load proxy config success . ip = {} , port = {} , timestamp = {} , t={}", obj.getString("ip"), obj.getInteger("port"), timestamp - 10000, timestamp);
 //            return new LuciferProxy(Proxy.Type.HTTP, obj.getString("ip"), obj.getInteger("port"), authKey, password, timestamp - 10000);
 //        });
-        LuciferHttpClient autoProxyHttpClient = new LuciferHttpClient();
+        LuciferStaticProxyHttpClient autoProxyHttpClient = new LuciferStaticProxyHttpClient(LuciferLoadStrategy.REQUEST_HASH);
+        autoProxyHttpClient.addProxy(Proxy.Type.HTTP, "47.94.175.27", 64764,"antaohua","1q2w3e4rQ663463");
         String symbol = "600000";  // 示例股票代码
         String period = "daily";   // 示例周期
         String adjust = "qfq";     // 示例复权方式

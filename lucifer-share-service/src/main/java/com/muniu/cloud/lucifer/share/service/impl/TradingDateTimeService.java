@@ -6,6 +6,7 @@ import com.muniu.cloud.lucifer.share.service.mapper.TradingDayMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +17,15 @@ import java.util.*;
 
 /**
  * 交易日服务
+ * @author antaohua
  */
 @Service
 @Slf4j
-public class TradingDayService {
-    
+public class TradingDateTimeService {
+
+
+    RedisTemplate redisTemplate;
+
     /**
      * 交易日有序集合缓存，使用TreeSet保证有序性且支持快速查找前后节点
      */
@@ -41,7 +46,7 @@ public class TradingDayService {
     private static final LocalTime AFTERNOON_START = LocalTime.of(13, 0);
     private static final LocalTime AFTERNOON_END = LocalTime.of(15, 1);
 
-    public TradingDayService(AkToolsService akToolsService, TradingDayMapper tradingDayMapper) {
+    public TradingDateTimeService(AkToolsService akToolsService, TradingDayMapper tradingDayMapper) {
         this.akToolsService = akToolsService;
         this.tradingDayMapper = tradingDayMapper;
     }
@@ -54,6 +59,8 @@ public class TradingDayService {
         if (CollectionUtils.isEmpty(getTradingDaysSet())) {
             log.info("交易日数据为空");
         }
+
+
     }
 
     /**
