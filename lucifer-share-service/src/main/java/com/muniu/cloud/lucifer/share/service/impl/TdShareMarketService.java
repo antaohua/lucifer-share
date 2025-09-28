@@ -3,6 +3,7 @@ package com.muniu.cloud.lucifer.share.service.impl;
 import cn.hutool.core.collection.ConcurrentHashSet;
 import cn.hutool.core.date.DateUtil;
 import com.google.common.collect.Lists;
+import com.muniu.cloud.lucifer.commons.core.mybatisplus.BaseShardingService;
 import com.muniu.cloud.lucifer.commons.core.utls.SpringContextUtils;
 import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
 import com.muniu.cloud.lucifer.share.service.model.cache.ShareInfoCacheValue;
@@ -39,14 +40,14 @@ public class TdShareMarketService extends BaseShardingService<TdShareMarketMappe
 
     private static final ConcurrentHashSet<String> TABLES = new ConcurrentHashSet<>();
 
-    private final TradingDayService tradingDayService;
+    private final TradingDateTimeService tradingDayService;
 
 
     private final BlockingQueue<TdShareMarket> saveQueue = new LinkedBlockingQueue<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @Autowired
-    public TdShareMarketService(ShareInfoService shareInfoService, TdShareMarketMapper tdShareMarketMapper, TradingDayService tradingDayService) {
+    public TdShareMarketService(ShareInfoService shareInfoService, TdShareMarketMapper tdShareMarketMapper, TradingDateTimeService tradingDayService) {
         this.shareInfoService = shareInfoService;
         this.tdShareMarketMapper = tdShareMarketMapper;
         this.tradingDayService = tradingDayService;
@@ -108,13 +109,13 @@ public class TdShareMarketService extends BaseShardingService<TdShareMarketMappe
     @Transactional(rollbackFor = Exception.class)
     public void saveData() {
         List<TdShareMarket> batch = Lists.newArrayList();
-        saveQueue.drainTo(batch);  // 获取并清空队列的数据
+        saveQueue.drainTo(batch);
         if (CollectionUtils.isEmpty(batch)) {
             return;
         }
         Map<String, List<TdShareMarket>> map = batch.stream().collect(Collectors.groupingBy(e -> getSharding(e.getDate(), e.getShareCode())));
         for (Map.Entry<String, List<TdShareMarket>> entry : map.entrySet()) {
-            createTable(entry.getKey());
+            createTable("td_share_market_", entry.getKey());
             int rowCount = tdShareMarketMapper.insertBatch(entry.getValue(), entry.getKey());
             log.info("fetchRemoteStockRealTimeData - rowCount:{}", rowCount);
         }
@@ -124,9 +125,9 @@ public class TdShareMarketService extends BaseShardingService<TdShareMarketMappe
     // 接收数据
     public void receiveData(TdShareMarket data) {
         try {
-            saveQueue.put(data);  // 将数据放入队列
+            saveQueue.put(data);
             if (saveQueue.size() >= 1000) {
-                saveData();  // 如果数据达到1000条，立刻保存
+                saveData();
             }
         } catch (InterruptedException e) {
             log.error(e.getMessage(), e);

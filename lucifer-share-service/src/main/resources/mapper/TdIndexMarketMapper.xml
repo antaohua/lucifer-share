@@ -26,9 +26,6 @@
             INDEX `idx_index_code_time` (`index_code` ASC, `time` DESC) USING BTREE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='指数分时行情数据';
     </update>
-    <select id="selectTable" resultType="java.lang.String">
-        SELECT REPLACE(TABLE_NAME, 'td_index_market_', '')  FROM information_schema.TABLES  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE 'td_index_market_%';
-    </select>
 
     <insert id="insertBatch" parameterType="java.util.List">
         insert into td_index_market_${sharding}

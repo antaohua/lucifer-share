@@ -39,11 +39,11 @@ public class IndexInfoService extends ServiceImpl<IndexInfoMapper, IndexInfo> {
     
     // 指数缓存，key为指数代码，value为缓存值对象
     private final Map<String, IndexInfoCacheValue> indexCache = new ConcurrentHashMap<>();
-    private final TradingDayService tradingDayService;
+    private final TradingDateTimeService tradingDayService;
     private final AkToolsService akToolsService;
 
     @Autowired
-    public IndexInfoService(AkToolsService akToolsService, TradingDayService tradingDayService) {
+    public IndexInfoService(AkToolsService akToolsService, TradingDateTimeService tradingDayService) {
         this.akToolsService = akToolsService;
         this.tradingDayService = tradingDayService;
     }

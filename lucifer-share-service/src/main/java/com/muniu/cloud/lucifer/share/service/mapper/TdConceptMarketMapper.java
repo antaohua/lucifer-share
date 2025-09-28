@@ -1,5 +1,6 @@
 package com.muniu.cloud.lucifer.share.service.mapper;
 
+import com.muniu.cloud.lucifer.commons.core.mybatisplus.BaseShardingMapper;
 import com.muniu.cloud.lucifer.share.service.entity.ConceptMarket;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -18,11 +19,6 @@ public interface TdConceptMarketMapper extends BaseShardingMapper<ConceptMarket>
      */
     void createTable(@Param("month") String month);
 
-    /**
-     * 查询所有已创建的分表
-     * @return 分表月份列表，格式为yyyyMM
-     */
-    List<String> selectTable();
 
     /**
      * 批量插入或更新概念板块数据

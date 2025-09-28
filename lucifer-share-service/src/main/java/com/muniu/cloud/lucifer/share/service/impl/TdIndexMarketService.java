@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.muniu.cloud.lucifer.commons.core.mybatisplus.BaseShardingService;
 import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
 import com.muniu.cloud.lucifer.share.service.constant.ShareIndexType;
 import com.muniu.cloud.lucifer.share.service.entity.TdIndexMarket;
@@ -29,14 +30,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TdIndexMarketService extends BaseShardingService<TdIndexMarketMapper, TdIndexMarket> {
 
     
-    private final TradingDayService tradingDayService;
+    private final TradingDateTimeService tradingDayService;
 
     private final AkToolsService akToolsService;
 
     private final AtomicInteger indexTypeIndex = new AtomicInteger(0);
 
     @Autowired
-    public TdIndexMarketService(TradingDayService tradingDayService, AkToolsService akToolsService) {
+    public TdIndexMarketService(TradingDateTimeService tradingDayService, AkToolsService akToolsService) {
         this.tradingDayService = tradingDayService;
         this.akToolsService = akToolsService;
     }
@@ -71,7 +72,7 @@ public class TdIndexMarketService extends BaseShardingService<TdIndexMarketMappe
         if (CollectionUtils.isEmpty(typeData)) {
             return;
         }
-        createTable(day/100);
+        createTable("td_index_market_", String.valueOf(day / 100));
         // 批量插入数据
         getBaseMapper().insertBatch(typeData, String.valueOf(day/100));
         log.info("同步指数行情数据成功，共{}条", typeData.size());

@@ -3,6 +3,7 @@ package com.muniu.cloud.lucifer.share.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.muniu.cloud.lucifer.commons.core.mybatisplus.BaseShardingService;
 import com.muniu.cloud.lucifer.share.service.config.ScheduledInterface;
 import com.muniu.cloud.lucifer.share.service.model.cache.ShareInfoCacheValue;
 import com.muniu.cloud.lucifer.share.service.constant.AdjustConstant;
@@ -13,11 +14,9 @@ import com.muniu.cloud.lucifer.share.service.mapper.TdShareHistMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -35,14 +34,14 @@ public class TdShareHistService extends BaseShardingService<TdShareHistMapper, T
 
     private final ShareInfoService shareInfoService;
 
-    private final TradingDayService tradingDayService;
+    private final TradingDateTimeService tradingDayService;
 
     private final AkToolsService akToolsService;
 
 
     @Autowired
     public TdShareHistService(ShareInfoService shareInfoService,
-                              TradingDayService tradingDayService, AkToolsService akToolsService) {
+                              TradingDateTimeService tradingDayService, AkToolsService akToolsService) {
         this.shareInfoService = shareInfoService;
         this.tradingDayService = tradingDayService;
         this.akToolsService = akToolsService;
@@ -78,7 +77,7 @@ public class TdShareHistService extends BaseShardingService<TdShareHistMapper, T
             TdShareHist hist;
             int listYear = cacheValueEntry.getValue().getListDate() > 0 ? cacheValueEntry.getValue().getListDate() / 10000 : 1990;
             do {
-                createTable(year);
+                createTable("td_share_hist_", String.valueOf(year));
                 hist = getBaseMapper().selectShareLastDate(cacheValueEntry.getKey(), year);
                 if (hist != null) {
                     fastDay = hist.getDate();
@@ -106,7 +105,7 @@ public class TdShareHistService extends BaseShardingService<TdShareHistMapper, T
         List<TdShareHist> list = jsonArray.stream().filter(Objects::nonNull).map(e -> getShareHistEntity((JSONObject) e, System.currentTimeMillis())).toList();
 
         Map<Integer, List<TdShareHist>> map = list.stream().collect(Collectors.groupingBy(e -> e.getDate() / 10000));
-        map.forEach((k, v) -> createTable(k));
+        map.forEach((k, v) -> createTable("td_share_hist_", String.valueOf(k)));
         map.forEach((k, v) -> getBaseMapper().insertOrUpdateBatch(v, k));
         shareInfoService.updateShareHistoryUpdateDate(cacheValueEntry.getKey(), day);
         log.info("更新股票历史数据完成 fastDay:{},day:{},shareCode:{},listSize:{}", fastDay, day, cacheValueEntry.getKey(), list.size());

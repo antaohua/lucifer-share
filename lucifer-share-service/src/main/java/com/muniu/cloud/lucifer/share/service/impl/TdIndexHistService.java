@@ -3,6 +3,7 @@ package com.muniu.cloud.lucifer.share.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.muniu.cloud.lucifer.commons.core.mybatisplus.BaseShardingService;
 import com.muniu.cloud.lucifer.commons.rest.exception.ResponseException;
 import com.muniu.cloud.lucifer.share.service.model.cache.IndexInfoCacheValue;
 import com.muniu.cloud.lucifer.share.service.entity.TdIndexHist;
@@ -33,11 +34,11 @@ public class TdIndexHistService extends BaseShardingService<TdIndexHistMapper,Td
     
 
     private final IndexInfoService indexInfoService;
-    private final TradingDayService tradingDayService;
+    private final TradingDateTimeService tradingDayService;
     private final AkToolsService akToolsService;
 
     @Autowired
-    public TdIndexHistService(IndexInfoService indexInfoService, TradingDayService tradingDayService, AkToolsService akToolsService) {
+    public TdIndexHistService(IndexInfoService indexInfoService, TradingDateTimeService tradingDayService, AkToolsService akToolsService) {
         this.indexInfoService = indexInfoService;
         this.tradingDayService = tradingDayService;
         this.akToolsService = akToolsService;
@@ -91,7 +92,7 @@ public class TdIndexHistService extends BaseShardingService<TdIndexHistMapper,Td
 
         Map<Integer, List<TdIndexHist>> map = histData.stream().collect(Collectors.groupingBy(e -> e.getDate() / 10000));
         for (Map.Entry<Integer, List<TdIndexHist>> entry : map.entrySet()) {
-            createTable(entry.getKey());
+            createTable("td_index_hist_", String.valueOf(entry.getKey()));
             getBaseMapper().insertOrUpdateBatch(entry.getValue(), entry.getKey());
         }
         indexInfoService.updateHistUpdate(indexInfo.getIndexCode(), targetDay);

@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class ConceptStockService extends ServiceImpl<ConceptStockMapper, BoardStock> implements ScheduledInterface {
 
     private final AkToolsService akToolsService;
-    private final TradingDayService tradingDayService;
+    private final TradingDateTimeService tradingDayService;
     private final TdConceptMarketService tdConceptMarketService;
     /**
      * Redis中存储概念板块更新日期的key
@@ -44,7 +44,7 @@ public class ConceptStockService extends ServiceImpl<ConceptStockMapper, BoardSt
     private final RedisTemplate<String, Object> redisTemplate;
     
     @Autowired
-    public ConceptStockService(AkToolsService akToolsService, TradingDayService tradingDayService, TdConceptMarketService tdConceptMarketService, RedisTemplate<String, Object> redisTemplate) {
+    public ConceptStockService(AkToolsService akToolsService, TradingDateTimeService tradingDayService, TdConceptMarketService tdConceptMarketService, RedisTemplate<String, Object> redisTemplate) {
         this.akToolsService = akToolsService;
         this.tradingDayService = tradingDayService;
         this.tdConceptMarketService = tdConceptMarketService;

@@ -51,12 +51,6 @@
           CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '股票历史行情数据-年:${sharding}';
     </select>
 
-
-    <select id="selectTable" resultType="java.lang.String">
-        SELECT REPLACE(TABLE_NAME, 'td_share_hist_', '')  FROM information_schema.TABLES  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE 'td_share_hist_%';
-    </select>
-
-
     <insert id="insertOrUpdateBatch" parameterType="java.util.List">
         insert into td_share_hist_${sharding}
         (id, amount, amplitude, change_amount, change_rate, close_price, create_time, date, high_price, low_price, open_price, share_code, turnover_rate, volume, limit_down, limit_up, previous_close)

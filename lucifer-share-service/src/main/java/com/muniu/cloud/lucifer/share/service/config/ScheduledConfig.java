@@ -13,10 +13,10 @@ import java.time.LocalTime;
 @Component
 public class ScheduledConfig {
 
-    private final TradingDayService tradingDayService;
+    private final TradingDateTimeService tradingDayService;
 
     @Autowired
-    public ScheduledConfig(TradingDayService tradingDayService) {
+    public ScheduledConfig(TradingDateTimeService tradingDayService) {
         this.tradingDayService = tradingDayService;
     }
 

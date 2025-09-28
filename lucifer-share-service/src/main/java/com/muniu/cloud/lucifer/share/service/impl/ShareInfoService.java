@@ -42,7 +42,7 @@ public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
 
     private static final ConcurrentHashMap<String, ShareInfoCacheValue> SHARE_INFO_CACHE = new ConcurrentHashMap<>();
 
-    private final TradingDayService tradingDayService;
+    private final TradingDateTimeService tradingDayService;
 
     private final AkToolsService akToolsService;
 
@@ -50,7 +50,7 @@ public class ShareInfoService extends ServiceImpl<ShareInfoMapper,ShareInfo> {
 
 
     @Autowired
-    public ShareInfoService(TradingDayService tradingDayService, AkToolsService akToolsService, ShareInfoDao shareInfoDao) {
+    public ShareInfoService(TradingDateTimeService tradingDayService, AkToolsService akToolsService, ShareInfoDao shareInfoDao) {
         this.tradingDayService = tradingDayService;
         this.akToolsService = akToolsService;
         this.shareInfoDao = shareInfoDao;

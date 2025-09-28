@@ -26,11 +26,6 @@
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='概念板块表（月份:${month}）';
     </update>
 
-    <!-- 查询所有已创建的分表 -->
-    <select id="selectTable" resultType="java.lang.String">
-        SELECT REPLACE(TABLE_NAME, 'td_concept_market_', '') FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE 'td_concept_market_%';
-    </select>
-
     <!-- 批量插入或更新概念板块数据 -->
     <insert id="batchInsertOrUpdate">
         INSERT INTO td_concept_market_${month}

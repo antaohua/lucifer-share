@@ -2,6 +2,7 @@ package com.muniu.cloud.lucifer.share.service.impl;
 
 import com.alibaba.fastjson2.JSON;
 import com.google.common.collect.Lists;
+import com.muniu.cloud.lucifer.commons.core.mybatisplus.BaseShardingService;
 import com.muniu.cloud.lucifer.share.service.config.ScheduledInterface;
 import com.muniu.cloud.lucifer.share.service.entity.ConceptMarket;
 import com.muniu.cloud.lucifer.share.service.mapper.TdConceptMarketMapper;
@@ -49,10 +50,10 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
     private final AkToolsService akToolsService;
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final TradingDayService tradingDayService;
+    private final TradingDateTimeService tradingDayService;
     
     @Autowired
-    public TdConceptMarketService(RedisTemplate<String, Object> redisTemplate, TradingDayService tradingDayService, AkToolsService akToolsService) {
+    public TdConceptMarketService(RedisTemplate<String, Object> redisTemplate, TradingDateTimeService tradingDayService, AkToolsService akToolsService) {
         this.redisTemplate = redisTemplate;
         this.tradingDayService = tradingDayService;
         this.akToolsService = akToolsService;
@@ -138,7 +139,7 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
         String month = getCurrentMonth();
         try {
             // 确保表存在
-            createTable(month);
+            createTable("td_concept_market_", month);
             // 批量插入或更新数据
             log.info("开始批量保存概念板块数据，数据量：{}，月份：{}", boardList.size(), month);
             getBaseMapper().batchInsertOrUpdate(boardList, month);
@@ -270,7 +271,7 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
             // 获取月份
             String month = getMonth(parsedDate);
             // 确保分表存在
-            createTable(month);
+            createTable("td_concept_market_",month);
             // 计算当天起始时间和结束时间（毫秒时间戳）
             long startTime = parsedDate.atStartOfDay().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli();
             long endTime = parsedDate.plusDays(1).atStartOfDay().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli() - 1;

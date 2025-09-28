@@ -35,11 +35,6 @@
           DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '实时行情数据-日期:${sharding}';
     </update>
 
-    <select id="selectTable" resultType="java.lang.String">
-        SELECT REPLACE(TABLE_NAME, 'td_share_market_', '')  FROM information_schema.TABLES  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE 'td_share_market_%';
-    </select>
-
-
     <insert id="insertBatch" parameterType="java.util.List">
         insert into td_share_market_${sharding}
         (id, amplitude, change_amount, change_rate, circulating_market_cap, create_time, date, dynamic_pe, time, highest, latest_price, lowest, opening_price, pb_ratio, previous_close,

@@ -21,9 +21,6 @@
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='指数历史行情数据';
     </update>
 
-    <select id="selectTable" resultType="java.lang.String">
-        SELECT REPLACE(TABLE_NAME, 'td_index_hist_', '') FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE 'td_index_hist_%';
-    </select>
 
     <insert id="insertOrUpdateBatch" parameterType="java.util.List">
         insert into td_index_hist_${year}

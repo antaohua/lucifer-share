@@ -19,10 +19,10 @@ public class StockMarketFundFlowService {
 
     private final MarketFundFlowMapper marketFundFlowMapper;
 
-    private final TradingDayService tradingDayService;
+    private final TradingDateTimeService tradingDayService;
 
     @Autowired
-    public StockMarketFundFlowService(AkToolsService akToolsService, MarketFundFlowMapper marketFundFlowMapper, TradingDayService tradingDayService) {
+    public StockMarketFundFlowService(AkToolsService akToolsService, MarketFundFlowMapper marketFundFlowMapper, TradingDateTimeService tradingDayService) {
         this.akToolsService = akToolsService;
         this.marketFundFlowMapper = marketFundFlowMapper;
         this.tradingDayService = tradingDayService;

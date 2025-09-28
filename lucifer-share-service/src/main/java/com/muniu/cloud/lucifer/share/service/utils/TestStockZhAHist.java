@@ -25,7 +25,7 @@ public class TestStockZhAHist {
     private static String authKey = "antaohua";
     private static String password = "1q2w3e4rQ663463";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 //        LuciferAutoProxyHttpClient autoProxyHttpClient =  new LuciferAutoProxyHttpClient(client -> {
 //            String json = new LuciferHttpClient().get(proxyUrl);
 //            JSONObject object = JSON.parseObject(json);
@@ -44,16 +44,27 @@ public class TestStockZhAHist {
 //            log.info("load proxy config success . ip = {} , port = {} , timestamp = {} , t={}", obj.getString("ip"), obj.getInteger("port"), timestamp - 10000, timestamp);
 //            return new LuciferProxy(Proxy.Type.HTTP, obj.getString("ip"), obj.getInteger("port"), authKey, password, timestamp - 10000);
 //        });
-        LuciferStaticProxyHttpClient autoProxyHttpClient = new LuciferStaticProxyHttpClient(LuciferLoadStrategy.REQUEST_HASH);
-        autoProxyHttpClient.addProxy(Proxy.Type.HTTP, "47.94.175.27", 64764,"antaohua","1q2w3e4rQ663463");
+        LuciferStaticProxyHttpClient autoProxyHttpClient = new LuciferStaticProxyHttpClient(LuciferLoadStrategy.REQUEST_HASH,true);
+//        autoProxyHttpClient.addProxy(Proxy.Type.HTTP, "47.94.175.27", 64764,"antaohua","1q2w3e4rQ663463");
+        autoProxyHttpClient.addProxy(Proxy.Type.HTTP, "192.168.100.254", 8080,"antaohua","1q2w3e4r");
         String symbol = "600000";  // 示例股票代码
         String period = "daily";   // 示例周期
         String adjust = "qfq";     // 示例复权方式
         String startDate = "20250924"; // 示例开始日期
         String endDate = "20250925";   // 示例结束日期
 
-        String json = autoProxyHttpClient.get(buildStockDataUrl(symbol,period,adjust,startDate,endDate));
-        System.out.println(json);
+
+        for (int i = 0; i < 10; i++){
+            try {
+                String json = autoProxyHttpClient.get(buildStockDataUrl(symbol,period,adjust,startDate,endDate));
+                System.out.println(json);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        Thread.sleep(1000000);
+
+
     }
 
 
