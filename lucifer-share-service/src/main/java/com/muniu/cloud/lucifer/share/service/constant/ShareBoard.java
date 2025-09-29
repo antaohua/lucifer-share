@@ -33,7 +33,6 @@ public enum ShareBoard {
                     .setScale(2, RoundingMode.HALF_UP);
         }
     },
-    //主板B股
     MAIN_B("MAIN_B", "主板B股", new ShareExchange[]{ShareExchange.SZ, ShareExchange.SH}) {
         @Override
         public BigDecimal maxPrice(BigDecimal price, ShareStatus status) {
@@ -168,5 +167,28 @@ public enum ShareBoard {
         return UNKNOWN;
     }
 
+
+    /**
+     * 根据股票代码获取板块
+     *
+     * @param stockCode 股票代码
+     * @return 板块类型
+     */
+    public static ShareBoard getBoard(String stockCode) {
+        if (stockCode.startsWith("000") || stockCode.startsWith("001") || stockCode.startsWith("003") || stockCode.startsWith("600") || stockCode.startsWith("601") || stockCode.startsWith("603") || stockCode.startsWith("605")) {
+            return MAIN;
+        } else if (stockCode.startsWith("002")) {
+            return MAIN;
+        } else if (stockCode.startsWith("300") || stockCode.startsWith("301")) {
+            return ChiNext;
+        } else if (stockCode.startsWith("688")) {
+            return STAR;
+        } else if (stockCode.startsWith("430") || stockCode.startsWith("83") || stockCode.startsWith("87") || stockCode.startsWith("92")) {
+            return BSE;
+        } else if (stockCode.startsWith("689")) {
+            return CDR;
+        }
+        return UNKNOWN;
+    }
 
 }

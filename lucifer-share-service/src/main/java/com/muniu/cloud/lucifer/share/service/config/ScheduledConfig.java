@@ -30,9 +30,9 @@ public class ScheduledConfig {
 //    @Scheduled(cron = "0 * * * * MON-FRI")
     @Scheduled(cron = "0 * * * * *")
     public void sinaShareMarket() throws Exception{
-        if(isDebug){
-            return;
-        }
+//        if(isDebug){
+//            return;
+//        }
         if(!tradingDayService.isTradingTime(true)){
             return;
         }

@@ -3,6 +3,7 @@ package com.muniu.cloud.lucifer.share.service.impl;
 import cn.hutool.core.collection.ConcurrentHashSet;
 import cn.hutool.core.date.DateUtil;
 import com.google.common.collect.Lists;
+import com.muniu.cloud.lucifer.commons.core.config.AsyncEventListener;
 import com.muniu.cloud.lucifer.commons.core.mybatisplus.BaseShardingService;
 import com.muniu.cloud.lucifer.commons.core.utls.SpringContextUtils;
 import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
@@ -63,7 +64,7 @@ public class TdShareMarketService extends BaseShardingService<TdShareMarketMappe
 
 
     // 监听事件
-    @EventListener
+    @AsyncEventListener
     public void sinaStockMarketSaveEventHandle(SinaStockMarketSaveEvent event) {
         int day = Integer.parseInt(DateUtil.format(new Date(event.getLoadTime()), DateConstant.DATE_FORMAT_YYYYMMDD));
         TdShareMarket shareMarketEntity = new TdShareMarket();
@@ -88,6 +89,7 @@ public class TdShareMarketService extends BaseShardingService<TdShareMarketMappe
         shareMarketEntity.setTotalMarketCap(new BigDecimal(event.getMktcap()));
         shareMarketEntity.setCirculatingMarketCap(new BigDecimal(event.getNmc()));
 
+        event.getName()
         //没有昨日收盘价时和今日开盘价 不做涨停和跌停计算
         if (shareMarketEntity.getPreviousClose() != null && shareMarketEntity.getOpeningPrice() != null) {
             ShareInfoCacheValue cacheValue = shareInfoService.getShareInfoCache(shareMarketEntity.getShareCode());
