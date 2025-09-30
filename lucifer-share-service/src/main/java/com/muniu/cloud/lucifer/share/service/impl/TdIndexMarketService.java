@@ -50,7 +50,7 @@ public class TdIndexMarketService extends BaseShardingService<TdIndexMarketMappe
     @Transactional(rollbackFor = Exception.class)
     public void syncIndexMarketData() throws Exception {
         // 判断是否是交易日
-        if (!tradingDayService.isTradingTime(true)) {
+        if (!tradingDayService.isTradingTime()) {
             return;
         }
         log.info("开始同步指数行情数据");

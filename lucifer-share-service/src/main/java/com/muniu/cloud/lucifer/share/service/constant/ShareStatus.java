@@ -1,79 +1,23 @@
 package com.muniu.cloud.lucifer.share.service.constant;
 
-import com.muniu.cloud.lucifer.share.service.impl.TradingDateTimeService;
-import org.apache.commons.lang3.StringUtils;
+import cn.hutool.core.util.StrUtil;
+import lombok.Getter;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.muniu.cloud.lucifer.commons.utils.constants.DateConstant.DATE_FORMATTER_YYYYMMDD;
+/**
+ * @author antaohua
+ */
 
 public enum ShareStatus {
 
-
-    STAR_ST(4, "*ST", "*ST") {
-        @Override
-        public boolean isStatus(String name, int listDate, ShareBoard board, TradingDateTimeService tradingDayService) {
-            return StringUtils.indexOf(name, "*ST") > -1;
-        }
-    },
-    //ST
-    ST(5, "ST", "ST") {
-        @Override
-        public boolean isStatus(String name, int listDate, ShareBoard board, TradingDateTimeService tradingDayService) {
-            return StringUtils.indexOf(name, "ST") > -1;
-        }
-    },
-    //退市
-    DEMISTED(3, "D", "退市") {
-        @Override
-        public boolean isStatus(String name, int listDate, ShareBoard board, TradingDateTimeService tradingDayService) {
-            return false;
-        }
-    },
-    //未上市
-    NOT_LISTED(0, "NL", "未上市") {
-        @Override
-        public boolean isStatus(String name, int listDate, ShareBoard board, TradingDateTimeService tradingDayService) {
-            return LocalDate.now().isBefore(LocalDate.of(listDate / 10000, listDate % 10000 / 100, listDate % 100));
-        }
-    },
-
-    NEW(1, "N", "新股") {
-        @Override
-        public boolean isStatus(String name, int listDate, ShareBoard board, TradingDateTimeService tradingDayService) {
-            int now = Integer.parseInt(LocalDate.now().format(DATE_FORMATTER_YYYYMMDD));
-            //北交所首日
-            if (board == ShareBoard.BSE) {
-                if (tradingDayService.isTradingDay(now)) {
-                    return now == listDate;
-                }
-                return tradingDayService.getPreviousTradingDay(now) == listDate;
-            }
-            if (now == listDate) {
-                return true;
-            }
-            return tradingDayService.getTradingDaysBetween(Integer.min(now, listDate), Integer.max(now, listDate)).size() < 6;
-        }
-    },
-    //次新股
-    NEW_STOCK(2, "NS", "次新股") {
-        @Override
-        public boolean isStatus(String name, int listDate, ShareBoard board, TradingDateTimeService tradingDayService) {
-            //上市日期小于1年
-            return LocalDate.now().minusYears(1).isBefore(LocalDate.of(listDate / 10000, listDate % 10000 / 100, listDate % 100));
-
-        }
-    },
-    //正常
-    NORMAL(100, "NORMAL", "正常") {
-        @Override
-        public boolean isStatus(String name, int listDate, ShareBoard board, TradingDateTimeService tradingDayService) {
-            return true;
-        }
-    };
+    ST(5, "ST", "ST", "*ST"),
+    DEMISTED(3, "D", "D"),
+    NOT_LISTED(0, "NL", "NL"),
+    NEW(1, "N", "N"),
+    NORMAL(100, "NM", "NORMAL");
 
 
     public static ShareStatus fromCode(String code) {
@@ -87,36 +31,31 @@ public enum ShareStatus {
 
 
     private final int sort;
+    @Getter
+    private final String[] stockTags;
+
+    @Getter
     private final String code;
 
-    private final String description;
 
-
-    public String getCode() {
-        return code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    ShareStatus(int sort, String code, String description) {
+    ShareStatus(int sort, String code ,String... stockTags) {
+        this.stockTags = stockTags;
         this.code = code;
-        this.description = description;
         this.sort = sort;
     }
 
-    public abstract boolean isStatus(String name, int listDate, ShareBoard board, TradingDateTimeService tradingDayService);
+    public boolean isStatus(String name){
+        return StrUtil.startWithAny(name, getStockTags());
+    };
 
 
-    public static ShareStatus getStatus(String name, int listDate, ShareBoard board, TradingDateTimeService tradingDayService) {
+    public static ShareStatus getStatus(String name) {
         List<ShareStatus> shareStatusList = Arrays.stream(values()).sorted(Comparator.comparingInt(n -> n.sort)).toList();
         for (ShareStatus value : shareStatusList) {
-            if (value.isStatus(name, listDate, board, tradingDayService)) {
+            if (value.isStatus(name)) {
                 return value;
             }
         }
         return NORMAL;
     }
-
 }

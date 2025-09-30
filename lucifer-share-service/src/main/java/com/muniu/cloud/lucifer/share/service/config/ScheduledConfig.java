@@ -33,7 +33,7 @@ public class ScheduledConfig {
 //        if(isDebug){
 //            return;
 //        }
-        if(!tradingDayService.isTradingTime(true)){
+        if(!tradingDayService.isTradingTime()){
             return;
         }
         SpringContextUtils.getBean(SinaShareMarketApiClient.class).scheduled();
@@ -48,10 +48,9 @@ public class ScheduledConfig {
      * */
     @Scheduled(cron = "*/5 * * * * *")
     public void stockRealTime() throws Exception{
-        if(isDebug){
+        if(isDebug || tradingDayService.isTradingTime()){
             return;
         }
-        tradingDayService.isTradingTime(false);
         SpringContextUtils.getBean(TdStockRealTimeService.class).scheduled();
     }
 
@@ -81,7 +80,7 @@ public class ScheduledConfig {
         if(isDebug){
             return;
         }
-        if(!tradingDayService.isTradingTime(true)){
+        if(!tradingDayService.isTradingTime()){
             return;
         }
         SpringContextUtils.getBean(TdConceptMarketService.class).scheduled();
@@ -97,7 +96,7 @@ public class ScheduledConfig {
         if(isDebug){
             return;
         }
-        if(!tradingDayService.isTradingTime(true)){
+        if(!tradingDayService.isTradingTime()){
             return;
         }
         SpringContextUtils.getBean(ConceptStockService.class).scheduled();

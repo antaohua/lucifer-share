@@ -15,18 +15,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
+/**
+ * @author antaohua
+ */
 @Service
 @Slf4j
 public class TdShareMarketService extends BaseShardingService<TdShareMarketMapper, TdShareMarket> {
@@ -39,19 +40,15 @@ public class TdShareMarketService extends BaseShardingService<TdShareMarketMappe
 
     private final TdShareMarketMapper tdShareMarketMapper;
 
-    private static final ConcurrentHashSet<String> TABLES = new ConcurrentHashSet<>();
-
-    private final TradingDateTimeService tradingDayService;
 
 
     private final BlockingQueue<TdShareMarket> saveQueue = new LinkedBlockingQueue<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @Autowired
-    public TdShareMarketService(ShareInfoService shareInfoService, TdShareMarketMapper tdShareMarketMapper, TradingDateTimeService tradingDayService) {
+    public TdShareMarketService(ShareInfoService shareInfoService, TdShareMarketMapper tdShareMarketMapper) {
         this.shareInfoService = shareInfoService;
         this.tdShareMarketMapper = tdShareMarketMapper;
-        this.tradingDayService = tradingDayService;
         scheduler.scheduleAtFixedRate(() -> SpringContextUtils.getBean(TdShareMarketService.class).saveData(), 0, TIME_INTERVAL, TimeUnit.SECONDS);
     }
 
@@ -89,7 +86,6 @@ public class TdShareMarketService extends BaseShardingService<TdShareMarketMappe
         shareMarketEntity.setTotalMarketCap(new BigDecimal(event.getMktcap()));
         shareMarketEntity.setCirculatingMarketCap(new BigDecimal(event.getNmc()));
 
-        event.getName()
         //没有昨日收盘价时和今日开盘价 不做涨停和跌停计算
         if (shareMarketEntity.getPreviousClose() != null && shareMarketEntity.getOpeningPrice() != null) {
             ShareInfoCacheValue cacheValue = shareInfoService.getShareInfoCache(shareMarketEntity.getShareCode());

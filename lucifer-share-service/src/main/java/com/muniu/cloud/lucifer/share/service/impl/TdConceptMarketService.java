@@ -110,7 +110,7 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
      */
     @Transactional(rollbackFor = Exception.class)
     public void scheduled() throws Exception {
-        if(!tradingDayService.isTradingTime(true)){
+        if(!tradingDayService.isTradingTime()){
             return;
         }
         log.info("开始同步概念板块数据");

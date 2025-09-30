@@ -89,12 +89,7 @@ public class SinaStockMarketSaveEvent extends BaseModel {
             if (settlementVal.compareTo(BigDecimal.ZERO) <= 0) {
                 return BigDecimal.ZERO;
             }
-
-            BigDecimal amplitude = highVal.subtract(lowVal)
-                    .divide(settlementVal, 4, RoundingMode.HALF_UP) // 保留6位小数
-                    .multiply(BigDecimal.valueOf(100)); // 转成百分比
-
-            return amplitude;
+            return highVal.subtract(lowVal).divide(settlementVal, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
         } catch (NumberFormatException | NullPointerException e) {
             return BigDecimal.ZERO;
         }

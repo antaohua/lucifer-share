@@ -1,19 +1,19 @@
 package com.muniu.cloud.lucifer.share.service.impl;
 
-import com.google.common.collect.Lists;
-import com.muniu.cloud.lucifer.share.service.entity.TradingDay;
-import com.muniu.cloud.lucifer.share.service.mapper.TradingDayMapper;
-import jakarta.annotation.PostConstruct;
+import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
+import com.muniu.cloud.lucifer.share.service.constant.LuciferShareConstant;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 交易日服务
@@ -23,154 +23,76 @@ import java.util.*;
 @Slf4j
 public class TradingDateTimeService {
 
-
-    RedisTemplate redisTemplate;
-
-    /**
-     * 交易日有序集合缓存，使用TreeSet保证有序性且支持快速查找前后节点
-     */
-    private final NavigableSet<Integer> tradingDaysCache = new TreeSet<>();
-
-    private final TradingDayMapper tradingDayMapper;
+    private final RedisTemplate<String,Integer> redisTemplate;
 
     private final AkToolsService akToolsService;
 
 
-    /**
-     * 交易时间常量定义
-     */
-    private static final LocalTime BIDDING_START = LocalTime.of(9, 15);
-    private static final LocalTime BIDDING_END = LocalTime.of(9, 25);
-    private static final LocalTime MORNING_START = LocalTime.of(9, 15);
-    private static final LocalTime MORNING_END = LocalTime.of(11, 30);
-    private static final LocalTime AFTERNOON_START = LocalTime.of(13, 0);
-    private static final LocalTime AFTERNOON_END = LocalTime.of(15, 1);
 
-    public TradingDateTimeService(AkToolsService akToolsService, TradingDayMapper tradingDayMapper) {
+    public TradingDateTimeService(AkToolsService akToolsService, RedisTemplate<String,Integer> redisTemplate) {
         this.akToolsService = akToolsService;
-        this.tradingDayMapper = tradingDayMapper;
+        this.redisTemplate = redisTemplate;
     }
 
-    /**
-     * 应用启动时初始化交易日数据
-     */
-    @PostConstruct
-    public void init() {
-        if (CollectionUtils.isEmpty(getTradingDaysSet())) {
-            log.info("交易日数据为空");
-        }
 
-
-    }
 
     /**
-     * 每天中午12点同步交易日数据
+     * 每小时检查一次获取交易日数据
      */
-    @Scheduled(cron = "0 0 12 * * ?")
-    public void scheduledSyncTradingDays() {
+    @Scheduled(cron = "0 0 * * * ?")
+    public void syncTradingDays() throws IOException {
         log.info("定时任务：开始同步交易日数据");
-        try {
-            List<Integer> tradingDays = akToolsService.toolTradeDateHistSina();
-            if (CollectionUtils.isEmpty(tradingDays)) {
-                log.warn("从远程接口获取交易日数据为空");
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(LuciferShareConstant.TRADING_TIME_KEY))) {
+            Set<Integer> result = redisTemplate.opsForZSet().reverseRangeByScore(LuciferShareConstant.TRADING_TIME_KEY, Double.NEGATIVE_INFINITY, Double.MAX_VALUE, 0, 1);
+            if (result != null && !result.isEmpty() && result.iterator().next() > Integer.parseInt(LocalDate.now().format(DateConstant.DATE_FORMATTER_YYYYMMDD))) {
                 return;
             }
-            if(CollectionUtils.isNotEmpty(tradingDaysCache)){
-                tradingDays.removeAll(tradingDaysCache);
-            }
-            if (CollectionUtils.isEmpty(tradingDays)) {
-                log.info("日期数据无变化，不用更新");
-                return;
-            }
-            log.info("获取到{}个交易日数据", tradingDays.size());
-            saveToDatabase(tradingDays);
-        } catch (Exception e) {
-            log.error("同步交易日数据出现异常: {}", e.getMessage(), e);
         }
+        List<Integer> tradingDays = akToolsService.toolTradeDateHistSina();
+        Set<ZSetOperations.TypedTuple<Integer>> tuples = tradingDays.stream().map(e -> new DefaultTypedTuple<>(e, e.doubleValue())).collect(Collectors.toSet());
+        redisTemplate.opsForZSet().addIfAbsent(LuciferShareConstant.TRADING_TIME_KEY, tuples);
     }
 
 
     /**
-     * 将交易日数据保存到数据库
+     * 更新当前交易日
      */
-    private void saveToDatabase(List<Integer> tradingDays) {
-        if (CollectionUtils.isEmpty(tradingDays)) {
-            return;
+    @Scheduled(cron = "0 * * * * ?")
+    public void updatedCurrentTradingDay() throws IOException {
+        if(isTradingDay() && LocalTime.now().isAfter(LuciferShareConstant.TRADING_TIME_START)){
+            LuciferShareConstant.LAST_TRADING_DATA = LocalDate.now();
+        }else {
+            int tradingDay = getPreviousTradingDay(Integer.parseInt(LocalDate.now().format(DateConstant.DATE_FORMATTER_YYYYMMDD)));
+            String dateStr = String.valueOf(tradingDay);
+            LuciferShareConstant.LAST_TRADING_DATA = LocalDate.parse(dateStr, DateConstant.DATE_FORMATTER_YYYYMMDD);
         }
 
-        long now = System.currentTimeMillis();
-        List<TradingDay> entities = tradingDays.stream().map(e -> new TradingDay(e, now, now)).toList();
-        if (CollectionUtils.isEmpty(entities)) {
-            return;
-        }
-        tradingDayMapper.batchInsert(entities);
-        log.info("成功保存{}个交易日数据到数据库", entities.size());
+
+
+
+
     }
+
 
     /**
      * 获取指定日期范围内的所有交易日
-     * 
+     * 如果 startDate和endDate 是交易日则包含(startDate和endDate）
+     *
      * @param startDate 开始日期，格式：yyyyMMdd
-     * @param endDate 结束日期，格式：yyyyMMdd
+     * @param endDate   结束日期，格式：yyyyMMdd
      * @return 交易日列表
      */
     public List<Integer> getTradingDaysBetween(int startDate, int endDate) {
-        NavigableSet<Integer> allDays = getTradingDaysSet();
-        
-        if (CollectionUtils.isEmpty(allDays)) {
-            return Lists.newArrayList();
+        // 获取范围内的元素，按 score 排序
+        Set<Integer> tradingDays = redisTemplate.opsForZSet()
+                .rangeByScore(LuciferShareConstant.TRADING_TIME_KEY, startDate, endDate);
+
+        if (tradingDays == null || tradingDays.isEmpty()) {
+            return List.of();
         }
 
-        return new ArrayList<>(allDays.subSet(startDate, true, endDate, true));
-    }
-
-    /**
-     * 获取交易日有序集合
-     * 
-     * @return 交易日有序集合
-     */
-    private NavigableSet<Integer> getTradingDaysSet() {
-        if (CollectionUtils.isNotEmpty(tradingDaysCache)) {
-            return tradingDaysCache;
-        }
-        
-        synchronized (this) {
-            if (CollectionUtils.isNotEmpty(tradingDaysCache)) {
-                return tradingDaysCache;
-            }
-            List<Integer> days = tradingDayMapper.getAllTradingDays();
-
-            if (CollectionUtils.isNotEmpty(days)) {
-                tradingDaysCache.addAll(days);
-                log.info("已加载{} - {} 交易日", tradingDaysCache.pollFirst(),tradingDaysCache.last());
-                return tradingDaysCache;
-            }
-
-            log.info("数据库中无交易日数据，尝试从远程接口获取");
-            try {
-                days = akToolsService.toolTradeDateHistSina();
-                if (CollectionUtils.isNotEmpty(days)) {
-                    saveToDatabase(days);
-                    tradingDaysCache.addAll(days);
-                } else {
-                    log.warn("远程接口未返回交易日数据");
-                }
-            } catch (Exception e) {
-                log.error("从远程接口获取交易日数据失败: {}", e.getMessage(), e);
-            }
-
-        }
-        
-        return tradingDaysCache;
-    }
-
-    /**
-     * 获取所有交易日
-     *
-     * @return 所有交易日列表
-     */
-    public List<Integer> getAllTradingDays() {
-        return new ArrayList<>(getTradingDaysSet());
+        // 转成 List 返回
+        return tradingDays.stream().sorted().collect(Collectors.toList());
     }
 
     /**
@@ -180,8 +102,9 @@ public class TradingDateTimeService {
      * @return 是否为交易日
      */
     public boolean isTradingDay(int date) {
-        NavigableSet<Integer> allTradingDays = getTradingDaysSet();
-        return allTradingDays.contains(date);
+        Double score = redisTemplate.opsForZSet()
+                .score(LuciferShareConstant.TRADING_TIME_KEY, date);
+        return score != null;
     }
 
     /***
@@ -201,7 +124,7 @@ public class TradingDateTimeService {
         if (Objects.isNull(date)) {
             return false;
         }
-        int dateInt = Integer.parseInt(date.format(DateTimeFormatter.BASIC_ISO_DATE));
+        int dateInt = Integer.parseInt(date.format(DateConstant.DATE_FORMATTER_YYYYMMDD));
         return isTradingDay(dateInt);
     }
 
@@ -212,9 +135,14 @@ public class TradingDateTimeService {
      * @return 下一个交易日，如果没有找到返回-1
      */
     public int getNextTradingDay(int date) {
-        // 直接获取大于指定日期的最小元素
-        Integer nextDay = getTradingDaysSet().higher(date);
-        return Objects.nonNull(nextDay) ? nextDay : -1;
+        // 使用 ZSet 的 rangeByScore 获取大于指定日期的最小值
+        Set<Integer> result = redisTemplate.opsForZSet().rangeByScore(LuciferShareConstant.TRADING_TIME_KEY, date + 1, Double.MAX_VALUE, 0, 1);
+
+        if (result == null || result.isEmpty()) {
+            return -1;
+        }
+        // 取第一个元素
+        return result.iterator().next();
     }
 
     /**
@@ -224,25 +152,22 @@ public class TradingDateTimeService {
      * @return 上一个交易日，如果没有找到返回-1
      */
     public int getPreviousTradingDay(int date) {
-        NavigableSet<Integer> allTradingDays = getTradingDaysSet();
-        
-        // 直接获取小于等于指定日期的最大元素
-        Integer prevDay = allTradingDays.floor(date);
-        if (Objects.nonNull(prevDay) && prevDay < date) {
-            return prevDay;
+        // 使用 ZSet 的 reverseRangeByScore 获取小于指定日期的最大值
+        Set<Integer> result = redisTemplate.opsForZSet()
+                .reverseRangeByScore(LuciferShareConstant.TRADING_TIME_KEY, Double.NEGATIVE_INFINITY, date - 1, 0, 1);
+
+        if (result == null || result.isEmpty()) {
+            return -1;
         }
-        // 如果当天是交易日，获取严格小于的最大元素
-        Integer strictPrevDay = allTradingDays.lower(date);
-        return Objects.nonNull(strictPrevDay) ? strictPrevDay : -1;
+        // 取第一个元素，即离 date 最近的上一个交易日
+        return result.iterator().next();
     }
 
     /**
      * 获取最近一个交易日
      * */
     public int getLstTradingDay() {
-        int dateInt = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE));
-        Integer day = tradingDaysCache.floor(dateInt);
-        return day == null ? 1 : day;
+        return Integer.parseInt(LuciferShareConstant.LAST_TRADING_DATA.format(DateConstant.DATE_FORMATTER_YYYYMMDD));
     }
 
     /**
@@ -254,38 +179,17 @@ public class TradingDateTimeService {
      */
     public int getPreviousTradingDay(int date, int off) {
         if (off <= 0) {
-            return date;
+            throw new IllegalArgumentException("off 必须大于0");
         }
-        
-        // 从交易日缓存中直接获取数据
-        NavigableSet<Integer> tradingDaysSet = getTradingDaysSet();
-        if (CollectionUtils.isEmpty(tradingDaysSet)) {
-            log.error("交易日历数据为空，无法获取前{}个交易日", off);
+
+        Set<Integer> result = redisTemplate.opsForZSet()
+                .reverseRangeByScore(LuciferShareConstant.TRADING_TIME_KEY, Double.NEGATIVE_INFINITY, date - 1, off - 1, 1);
+
+        if (result == null || result.isEmpty()) {
             return -1;
         }
-        
-        // 找到小于等于当前日期的最大交易日
-        Integer currentOrPreviousDay = tradingDaysSet.floor(date);
-        if (currentOrPreviousDay == null) {
-            log.warn("未找到小于等于{}的交易日", date);
-            return -1;
-        }
-        
-        // 向前查找off个交易日
-        Integer targetDay = currentOrPreviousDay;
-        int count = 0;
-        
-        while (count < off && targetDay != null) {
-            targetDay = tradingDaysSet.lower(targetDay);
-            count++;
-        }
-        
-        if (targetDay == null) {
-            log.warn("交易日历数据不足，无法获取前{}个交易日，当前只能获取{}个", off, count);
-            return -1;
-        }
-        
-        return targetDay;
+
+        return result.iterator().next();
     }
 
 
@@ -294,30 +198,22 @@ public class TradingDateTimeService {
      *
      * @param date 日期，格式：yyyyMMdd
      * @param off  前几日
-     * @return 日期列表
+     * @return 日期列表，按时间升序排列
      */
     public List<Integer> getPreviousTradingDays(int date, int off) {
         if (off <= 0) {
-            return Lists.newArrayList();
+            throw new IllegalArgumentException("off 必须大于0");
         }
-        // 从交易日缓存中直接获取数据
-        NavigableSet<Integer> tradingDaysSet = getTradingDaysSet();
-        if (CollectionUtils.isEmpty(tradingDaysSet)) {
-            log.error("交易日历数据为空，无法获取前{}个交易日", off);
-            return Lists.newArrayList();
-        }
-        List<Integer> result = Lists.newArrayList();
-        do {
-            Integer previousTradingDay = tradingDaysSet.lower(date);
-            if (previousTradingDay == null) {
-                continue;
-            }
-            date = previousTradingDay;
-            result.add(previousTradingDay);
-        } while (result.size() < off);
-        return result;
-    }
+        // 从倒序结果取前 off 个交易日
+        Set<Integer> resultSet = redisTemplate.opsForZSet()
+                .reverseRangeByScore(LuciferShareConstant.TRADING_TIME_KEY, Double.NEGATIVE_INFINITY, date - 1, 0, off);
 
+        if (resultSet == null || resultSet.isEmpty()) {
+            return List.of();
+        }
+        // 倒序转升序
+        return resultSet.stream().sorted().collect(Collectors.toList());
+    }
 
 
 
@@ -330,77 +226,54 @@ public class TradingDateTimeService {
      */
     public int getNextTradingDay(int date, int off) {
         if (off <= 0) {
-            return date;
+            throw new IllegalArgumentException("off 必须大于0");
         }
-        
-        // 从交易日缓存中直接获取数据
-        NavigableSet<Integer> tradingDaysSet = getTradingDaysSet();
-        if (CollectionUtils.isEmpty(tradingDaysSet)) {
-            log.error("交易日历数据为空，无法获取后{}个交易日", off);
+
+        // 从指定日期之后开始取，第 off 个交易日
+        Set<Integer> result = redisTemplate.opsForZSet()
+                .rangeByScore(LuciferShareConstant.TRADING_TIME_KEY, date + 1, Double.MAX_VALUE, off - 1, 1);
+
+        if (result == null || result.isEmpty()) {
             return -1;
         }
-        
-        // 找到大于等于当前日期的最小交易日
-        Integer currentOrNextDay = tradingDaysSet.ceiling(date);
-        if (currentOrNextDay == null) {
-            log.warn("未找到大于等于{}的交易日", date);
-            return -1;
-        }
-        
-        // 向后查找off个交易日
-        Integer targetDay = currentOrNextDay;
-        int count = 0;
-        
-        while (count < off && targetDay != null) {
-            targetDay = tradingDaysSet.higher(targetDay);
-            count++;
-        }
-        
-        if (targetDay == null) {
-            log.warn("交易日历数据不足，无法获取后{}个交易日，当前只能获取{}个", off, count);
-            return -1;
-        }
-        
-        return targetDay;
+
+        return result.iterator().next();
     }
 
+    public boolean isTradingData(int date) {
+        Double score = redisTemplate.opsForZSet().score(LuciferShareConstant.TRADING_TIME_KEY, date);
+        return score != null;
+    }
+    public boolean isBidding(){
+        return isBidding( LocalTime.now());
+    }
+    public boolean isBidding(LocalTime now){
+        return now.isAfter(LuciferShareConstant.BIDDING_START) && now.isBefore(LuciferShareConstant.BIDDING_END);
+    }
 
-    
+    public boolean isMorning(){
+        return isMorning(LocalTime.now());
+    }
+    public boolean isMorning(LocalTime now){
+        return now.isAfter(LuciferShareConstant.MORNING_START) && now.isBefore(LuciferShareConstant.MORNING_END);
+    }
+
+    public boolean isAfternoon(){
+
+        return isAfternoon(LocalTime.now());
+    }
+    public boolean isAfternoon(LocalTime now){
+        return now.isAfter(LuciferShareConstant.AFTERNOON_START) && now.isBefore(LuciferShareConstant.AFTERNOON_END);
+    }
     /**
      * 判断当前是否是交易日的交易时间
-     * 交易时间为：9:15-11:30, 13:00-15:00
-     * 
+     * 交易时间为：9:10-16:00
+     * 前后都留下一些冗余
      * @return 是否在交易时间内
      */
-    public boolean isTradingTime(boolean bidding) {
-        // 先判断当天是否为交易日
-        if (!isTradingDay(LocalDate.now())) {
-            return false;
-        }
-        // 再判断当前时间是否在交易时间段内
+    public boolean isTradingTime() {
         LocalTime now = LocalTime.now();
-        return (bidding && now.isAfter(BIDDING_START) && now.isBefore(BIDDING_END)) || (now.isAfter(MORNING_START) && now.isBefore(MORNING_END) || now.isAfter(AFTERNOON_START) && now.isBefore(AFTERNOON_END));
+        return now.isAfter(LocalTime.of(9, 10)) && now.isBefore(LocalTime.of(16, 0));
     }
 
-    /**
-     * 判断当前是否是交易日的交易时间
-     * 交易时间为：9:15-11:30, 13:00-15:00
-     *
-     * @return 是否在交易时间内
-     */
-    public boolean isNotTradingTime() {
-        // 先判断当天是否为交易日
-        if (!isTradingDay(LocalDate.now())) {
-            return false;
-        }
-        // 再判断当前时间是否在交易时间段内
-        LocalTime now = LocalTime.now();
-        return  !(now.isAfter(LocalTime.of(9, 0)) && now.isBefore(LocalTime.of(17, 0)));
-    }
-
-    public static void main(String[] args) {
-        LocalTime now = LocalTime.now();
-        boolean a=  !(now.isAfter(LocalTime.of(9, 0)) && now.isBefore(LocalTime.of(17, 0)));
-        System.out.println(a);
-    }
 } 

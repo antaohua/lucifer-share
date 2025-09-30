@@ -180,7 +180,6 @@ public class IndexInfoService extends ServiceImpl<IndexInfoMapper, IndexInfo> {
             }
             long currentTime = System.currentTimeMillis();
             JSONArray array = JSON.parseArray(jsonData);
-            List<IndexInfo> indexInfoList = new ArrayList<>();
             for (int i = 0; i < array.size(); i++) {
                 JSONObject jsonObject = array.getJSONObject(i);
                 String indexCode = jsonObject.getString("代码");

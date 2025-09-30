@@ -43,4 +43,42 @@ public enum ShareExchange {
         }
         return UNKNOWN;
     }
+
+    /**
+     * 根据股票代码获取交易所
+     *
+     * @param code 股票代码
+     * @return 交易所
+     */
+    public static ShareExchange getExchange(String code) {
+        // 1. 输入校验 (保持不变)
+        if (code == null || code.length() != 6 || !code.matches("^\\d{6}$")) {
+            // 要求代码为6位数字
+            return UNKNOWN;
+        }
+
+        String prefix2 = code.substring(0, 2);
+        String prefix3 = code.substring(0, 3);
+
+        // --- 上海交易所 (SH) ---
+        // 主板 (600, 601, 603, 605), 科创板 (688), B股 (900)
+        if (prefix3.startsWith("60") || "688".equals(prefix3) || "900".equals(prefix3)) {
+            return SH;
+        }
+        // --- 深圳交易所 (SZ) ---
+        // 主板 (000, 001), 中小板(合并后, 002, 003, 004等), 创业板 (300), B股 (200)
+        if (prefix3.startsWith("00") || "300".equals(prefix3) || "200".equals(prefix3)) {
+            return SZ;
+        }
+
+        // --- 北京交易所 (BJ) ---
+        // 北交所股票代码以 43, 83, 87, 88 开头
+        if ("43".equals(prefix2) || "83".equals(prefix2) || "87".equals(prefix2) || "88".equals(prefix2)) {
+            return BJ;
+        }
+
+        // 对于无法识别的代码，返回未知
+        return UNKNOWN;
+    }
+
 }

@@ -68,6 +68,6 @@ public class ShareController {
         if(shareCodes == null || shareCodes.isEmpty()){
             return RestResponse.success(Lists.newArrayList());
         }
-        return RestResponse.success(shareInfoService.getByShareCodes(shareCodes));
+        return null;
     }
 }
