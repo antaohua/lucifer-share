@@ -1,5 +1,7 @@
 package com.muniu.cloud.lucifer.share.service.constant;
 
+import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -21,5 +23,23 @@ public class LuciferShareConstant {
     public static final LocalTime AFTERNOON_END    = LocalTime.of(15, 1);
 
     public static final String TRADING_TIME_KEY = "trading_time";
+
+
+
+    private static final String REDIS_SHARE_STATUS = "SHARE:DATE:STATUS:";
+    private static final String REDIS_SHARE_SET = "SHARE:DATE:SET:";
+
+    public static String getRedisShareStatusKey(String code) {
+        String dayString = LAST_TRADING_DATA.format(DateConstant.DATE_FORMATTER_YYYYMMDD);
+
+        return  REDIS_SHARE_STATUS + code + ":" + dayString;
+    }
+
+    public static String getRedisShareSetKey() {
+        String dayString = LAST_TRADING_DATA.format(DateConstant.DATE_FORMATTER_YYYYMMDD);
+        return REDIS_SHARE_SET + dayString;
+    }
+
+
 
 }

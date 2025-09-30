@@ -101,97 +101,6 @@ public class AkToolsService {
     }
 
 
-    private static final ShareBoard[] SHANGHAI_BOARDS = new ShareBoard[]{ShareBoard.MAIN, ShareBoard.STAR};
-
-    /**
-     * 股票列表-上证
-     */
-
-    public List<SimpleShareInfo> stockInfoShNameCode() throws IOException {
-        List<SimpleShareInfo> shareInfos = Lists.newArrayList();
-        for (ShareBoard board : SHANGHAI_BOARDS) {
-            String symbol = board == ShareBoard.MAIN ? "主板A股" : board == ShareBoard.STAR ? "科创板" : "";
-
-            if (StringUtils.isBlank(symbol)) {
-                log.error("stockInfoShNameCode is null");
-                continue;
-            }
-            Map<String, String> parameter = new HashMap<>();
-            parameter.put("symbol", symbol);
-            String jsonString = get("stock_info_sh_name_code", parameter);
-            if (StringUtils.isBlank(jsonString)) {
-                log.error("stockInfoANameCode is null");
-                continue;
-            }
-            JSONArray array = JSON.parseArray(jsonString);
-            for (int i = 0; i < array.size(); i++) {
-                JSONObject obj = array.getJSONObject(i);
-                String shareName = obj.getString("证券简称").replace(" ", "").trim();
-                String shareCode = obj.getString("证券代码");
-                //2019-07-22T00:00:00.000
-                int listDate = obj.getString("上市日期").substring(0, 10).replace("-", "").equals("0000-00-00") ? 0 : Integer.parseInt(obj.getString("上市日期").substring(0, 10).replace("-", ""));
-                shareInfos.add(new SimpleShareInfo(shareCode, shareName, listDate, ShareExchange.SH, board));
-            }
-            log.info("shareInfos-size:{}", shareInfos.size());
-
-        }
-        return shareInfos;
-    }
-
-
-    /**
-     * 股票列表-深证
-     */
-    public List<SimpleShareInfo> stockInfoSzNameCode() throws IOException {
-
-        Map<String, String> parameter = new HashMap<>();
-        String symbol = "A股列表";
-        parameter.put("symbol", symbol);
-        String jsonString = get("stock_info_sz_name_code", parameter);
-        List<SimpleShareInfo> shareInfos = Lists.newArrayList();
-        if (StringUtils.isBlank(jsonString)) {
-            log.error("stockInfoANameCode is null");
-            return shareInfos;
-        }
-        JSONArray array = JSON.parseArray(jsonString);
-        for (int i = 0; i < array.size(); i++) {
-            JSONObject obj = array.getJSONObject(i);
-            String shareName = obj.getString("A股简称").replace(" ", "").trim();
-            String shareCode = obj.getString("A股代码");
-            //2019-07-22
-            String board = obj.getString("板块");
-            ShareBoard shareBoard = StringUtils.equals(board, "创业板") ? ShareBoard.STAR : StringUtils.equals(board, "主板") ? ShareBoard.MAIN : ShareBoard.UNKNOWN;
-            int listDate = obj.getString("A股上市日期").substring(0, 10).replace("-", "").equals("0000-00-00") ? 0 : Integer.parseInt(obj.getString("A股上市日期").substring(0, 10).replace("-", ""));
-            shareInfos.add(new SimpleShareInfo(shareCode, shareName, listDate, ShareExchange.SZ, shareBoard));
-        }
-        log.info("shareInfos-size:{}", shareInfos.size());
-        return shareInfos;
-    }
-
-    /**
-     * 股票列表-北证
-     */
-    public List<SimpleShareInfo> stockInfoBjNameCode() throws IOException {
-
-        String jsonString = get("stock_info_bj_name_code", null);
-        List<SimpleShareInfo> shareInfos = Lists.newArrayList();
-        if (StringUtils.isBlank(jsonString)) {
-            log.error("stockInfoANameCode is null");
-            return shareInfos;
-        }
-        JSONArray array = JSON.parseArray(jsonString);
-        for (int i = 0; i < array.size(); i++) {
-            JSONObject obj = array.getJSONObject(i);
-            String shareName = obj.getString("证券简称").replace(" ", "").trim();
-            String shareCode = obj.getString("证券代码");
-            int listDate = obj.getString("上市日期").substring(0, 10).replace("-", "").equals("0000-00-00") ? 0 : Integer.parseInt(obj.getString("上市日期").substring(0, 10).replace("-", ""));
-            shareInfos.add(new SimpleShareInfo(shareCode, shareName, listDate, ShareExchange.BJ, ShareBoard.BSE));
-        }
-        log.info("shareInfos-size:{}", shareInfos.size());
-        return shareInfos;
-    }
-
-
     /**
      * 股票列表-A股
      */
@@ -228,7 +137,7 @@ public class AkToolsService {
         parameter.put("period", period.getCode());
         parameter.put("start_date", startDate);
         parameter.put("end_date", endDate);
-        if (adjust != null && adjust != AdjustConstant.NONE) {
+        if (adjust == null && adjust != AdjustConstant.NONE) {
             parameter.put("adjust", adjust.getCode());
         }
         return get("stock_zh_a_hist", parameter);

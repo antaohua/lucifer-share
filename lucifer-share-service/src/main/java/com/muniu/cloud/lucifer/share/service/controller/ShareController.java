@@ -36,11 +36,6 @@ public class ShareController {
     }
 
 
-    @Operation(summary = "查询股票列表", description = "分页查询股票列表", responses = {@ApiResponse(responseCode = "200", description = "成功获取股票信息列表", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestResponse.class)))})
-    @PostMapping("page.json")
-    public RestResponse<PageResult<ShareInfo>> list(@RequestBody PageParams pageParams) {
-        return RestResponse.success(shareInfoService.getPageList(pageParams));
-    }
 
     /**
      * 根据股票代码批量获取股票信息

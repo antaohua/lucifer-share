@@ -1,13 +1,17 @@
 package com.muniu.cloud.lucifer.share.service.model.cache;
 
 
+import com.muniu.cloud.lucifer.share.service.constant.LuciferShareConstant;
 import com.muniu.cloud.lucifer.share.service.constant.ShareBoard;
 import com.muniu.cloud.lucifer.share.service.constant.ShareExchange;
 import com.muniu.cloud.lucifer.share.service.constant.ShareStatus;
 import com.muniu.cloud.lucifer.share.service.entity.ShareInfo;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.redis.core.HashOperations;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -15,7 +19,25 @@ import java.util.Optional;
  */
 @Setter
 @Getter
+@NoArgsConstructor
 public class ShareInfoCacheValue {
+
+
+
+    public static final String HASH_CODE = "code";
+
+    public static final String HASH_STATUS = "status";
+
+    public static final String HASH_BOARD = "board";
+
+    public static final String HASH_EXCHANGE = "exchange";
+
+    public static final String HASH_HISTORY = "history";
+
+    public static final String HASH_NAME = "name";
+
+
+    private String code;
     /**
      * 板块
      * */
@@ -31,6 +53,8 @@ public class ShareInfoCacheValue {
      * */
     private int listDate;
 
+
+    private ShareBoard board;
     /**
      * 交易所
      * */
@@ -46,7 +70,22 @@ public class ShareInfoCacheValue {
      * */
     private int historyUpdateDate;
 
-    private int infoUpdateDate;
+
+    public ShareInfoCacheValue(HashOperations<String, String, String> hashOps , String shareCode) {
+        if (shareCode == null || shareCode.isEmpty()) return;
+        Map<String, String> data = hashOps.entries(LuciferShareConstant.getRedisShareStatusKey(shareCode));
+        if (data.containsKey(HASH_CODE)) return;
+        this.code = data.get(HASH_CODE);
+        this.shareName = data.get(HASH_NAME);
+        this.exchange = ShareExchange.getExchangeConstant(data.get(HASH_EXCHANGE));
+        this.status = ShareStatus.valueOf(data.get(HASH_STATUS));
+        this.listDate = Integer.parseInt(data.get(HASH_EXCHANGE));
+        this.board = ShareBoard.valueOf(data.get(HASH_BOARD));
+        this.historyUpdateDate = Integer.parseInt(data.get(HASH_HISTORY) == null ? "0" : data.get(HASH_HISTORY));
+    }
+
+
+
 
 
 
@@ -57,6 +96,5 @@ public class ShareInfoCacheValue {
         this.exchange = ShareExchange.getExchangeConstant(entity.getExchange());
         this.status = ShareStatus.fromCode(entity.getShareStatus());
         this.historyUpdateDate = Optional.ofNullable(entity.getHistoryUpdateDate()).orElse(0);
-        this.infoUpdateDate = Optional.ofNullable(entity.getInfoUpdateDate()).orElse(0);
     }
 }

@@ -46,7 +46,7 @@ public class TestStockZhAHist {
 //        });
         LuciferStaticProxyHttpClient autoProxyHttpClient = new LuciferStaticProxyHttpClient(LuciferLoadStrategy.REQUEST_HASH,true);
 //        autoProxyHttpClient.addProxy(Proxy.Type.HTTP, "47.94.175.27", 64764,"antaohua","1q2w3e4rQ663463");
-        autoProxyHttpClient.addProxy(Proxy.Type.HTTP, "192.168.100.254", 8080,"antaohua","1q2w3e4r");
+        autoProxyHttpClient.addProxy(Proxy.Type.HTTP, "192.168.100.254", 3128,"antaohua","1q2w3e4r");
         String symbol = "600000";  // 示例股票代码
         String period = "daily";   // 示例周期
         String adjust = "qfq";     // 示例复权方式
@@ -54,7 +54,7 @@ public class TestStockZhAHist {
         String endDate = "20250925";   // 示例结束日期
 
 
-        for (int i = 0; i < 10; i++){
+        for (int i = 0; i < 1; i++){
             try {
                 String json = autoProxyHttpClient.get(buildStockDataUrl(symbol,period,adjust,startDate,endDate));
                 System.out.println(json);

@@ -1,14 +1,17 @@
 package com.muniu.cloud.lucifer.share.service.constant;
 
+import lombok.Getter;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+@Getter
 public enum ShareBoard {
     MAIN("MAIN", "主板", new ShareExchange[]{ShareExchange.SZ, ShareExchange.SH}) {
         @Override
         public BigDecimal maxPrice(BigDecimal price, ShareStatus status) {
             // 最大涨幅 10%，四舍五入保留两位小数
-            if (status == ShareStatus.STAR_ST || status == ShareStatus.ST) {
+            if (status == ShareStatus.ST) {
                 return price.multiply(BigDecimal.valueOf(1.05))
                         .setScale(2, RoundingMode.HALF_UP);
             }
@@ -22,7 +25,7 @@ public enum ShareBoard {
         @Override
         public BigDecimal minPrice(BigDecimal price, ShareStatus status) {
             // 最大跌幅 10%，四舍五入保留两位小数
-            if (status == ShareStatus.STAR_ST || status == ShareStatus.ST) {
+            if (status == ShareStatus.ST) {
                 return price.multiply(BigDecimal.valueOf(0.95))
                         .setScale(2, RoundingMode.HALF_UP);
             }
@@ -37,7 +40,7 @@ public enum ShareBoard {
         @Override
         public BigDecimal maxPrice(BigDecimal price, ShareStatus status) {
             // 最大涨幅 10%，四舍五入保留两位小数
-            if (status == ShareStatus.STAR_ST || status == ShareStatus.ST) {
+            if (status == ShareStatus.ST) {
                 return price.multiply(BigDecimal.valueOf(1.05))
                         .setScale(2, RoundingMode.HALF_UP);
             }
@@ -51,15 +54,13 @@ public enum ShareBoard {
         @Override
         public BigDecimal minPrice(BigDecimal price, ShareStatus status) {
             // 最大跌幅 10%，四舍五入保留两位小数
-            if (status == ShareStatus.STAR_ST || status == ShareStatus.ST) {
-                return price.multiply(BigDecimal.valueOf(0.95))
-                        .setScale(2, RoundingMode.HALF_UP);
+            if (status == ShareStatus.ST) {
+                return price.multiply(BigDecimal.valueOf(0.95)).setScale(2, RoundingMode.HALF_UP);
             }
             if (status == ShareStatus.NEW) {
                 return BigDecimal.ZERO;
             }
-            return price.multiply(BigDecimal.valueOf(0.9))
-                    .setScale(2, RoundingMode.HALF_UP);
+            return price.multiply(BigDecimal.valueOf(0.9)).setScale(2, RoundingMode.HALF_UP);
         }
     },
     ChiNext("ChiNext", "创业板", new ShareExchange[]{ShareExchange.SZ}) {
@@ -144,18 +145,6 @@ public enum ShareBoard {
     public abstract BigDecimal maxPrice(BigDecimal price, ShareStatus status);
 
     public abstract BigDecimal minPrice(BigDecimal price, ShareStatus status);
-
-    public ShareExchange[] getExchanges() {
-        return exchanges;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public String getDist() {
-        return dist;
-    }
 
 
     public static ShareBoard fromKey(String key) {

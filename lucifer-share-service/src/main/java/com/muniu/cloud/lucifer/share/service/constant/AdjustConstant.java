@@ -1,5 +1,8 @@
 package com.muniu.cloud.lucifer.share.service.constant;
 
+import lombok.Getter;
+
+@Getter
 public enum AdjustConstant {
     NONE("none", "不复权"){
         @Override
@@ -18,10 +21,6 @@ public enum AdjustConstant {
         this.description = description;
     }
 
-    public String getCode() {
-        return code;
-    }
-
     public static AdjustConstant getAdjustConstant(String code) {
         for (AdjustConstant adjustConstant : AdjustConstant.values()) {
             if (adjustConstant.getCode().equals(code)) {
@@ -32,8 +31,4 @@ public enum AdjustConstant {
     }
 
 
-
-    public String getDescription() {
-        return description;
-    }
 }

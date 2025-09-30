@@ -56,7 +56,7 @@ public class TdIndexHistService extends BaseShardingService<TdIndexHistMapper,Td
 
     @Transactional(rollbackFor = Exception.class)
     public void syncIndexHistData(boolean isTask) throws Exception {
-        if (!isTask || !tradingDayService.isNotTradingTime()) {
+        if (!isTask || (!tradingDayService.isTradingDay() || !tradingDayService.isTradingTime())) {
             return;
         }
         // 确定同步日期

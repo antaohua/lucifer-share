@@ -53,24 +53,7 @@ public class TaskController {
         return "success";
     }
 
-    /**
-     * 获取上海股票列表
-     * @return 任务执行结果
-     * @throws Exception 任务执行异常
-     */
-    @PostMapping("shanghaiShareList")
-    @Operation(
-        summary = "获取上海股票列表", 
-        description = "从远程API获取上海证券交易所的股票列表"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "任务启动成功"),
-        @ApiResponse(responseCode = "500", description = "任务启动失败")
-    })
-    public String shanghaiShareList() throws Exception {
-        shareInfoService.shanghaiShareList();
-        return "success";
-    }
+
 
     /**
      * 获取远程股票实时数据

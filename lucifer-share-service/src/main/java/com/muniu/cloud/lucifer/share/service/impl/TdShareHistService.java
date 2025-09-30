@@ -4,10 +4,9 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.muniu.cloud.lucifer.commons.core.mybatisplus.BaseShardingService;
+import com.muniu.cloud.lucifer.share.service.clients.EastmoneyStockHistApiClient;
 import com.muniu.cloud.lucifer.share.service.config.ScheduledInterface;
 import com.muniu.cloud.lucifer.share.service.model.cache.ShareInfoCacheValue;
-import com.muniu.cloud.lucifer.share.service.constant.AdjustConstant;
-import com.muniu.cloud.lucifer.share.service.constant.PeriodConstant;
 import com.muniu.cloud.lucifer.share.service.constant.ShareStatus;
 import com.muniu.cloud.lucifer.share.service.entity.TdShareHist;
 import com.muniu.cloud.lucifer.share.service.mapper.TdShareHistMapper;
@@ -36,12 +35,12 @@ public class TdShareHistService extends BaseShardingService<TdShareHistMapper, T
 
     private final TradingDateTimeService tradingDayService;
 
-    private final AkToolsService akToolsService;
+    private final EastmoneyStockHistApiClient akToolsService;
 
 
     @Autowired
     public TdShareHistService(ShareInfoService shareInfoService,
-                              TradingDateTimeService tradingDayService, AkToolsService akToolsService) {
+                              TradingDateTimeService tradingDayService, EastmoneyStockHistApiClient akToolsService) {
         this.shareInfoService = shareInfoService;
         this.tradingDayService = tradingDayService;
         this.akToolsService = akToolsService;
@@ -60,25 +59,25 @@ public class TdShareHistService extends BaseShardingService<TdShareHistMapper, T
             day = tradingDayService.getPreviousTradingDay(day);
         }
 
-        Map<String, ShareInfoCacheValue> shareInfoCacheValueMap = shareInfoService.getAll();
-        Map.Entry<String, ShareInfoCacheValue> cacheValueEntry = null;
-        for (Map.Entry<String, ShareInfoCacheValue> entry : shareInfoCacheValueMap.entrySet()) {
-            if (entry.getValue().getStatus() != ShareStatus.DEMISTED && entry.getValue().getHistoryUpdateDate() < day && entry.getValue().getListDate() < day) {
-                cacheValueEntry = entry;
+        List<ShareInfoCacheValue> shareInfoCacheValues = shareInfoService.getAll();
+        ShareInfoCacheValue cacheValue = null;
+        for (ShareInfoCacheValue entry : shareInfoCacheValues) {
+            if (entry.getStatus() != ShareStatus.DEMISTED && entry.getHistoryUpdateDate() < day && entry.getListDate() < day) {
+                cacheValue = entry;
                 break;
             }
         }
-        if (cacheValueEntry == null) {
+        if (cacheValue == null) {
             return;
         }
-        Integer fastDay = Math.max(cacheValueEntry.getValue().getHistoryUpdateDate(), 0);
+        Integer fastDay = Math.max(cacheValue.getHistoryUpdateDate(), 0);
         if(fastDay == 0){
             int year = day / 10000;
             TdShareHist hist;
-            int listYear = cacheValueEntry.getValue().getListDate() > 0 ? cacheValueEntry.getValue().getListDate() / 10000 : 1990;
+            int listYear = cacheValue.getListDate() > 0 ? cacheValue.getListDate() / 10000 : 1990;
             do {
                 createTable("td_share_hist_", String.valueOf(year));
-                hist = getBaseMapper().selectShareLastDate(cacheValueEntry.getKey(), year);
+                hist = getBaseMapper().selectShareLastDate(cacheValue.getCode(), year);
                 if (hist != null) {
                     fastDay = hist.getDate();
                     break;
@@ -88,17 +87,17 @@ public class TdShareHistService extends BaseShardingService<TdShareHistMapper, T
         }
 
         if (fastDay == day) {
-            if (fastDay != cacheValueEntry.getValue().getHistoryUpdateDate()) {
-                shareInfoService.updateShareHistoryUpdateDate(cacheValueEntry.getKey(), day);
+            if (fastDay != cacheValue.getHistoryUpdateDate()) {
+                shareInfoService.updateShareHistoryUpdateDate(cacheValue.getCode(), day);
             }
-            log.info("已更新无需再更新 day:{},fastDay:{},shareCode={}", day, fastDay, cacheValueEntry.getKey());
+            log.info("已更新无需再更新 day:{},fastDay:{},shareCode={}", day, fastDay, cacheValue.getCode());
             return;
         }
-        fastDay = fastDay == 0 ? tradingDayService.getNextTradingDay(cacheValueEntry.getValue().getListDate()) : tradingDayService.getNextTradingDay(fastDay);
-        log.info("开始更新股票历史数据 fastDay:{},day:{},shareCode:{}", fastDay, day, cacheValueEntry.getKey());
-        String jsonString = akToolsService.stockZhAHist(cacheValueEntry.getKey(), PeriodConstant.DAY, AdjustConstant.NONE, String.valueOf(fastDay), String.valueOf(day));
+        fastDay = fastDay == 0 ? tradingDayService.getNextTradingDay(cacheValue.getListDate()) : tradingDayService.getNextTradingDay(fastDay);
+        log.info("开始更新股票历史数据 fastDay:{},day:{},shareCode:{}", fastDay, day, cacheValue.getCode());
+        String jsonString = akToolsService.stockZhAHist(cacheValue.getCode(), String.valueOf(fastDay), String.valueOf(day));
         if(StringUtils.isBlank(jsonString)){
-            log.info("股票历史数据为空 fastDay:{},day:{},shareCode:{}", fastDay, day, cacheValueEntry.getKey());
+            log.info("股票历史数据为空 fastDay:{},day:{},shareCode:{}", fastDay, day, cacheValue.getCode());
             return;
         }
         JSONArray jsonArray = JSON.parseArray(jsonString);
@@ -107,8 +106,8 @@ public class TdShareHistService extends BaseShardingService<TdShareHistMapper, T
         Map<Integer, List<TdShareHist>> map = list.stream().collect(Collectors.groupingBy(e -> e.getDate() / 10000));
         map.forEach((k, v) -> createTable("td_share_hist_", String.valueOf(k)));
         map.forEach((k, v) -> getBaseMapper().insertOrUpdateBatch(v, k));
-        shareInfoService.updateShareHistoryUpdateDate(cacheValueEntry.getKey(), day);
-        log.info("更新股票历史数据完成 fastDay:{},day:{},shareCode:{},listSize:{}", fastDay, day, cacheValueEntry.getKey(), list.size());
+        shareInfoService.updateShareHistoryUpdateDate(cacheValue.getCode(), day);
+        log.info("更新股票历史数据完成 fastDay:{},day:{},shareCode:{},listSize:{}", fastDay, day, cacheValue.getCode(), list.size());
     }
 
     private TdShareHist getShareHistEntity(JSONObject item, long createTime) {
