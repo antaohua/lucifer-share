@@ -3,7 +3,7 @@ package com.muniu.cloud.lucifer.share.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.muniu.cloud.lucifer.commons.core.config.AsyncEventListener;
+import com.muniu.cloud.lucifer.commons.core.annotation.AsyncEventListener;
 import com.muniu.cloud.lucifer.share.service.constant.LuciferShareConstant;
 import com.muniu.cloud.lucifer.share.service.constant.ShareBoard;
 import com.muniu.cloud.lucifer.share.service.constant.ShareExchange;

@@ -1,20 +1,12 @@
 package com.muniu.cloud.lucifer.share.service.utils;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
-import com.muniu.cloud.lucifer.commons.core.config.LuciferLoadStrategy;
-import com.muniu.cloud.lucifer.commons.core.http.LuciferAutoProxyHttpClient;
+import com.muniu.cloud.lucifer.commons.core.constants.LuciferLoadStrategy;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferHttpClient;
-import com.muniu.cloud.lucifer.commons.core.http.LuciferProxy;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferStaticProxyHttpClient;
-import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.HttpUrl;
 
 import java.net.Proxy;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Map;
 
 @Slf4j
@@ -44,24 +36,37 @@ public class TestStockZhAHist {
 //            log.info("load proxy config success . ip = {} , port = {} , timestamp = {} , t={}", obj.getString("ip"), obj.getInteger("port"), timestamp - 10000, timestamp);
 //            return new LuciferProxy(Proxy.Type.HTTP, obj.getString("ip"), obj.getInteger("port"), authKey, password, timestamp - 10000);
 //        });
-        LuciferStaticProxyHttpClient autoProxyHttpClient = new LuciferStaticProxyHttpClient(LuciferLoadStrategy.REQUEST_HASH,true);
-//        autoProxyHttpClient.addProxy(Proxy.Type.HTTP, "47.94.175.27", 64764,"antaohua","1q2w3e4rQ663463");
-        autoProxyHttpClient.addProxy(Proxy.Type.HTTP, "192.168.100.254", 3128,"antaohua","1q2w3e4r");
-        String symbol = "600000";  // 示例股票代码
-        String period = "daily";   // 示例周期
-        String adjust = "qfq";     // 示例复权方式
-        String startDate = "20250924"; // 示例开始日期
-        String endDate = "20250925";   // 示例结束日期
-
-
-        for (int i = 0; i < 1; i++){
-            try {
-                String json = autoProxyHttpClient.get(buildStockDataUrl(symbol,period,adjust,startDate,endDate));
-                System.out.println(json);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+        {
+            LuciferStaticProxyHttpClient autoProxyHttpClient = new LuciferStaticProxyHttpClient(LuciferLoadStrategy.REQUEST_HASH,false);
+            autoProxyHttpClient.addProxy(Proxy.Type.HTTP, "langfang.antaohua.com", 64764,"antaohua","1q2w3e4rQ663464");
+            String json = autoProxyHttpClient.get("https://www.ipplus360.com/getIP");
+            System.out.println("廊坊代理--->" + json);
         }
+
+        {
+            LuciferStaticProxyHttpClient autoProxyHttpClient = new LuciferStaticProxyHttpClient(LuciferLoadStrategy.REQUEST_HASH,false);
+            autoProxyHttpClient.addProxy(Proxy.Type.HTTP, "www.antaohua.com", 64764,"antaohua","1q2w3e4rQ663464");
+            String json = autoProxyHttpClient.get("https://www.ipplus360.com/getIP");
+            System.out.println("北京代理--->" + json);
+        }
+
+        {
+
+            LuciferHttpClient httpClient = new LuciferHttpClient();
+            String json = httpClient.get("https://www.ipplus360.com/getIP");
+            System.out.println("本地--->" + json);
+        }
+
+
+
+//        System.out.println(buildStockDataUrl(symbol,period,adjust,startDate,endDate));
+//        for (int i = 0; i < 1; i++){
+//            try {
+//
+//            }catch (Exception e){
+//                e.printStackTrace();
+//            }
+//        }
         Thread.sleep(1000000);
 
 

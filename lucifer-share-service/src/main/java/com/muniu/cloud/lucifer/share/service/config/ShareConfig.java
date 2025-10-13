@@ -3,30 +3,22 @@ package com.muniu.cloud.lucifer.share.service.config;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.muniu.cloud.lucifer.commons.core.config.LuciferLoadStrategy;
+import com.muniu.cloud.lucifer.commons.core.constants.LuciferLoadStrategy;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferAutoProxyHttpClient;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferHttpClient;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferProxy;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferStaticProxyHttpClient;
 import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
-import com.muniu.cloud.lucifer.commons.utils.exception.HttpClientException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.net.Proxy;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 
 @Slf4j
 @Configuration

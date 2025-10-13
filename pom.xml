@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.muniu.cloud</groupId>
         <artifactId>lucifer-super</artifactId>
-        <version>1.0-250929-82ea67b</version>
+        <version>1.0-251013-ade555c</version>
     </parent>
 
     <artifactId>lucifer-share</artifactId>
@@ -19,8 +19,8 @@
     </modules>
 
     <properties>
-        <lucifer.commons.version>1.0.250929-28045dc</lucifer.commons.version>
-        <lucifer.system.version>1.0.20250821-7f53f8b</lucifer.system.version>
+        <lucifer.commons.version>1.0.251013-ac47a5f</lucifer.commons.version>
+        <lucifer.system.version>1.0.251013-0d143d4</lucifer.system.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -64,7 +64,7 @@
     <repositories>
         <repository>
             <id>nexus-antaohua</id>
-            <url>https://nexus.antaohua.com/content/groups/public/</url>
+            <url>https://nexus.antaohua.com:5668/content/groups/public/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -76,17 +76,17 @@
     <distributionManagement>
         <repository>
             <id>nexus-antaohua</id>
-            <url>https://nexus.antaohua.com/content/repositories/releases/</url>
+            <url>https://nexus.antaohua.com:5668/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
             <id>nexus-antaohua</id>
-            <url>https://nexus.antaohua.com/content/repositories/snapshots/</url>
+            <url>https://nexus.antaohua.com:5668/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
     <pluginRepositories>
         <pluginRepository>
             <id>nexus-antaohua-plugins</id>
-            <url>https://nexus.antaohua.com/content/groups/public/</url>
+            <url>https://nexus.antaohua.com:5668/content/groups/public/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
