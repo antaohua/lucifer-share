@@ -1,6 +1,5 @@
 package com.muniu.cloud.lucifer.share.service.impl;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.muniu.cloud.lucifer.commons.core.annotation.AsyncEventListener;
@@ -9,8 +8,6 @@ import com.muniu.cloud.lucifer.share.service.constant.ShareBoard;
 import com.muniu.cloud.lucifer.share.service.constant.ShareExchange;
 import com.muniu.cloud.lucifer.share.service.model.cache.ShareInfoCacheValue;
 import com.muniu.cloud.lucifer.share.service.constant.ShareStatus;
-import com.muniu.cloud.lucifer.share.service.entity.ShareInfo;
-import com.muniu.cloud.lucifer.share.service.mapper.ShareInfoMapper;
 import com.muniu.cloud.lucifer.share.service.model.dto.SinaStockMarketSaveEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +24,7 @@ import java.util.Set;
 @Service
 @Slf4j
 @Transactional(rollbackFor = Exception.class)
-public class ShareInfoService extends ServiceImpl<ShareInfoMapper, ShareInfo> {
+public class ShareInfoService{
 
 
     private final RedisTemplate<String, String> redisTemplate;

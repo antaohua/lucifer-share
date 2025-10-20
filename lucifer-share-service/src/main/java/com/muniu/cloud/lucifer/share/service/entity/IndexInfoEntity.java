@@ -3,6 +3,8 @@ package com.muniu.cloud.lucifer.share.service.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.muniu.cloud.lucifer.commons.core.jpa.entity.BaseCustomIdEntity;
+import com.muniu.cloud.lucifer.commons.core.jpa.entity.BaseSnowflakeIdEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,13 +20,7 @@ import lombok.Data;
 @Data
 @TableName("index_info")
 @Schema(description = "指数基本信息")
-public class IndexInfo {
-
-    @Id
-    @Column(name = "index_code", length = 10, nullable = false)
-    @TableId(value = "index_code", type = IdType.INPUT)
-    @Schema(description = "指数代码", example = "000001")
-    private String indexCode;
+public class IndexInfoEntity extends BaseCustomIdEntity {
     
     /**
      * 指数名称

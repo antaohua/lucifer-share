@@ -3,17 +3,13 @@ package com.muniu.cloud.lucifer.share.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferHttpClient;
 import com.muniu.cloud.lucifer.commons.utils.exception.HttpClientException;
 import com.muniu.cloud.lucifer.share.service.constant.AdjustConstant;
 import com.muniu.cloud.lucifer.share.service.constant.PeriodConstant;
-import com.muniu.cloud.lucifer.share.service.constant.ShareBoard;
-import com.muniu.cloud.lucifer.share.service.constant.ShareExchange;
-import com.muniu.cloud.lucifer.share.service.entity.ConceptMarket;
-import com.muniu.cloud.lucifer.share.service.entity.MarketFundFlow;
-import com.muniu.cloud.lucifer.share.service.model.SimpleShareInfo;
+import com.muniu.cloud.lucifer.share.service.entity.ConceptMarketEntity;
+import com.muniu.cloud.lucifer.share.service.entity.MarketFundFlowEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -150,7 +146,7 @@ public class AkToolsService {
     /**
      * 获取市场资金流向数据
      */
-    public List<MarketFundFlow> marketFundFlow() throws IOException {
+    public List<MarketFundFlowEntity> marketFundFlow() throws IOException {
         String jsonString =  get("stock_market_fund_flow", null);
         
         List<Map<String,String>> list = Objects.requireNonNull(JSON.parseArray(jsonString, Map.class)).stream().map(e-> {
@@ -161,7 +157,7 @@ public class AkToolsService {
             return map;
         }).collect(Collectors.toList());
         
-        List<MarketFundFlow> result = new ArrayList<>();
+        List<MarketFundFlowEntity> result = new ArrayList<>();
         Optional.of(list)
             .orElse(Collections.emptyList())
             .forEach(map -> {
@@ -171,7 +167,7 @@ public class AkToolsService {
                 int tradeDate = Integer.parseInt(date.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
                 
                 // 创建上证数据
-                MarketFundFlow shFlow = new MarketFundFlow();
+                MarketFundFlowEntity shFlow = new MarketFundFlowEntity();
                 shFlow.setTradeDate(tradeDate);
                 shFlow.setMarketType("SH");
                 shFlow.setClosingPrice(new BigDecimal(map.get("上证-收盘价")));
@@ -180,7 +176,7 @@ public class AkToolsService {
                 result.add(shFlow);
                 
                 // 创建深证数据
-                MarketFundFlow szFlow = new MarketFundFlow();
+                MarketFundFlowEntity szFlow = new MarketFundFlowEntity();
                 szFlow.setTradeDate(tradeDate);
                 szFlow.setMarketType("SZ");
                 szFlow.setClosingPrice(new BigDecimal(map.get("深证-收盘价")));
@@ -192,7 +188,7 @@ public class AkToolsService {
         return result;
     }
     
-    private static void setCommonFieldsStatic(MarketFundFlow entity, Map<String,String> map) {
+    private static void setCommonFieldsStatic(MarketFundFlowEntity entity, Map<String,String> map) {
         entity.setMainNetInflow(new BigDecimal(map.get("主力净流入-净额")));
         entity.setMainNetInflowRate(new BigDecimal(map.get("主力净流入-净占比")));
         entity.setSuperNetInflow(new BigDecimal(map.get("超大单净流入-净额")));
@@ -247,7 +243,7 @@ public class AkToolsService {
      * @return 概念板块数据JSON字符串
      * @throws IOException 请求异常
      */
-    public List<ConceptMarket> stockBoardConceptNameEm() throws IOException {
+    public List<ConceptMarketEntity> stockBoardConceptNameEm() throws IOException {
         String jsonData = get("stock_board_concept_name_em", null);
         if (StringUtils.isBlank(jsonData)) {
             return null;
@@ -256,11 +252,11 @@ public class AkToolsService {
         if (array == null || array.isEmpty()) {
             return null;
         }
-        List<ConceptMarket> result = new ArrayList<>();
+        List<ConceptMarketEntity> result = new ArrayList<>();
         long currentTime = System.currentTimeMillis();
         for (int i = 0; i < array.size(); i++) {
             JSONObject item = array.getJSONObject(i);
-            result.add(new ConceptMarket(item,currentTime));
+            result.add(new ConceptMarketEntity(item,currentTime));
         }
         return result;
     }

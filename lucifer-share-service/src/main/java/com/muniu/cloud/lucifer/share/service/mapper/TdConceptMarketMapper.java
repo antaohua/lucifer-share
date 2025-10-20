@@ -1,7 +1,7 @@
 package com.muniu.cloud.lucifer.share.service.mapper;
 
 import com.muniu.cloud.lucifer.commons.core.mybatisplus.BaseShardingMapper;
-import com.muniu.cloud.lucifer.share.service.entity.ConceptMarket;
+import com.muniu.cloud.lucifer.share.service.entity.ConceptMarketEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -11,7 +11,7 @@ import java.util.List;
  * 概念板块Mapper接口
  */
 @Mapper
-public interface TdConceptMarketMapper extends BaseShardingMapper<ConceptMarket> {
+public interface TdConceptMarketMapper extends BaseShardingMapper<ConceptMarketEntity> {
 
     /**
      * 创建分表
@@ -26,7 +26,7 @@ public interface TdConceptMarketMapper extends BaseShardingMapper<ConceptMarket>
      * @param month 月份，格式为yyyyMM
      * @return 影响行数
      */
-    int batchInsertOrUpdate(@Param("list") List<ConceptMarket> boardList, @Param("month") String month);
+    int batchInsertOrUpdate(@Param("list") List<ConceptMarketEntity> boardList, @Param("month") String month);
     
     /**
      * 根据概念板块代码和日期查询实时数据
@@ -36,8 +36,8 @@ public interface TdConceptMarketMapper extends BaseShardingMapper<ConceptMarket>
      * @param month 月份，格式为yyyyMM
      * @return 概念板块实时数据列表
      */
-    List<ConceptMarket> getRealtimeDataByCodeAndDate(@Param("boardCode") String boardCode,
-                                                     @Param("startTime") Long startTime,
-                                                     @Param("endTime") Long endTime,
-                                                     @Param("month") String month);
+    List<ConceptMarketEntity> getRealtimeDataByCodeAndDate(@Param("boardCode") String boardCode,
+                                                           @Param("startTime") Long startTime,
+                                                           @Param("endTime") Long endTime,
+                                                           @Param("month") String month);
 }

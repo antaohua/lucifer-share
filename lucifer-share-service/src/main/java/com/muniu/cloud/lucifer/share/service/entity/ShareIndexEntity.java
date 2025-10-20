@@ -14,7 +14,7 @@ import lombok.Data;
 @Table(name = "share_indices")
 @Data
 @TableName("share_indices")
-public class ShareIndex {
+public class ShareIndexEntity {
 
     @Id
     @Column(name = "id", length = 50, nullable = false)

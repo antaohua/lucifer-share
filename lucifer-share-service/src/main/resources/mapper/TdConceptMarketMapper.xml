@@ -78,7 +78,7 @@
     </insert>
 
     <!-- 根据概念板块代码和日期范围查询实时数据 -->
-    <select id="getRealtimeDataByCodeAndDate" resultType="com.muniu.cloud.lucifer.share.service.entity.ConceptMarket">
+    <select id="getRealtimeDataByCodeAndDate" resultType="com.muniu.cloud.lucifer.share.service.entity.ConceptMarketEntity">
         SELECT
             id,
             board_code,

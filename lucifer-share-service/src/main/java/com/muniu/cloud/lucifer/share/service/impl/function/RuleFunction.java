@@ -1,7 +1,7 @@
 package com.muniu.cloud.lucifer.share.service.impl.function;
 
 import com.muniu.cloud.lucifer.share.service.constant.RuleItemDataType;
-import com.muniu.cloud.lucifer.share.service.entity.ShareRuleItem;
+import com.muniu.cloud.lucifer.share.service.entity.ShareRuleItemEntity;
 import com.muniu.cloud.lucifer.share.service.exception.FunctionException;
 import com.muniu.cloud.lucifer.share.service.model.rule.Rule;
 
@@ -13,7 +13,7 @@ public interface RuleFunction {
      * @param args 参数
      * @return 处理结果
      */
-    String process(ShareRuleItem ruleItem, Rule rule, String... args) throws FunctionException;
+    String process(ShareRuleItemEntity ruleItem, Rule rule, String... args) throws FunctionException;
 
     RuleItemDataType getRuleDataType();
 

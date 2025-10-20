@@ -1,30 +1,22 @@
 package com.muniu.cloud.lucifer.share.service.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.muniu.cloud.lucifer.commons.core.jpa.entity.BaseSnowflakeIdEntity;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "market_fund_flow")
 @Data
-@TableName("market_fund_flow")
-public class MarketFundFlow {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @TableId(type = IdType.AUTO)
-    private Long id;
+public class MarketFundFlowEntity extends BaseSnowflakeIdEntity {
     
     @Column(name = "trade_date", nullable = false)
     private Integer tradeDate;  // 交易日期，格式：20240925
     
     @Column(name = "market_type", length = 10, nullable = false)
-    @TableField("market_type")
     private String marketType;  // 市场类型：SH-上证，SZ-深证
     
     @Column(name = "closing_price", precision = 10, scale = 2)

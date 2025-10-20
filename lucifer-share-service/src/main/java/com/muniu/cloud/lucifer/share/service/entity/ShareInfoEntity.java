@@ -1,6 +1,9 @@
 package com.muniu.cloud.lucifer.share.service.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.muniu.cloud.lucifer.commons.core.jpa.entity.BaseCustomIdEntity;
+import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaCreateColumn;
+import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaUpdateCloumn;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -9,7 +12,6 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.io.Serial;
-import java.io.Serializable;
 
 /**
  * <p>
@@ -24,21 +26,14 @@ import java.io.Serializable;
 @Data
 @ToString
 @TableName("share_info")
-public class ShareInfo implements Serializable {
+public class ShareInfoEntity extends BaseCustomIdEntity implements JpaCreateColumn, JpaUpdateCloumn {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @Column(name = "id", length = 10, nullable = false)
-    private String id;
+    private long createTime;
 
-    /**
-     * 创建时间
-     */
-    @Column(name = "create_time", nullable = false)
-    private Long createTime;
-
+    private long updateTime;
     /**
      * 交易所
      */
@@ -116,9 +111,6 @@ public class ShareInfo implements Serializable {
      */
     @Column(name = "total_shares")
     private Long totalShares;
-
-    @Column(name = "update_time")
-    private Long updateTime;
 
     /**
      * 信息更新时间

@@ -1,6 +1,6 @@
 package com.muniu.cloud.lucifer.share.service.model.cache;
 
-import com.muniu.cloud.lucifer.share.service.entity.IndexInfo;
+import com.muniu.cloud.lucifer.share.service.entity.IndexInfoEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
@@ -67,16 +67,16 @@ public class IndexInfoCacheValue {
     public IndexInfoCacheValue() {
     }
 
-    public IndexInfoCacheValue(IndexInfo indexInfo) {
-        this.indexCode = indexInfo.getIndexCode();
-        this.displayName = indexInfo.getDisplayName();
-        this.publishDate = indexInfo.getPublishDate();
-        this.source = indexInfo.getSource();
-        this.updateDate = indexInfo.getUpdateDate();
-        this.updateConstituent = indexInfo.getUpdateConstituent();
-        this.updateHistory = indexInfo.getUpdateHistory();
-        this.indexHistUpdate = indexInfo.getIndexHistUpdate();
-        this.indexConstUpdate = indexInfo.getIndexConstUpdate();
+    public IndexInfoCacheValue(IndexInfoEntity indexInfoEntity) {
+        this.indexCode = indexInfoEntity.getIndexCode();
+        this.displayName = indexInfoEntity.getDisplayName();
+        this.publishDate = indexInfoEntity.getPublishDate();
+        this.source = indexInfoEntity.getSource();
+        this.updateDate = indexInfoEntity.getUpdateDate();
+        this.updateConstituent = indexInfoEntity.getUpdateConstituent();
+        this.updateHistory = indexInfoEntity.getUpdateHistory();
+        this.indexHistUpdate = indexInfoEntity.getIndexHistUpdate();
+        this.indexConstUpdate = indexInfoEntity.getIndexConstUpdate();
     }
 
     public IndexInfoCacheValue(String indexCode, String displayName, Integer publishDate, String source, Integer updateDate, Byte updateConstituent, Byte updateHistory, Integer indexHistUpdate, Integer indexConstUpdate) {
@@ -163,17 +163,17 @@ public class IndexInfoCacheValue {
         this.indexConstUpdate = indexConstUpdate;
     }
 
-    public IndexInfo toIndexInfo() {
-        IndexInfo indexInfo = new IndexInfo();
-        indexInfo.setIndexCode(indexCode);
-        indexInfo.setDisplayName(displayName);
-        indexInfo.setPublishDate(publishDate);
-        indexInfo.setSource(source);
-        indexInfo.setUpdateDate(updateDate);
-        indexInfo.setUpdateConstituent(updateConstituent);
-        indexInfo.setUpdateHistory(updateHistory);
-        indexInfo.setIndexHistUpdate(indexHistUpdate);
-        indexInfo.setIndexConstUpdate(indexConstUpdate);
-        return indexInfo;
+    public IndexInfoEntity toIndexInfo() {
+        IndexInfoEntity indexInfoEntity = new IndexInfoEntity();
+        indexInfoEntity.setIndexCode(indexCode);
+        indexInfoEntity.setDisplayName(displayName);
+        indexInfoEntity.setPublishDate(publishDate);
+        indexInfoEntity.setSource(source);
+        indexInfoEntity.setUpdateDate(updateDate);
+        indexInfoEntity.setUpdateConstituent(updateConstituent);
+        indexInfoEntity.setUpdateHistory(updateHistory);
+        indexInfoEntity.setIndexHistUpdate(indexHistUpdate);
+        indexInfoEntity.setIndexConstUpdate(indexConstUpdate);
+        return indexInfoEntity;
     }
 }

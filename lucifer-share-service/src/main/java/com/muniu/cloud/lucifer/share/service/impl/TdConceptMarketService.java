@@ -4,7 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.google.common.collect.Lists;
 import com.muniu.cloud.lucifer.commons.core.mybatisplus.BaseShardingService;
 import com.muniu.cloud.lucifer.share.service.config.ScheduledInterface;
-import com.muniu.cloud.lucifer.share.service.entity.ConceptMarket;
+import com.muniu.cloud.lucifer.share.service.entity.ConceptMarketEntity;
 import com.muniu.cloud.lucifer.share.service.mapper.TdConceptMarketMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class TdConceptMarketService extends BaseShardingService<TdConceptMarketMapper,ConceptMarket> implements ScheduledInterface {
+public class TdConceptMarketService extends BaseShardingService<TdConceptMarketMapper, ConceptMarketEntity> implements ScheduledInterface {
     /**
      * 概念板块市场数据Redis缓存key前缀
      */
@@ -84,7 +84,7 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
             synchronized (cacheLock){
                 if(CollectionUtils.isEmpty(CONCEPT_BOARD_CODES)){
                     try {
-                        List<ConceptMarket> boardList = akToolsService.stockBoardConceptNameEm();
+                        List<ConceptMarketEntity> boardList = akToolsService.stockBoardConceptNameEm();
                         updateConceptBoardCodes(boardList);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -95,11 +95,11 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
         return CONCEPT_BOARD_CODES;
     }
 
-    private void updateConceptBoardCodes(List<ConceptMarket> conceptMarkets) {
-        if (CollectionUtils.isEmpty(conceptMarkets)) {
+    private void updateConceptBoardCodes(List<ConceptMarketEntity> conceptMarketEntities) {
+        if (CollectionUtils.isEmpty(conceptMarketEntities)) {
             return;
         }
-        Set<String> newCodes = conceptMarkets.stream().map(ConceptMarket::getBoardCode).collect(Collectors.toSet());
+        Set<String> newCodes = conceptMarketEntities.stream().map(ConceptMarketEntity::getBoardCode).collect(Collectors.toSet());
         CONCEPT_BOARD_CODES.stream().filter(e-> !newCodes.contains(e)).forEach(CONCEPT_BOARD_CODES::remove);
         CONCEPT_BOARD_CODES.forEach(newCodes::remove);
         CONCEPT_BOARD_CODES.addAll(newCodes);
@@ -115,7 +115,7 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
         }
         log.info("开始同步概念板块数据");
         // 获取概念板块数据
-        List<ConceptMarket> boardList = akToolsService.stockBoardConceptNameEm();
+        List<ConceptMarketEntity> boardList = akToolsService.stockBoardConceptNameEm();
         if (CollectionUtils.isEmpty(boardList)) {
             log.warn("未获取到概念板块数据");
             return;
@@ -132,7 +132,7 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
      * @param boardList 概念板块数据列表
      */
     @Transactional(rollbackFor = Exception.class)
-    public void saveConceptBoardData(List<ConceptMarket> boardList) {
+    public void saveConceptBoardData(List<ConceptMarketEntity> boardList) {
         if (CollectionUtils.isEmpty(boardList)) {
             return;
         }
@@ -165,7 +165,7 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
      * 更新市场数据缓存，每个概念板块使用单独的key
      * @param boardList 概念板块数据列表
      */
-    private void updateMarketDataCache(List<ConceptMarket> boardList) {
+    private void updateMarketDataCache(List<ConceptMarketEntity> boardList) {
         if (CollectionUtils.isEmpty(boardList)) {
             return;
         }
@@ -175,7 +175,7 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
             // 计算过期时间：下一个交易日的早上8点
             long expirationTime = calculateExpirationTime();
             // 按概念板块代码分组存储
-            for (ConceptMarket board : boardList) {
+            for (ConceptMarketEntity board : boardList) {
                 if (StringUtils.isBlank(board.getBoardCode())) {
                     continue;
                 }
@@ -221,7 +221,7 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
      * @param boardCode 概念板块代码
      * @return 当日市场数据列表
      */
-    public List<ConceptMarket> getBoardMarketData(String boardCode) {
+    public List<ConceptMarketEntity> getBoardMarketData(String boardCode) {
         if (StringUtils.isBlank(boardCode)) {
             return new ArrayList<>();
         }
@@ -234,7 +234,7 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
         if (dataSet != null && !dataSet.isEmpty()) {
             // 转换为列表
             return dataSet.stream()
-                    .map(obj -> JSON.parseObject(JSON.toJSONString(obj), ConceptMarket.class))
+                    .map(obj -> JSON.parseObject(JSON.toJSONString(obj), ConceptMarketEntity.class))
                     .collect(Collectors.toList());
         }
         // 如果缓存中没有数据，可以考虑从数据库加载
@@ -250,7 +250,7 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
      * @return 概念板块实时数据列表
      */
     @Transactional(rollbackFor = Exception.class)
-    public List<ConceptMarket> getRealtimeDataByCodeAndDate(String boardCode, Integer date) {
+    public List<ConceptMarketEntity> getRealtimeDataByCodeAndDate(String boardCode, Integer date) {
         if (StringUtils.isBlank(boardCode) || date == null) {
             return new ArrayList<>();
         }
@@ -261,8 +261,8 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
             if (dataSet != null && !dataSet.isEmpty()) {
                 // 转换为列表并按更新时间排序
                 return dataSet.stream()
-                    .map(obj -> JSON.parseObject(JSON.toJSONString(obj), ConceptMarket.class))
-                    .sorted(Comparator.comparing(ConceptMarket::getUpdateTime))
+                    .map(obj -> JSON.parseObject(JSON.toJSONString(obj), ConceptMarketEntity.class))
+                    .sorted(Comparator.comparing(ConceptMarketEntity::getUpdateTime))
                     .collect(Collectors.toList());
             }
             // 缓存未命中，从数据库查询

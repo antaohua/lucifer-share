@@ -1,9 +1,10 @@
 package com.muniu.cloud.lucifer.share.service.entity;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.muniu.cloud.lucifer.commons.core.jpa.entity.BaseSnowflakeIdEntity;
+import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaCreateColumn;
+import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaUpdateCloumn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -13,20 +14,16 @@ import java.math.BigDecimal;
 /**
  * 概念板块数据
  */
-@Entity
+@Entity()
 @Table(name = "concept_market")
 @Data
 @Schema(description = "概念板块数据")
-public class ConceptMarket {
+public class ConceptMarketEntity extends BaseSnowflakeIdEntity implements JpaUpdateCloumn, JpaCreateColumn {
 
-    /**
-     * 主键ID
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @TableId(value = "id", type = IdType.AUTO)
-    @Schema(description = "主键ID")
-    private Long id;
+    private long updateTime;
+
+    private long createTime;
+
 
     /**
      * 板块代码
@@ -124,18 +121,12 @@ public class ConceptMarket {
     @Schema(description = "排名", example = "1")
     private Integer rank;
 
-    /**
-     * 更新时间（毫秒时间戳）
-     */
-    @Column(name = "update_time", nullable = false)
-    @TableField("update_time")
-    @Schema(description = "更新时间（毫秒时间戳）")
-    private Long updateTime;
 
-    public ConceptMarket() {
+
+    public ConceptMarketEntity() {
     }
 
-    public ConceptMarket(JSONObject item, long currentTime) {
+    public ConceptMarketEntity(JSONObject item, long currentTime) {
         setRank(item.getInteger("排名"));
         setBoardName(item.getString("板块名称"));
         setBoardCode(item.getString("板块代码"));

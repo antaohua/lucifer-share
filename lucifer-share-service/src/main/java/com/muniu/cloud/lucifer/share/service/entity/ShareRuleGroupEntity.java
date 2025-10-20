@@ -3,6 +3,10 @@ package com.muniu.cloud.lucifer.share.service.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.muniu.cloud.lucifer.commons.core.jpa.entity.BaseAutoIdEntity;
+import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaCreateColumn;
+import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaDeleteState;
+import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaUpdateCloumn;
 import com.muniu.cloud.lucifer.share.service.vo.SaveRuleGroupParams;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -25,43 +29,39 @@ import java.io.Serializable;
 @Data
 @ToString
 @TableName("share_rule_group")
-public class ShareRuleGroup implements Serializable {
+public class ShareRuleGroupEntity extends BaseAutoIdEntity implements JpaCreateColumn, JpaUpdateCloumn, JpaDeleteState {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    /**
-     * ID
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    @TableId(type = IdType.AUTO)
-    private Long id;
+
 
     /**
      * 创建时间
      */
-    @Column(name = "create_time", nullable = false)
-    private Long createTime;
+    @Column(name = "create_time", nullable = false, updatable = false, comment = "创建时间")
+    private long createTime;
+
+    /**
+     * 更新时间
+     */
+    @Column(name = "update_time", nullable = false)
+    private long updateTime;
 
     /**
      * 删除标记
      */
-    @Column(name = "deleted", nullable = false)
-    private Boolean deleted;
+    @Column(name = "deleted" , comment = "逻辑删除标记，false 未删除，true 已删除")
+    private boolean deleted;
+
+
+
 
     /**
      * 规则组描述
      */
     @Column(name = "description", length = 500)
     private String description;
-
-    /**
-     * 更新时间
-     */
-    @Column(name = "update_time", nullable = false)
-    private Long updateTime;
 
     /**
      * 用户ID
@@ -75,21 +75,11 @@ public class ShareRuleGroup implements Serializable {
 
 
 
-    public ShareRuleGroup() {
-    }
-
-    public ShareRuleGroup(Long id, Long createTime, Boolean deleted, String description, Long updateTime, String userId, String name) {
-        this.id = id;
-        this.createTime = createTime;
-        this.deleted = deleted;
-        this.description = description;
-        this.updateTime = updateTime;
-        this.userId = userId;
-        this.name = name;
+    public ShareRuleGroupEntity() {
     }
 
     //新增构造函数
-    public ShareRuleGroup(Long createTime, String userId, SaveRuleGroupParams saveRuleGroupParams) {
+    public ShareRuleGroupEntity(Long createTime, String userId, SaveRuleGroupParams saveRuleGroupParams) {
         this.createTime = createTime;
         this.deleted = false;
         this.description = StringUtils.isBlank(saveRuleGroupParams.description()) ? "" : saveRuleGroupParams.description();

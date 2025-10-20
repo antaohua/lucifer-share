@@ -42,7 +42,7 @@ public class TradingDateTimeService {
     @Scheduled(cron = "0 0 * * * ?")
     public void syncTradingDays() throws IOException {
         log.info("定时任务：开始同步交易日数据");
-        if (Boolean.TRUE.equals(redisTemplate.hasKey(LuciferShareConstant.TRADING_TIME_KEY))) {
+        if (redisTemplate.hasKey(LuciferShareConstant.TRADING_TIME_KEY)) {
             Set<Integer> result = redisTemplate.opsForZSet().reverseRangeByScore(LuciferShareConstant.TRADING_TIME_KEY, Double.NEGATIVE_INFINITY, Double.MAX_VALUE, 0, 1);
             if (result != null && !result.isEmpty() && result.iterator().next() > Integer.parseInt(LocalDate.now().format(DateConstant.DATE_FORMATTER_YYYYMMDD))) {
                 return;
@@ -90,7 +90,6 @@ public class TradingDateTimeService {
         if (tradingDays == null || tradingDays.isEmpty()) {
             return List.of();
         }
-
         // 转成 List 返回
         return tradingDays.stream().sorted().collect(Collectors.toList());
     }

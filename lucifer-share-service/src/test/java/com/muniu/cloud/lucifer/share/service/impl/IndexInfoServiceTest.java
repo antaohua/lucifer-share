@@ -1,6 +1,6 @@
 // package com.muniu.cloud.lucifer.share.service.impl;
 
-// import com.muniu.cloud.lucifer.share.service.entity.IndexInfo;
+// import com.muniu.cloud.lucifer.share.service.entity.IndexInfoEntity;
 // import com.muniu.cloud.lucifer.share.service.cache.IndexInfoCacheValue;
 // import org.junit.jupiter.api.BeforeEach;
 // import org.junit.jupiter.api.Test;
@@ -98,7 +98,7 @@
 //     @Test
 //     @Transactional
 //     public void testGetIndexInfoList() throws Exception {
-//         List<IndexInfo> indexInfoList = indexInfoService.getIndexInfoList();
+//         List<IndexInfoEntity> indexInfoList = indexInfoService.getIndexInfoList();
 //         assertNotNull(indexInfoList);
 //         assertFalse(indexInfoList.isEmpty());
 //         System.out.println("获取到的指数列表数量: " + indexInfoList.size());
@@ -111,7 +111,7 @@
 //     @Test
 //     @Transactional
 //     public void testSaveIndexInfoList() throws Exception {
-//         List<IndexInfo> indexInfoList = indexInfoService.getIndexInfoList();
+//         List<IndexInfoEntity> indexInfoList = indexInfoService.getIndexInfoList();
 //         indexInfoService.saveIndexInfoList(indexInfoList);
 //         System.out.println("保存指数列表结果: " + indexInfoList.size());
 //     }
@@ -123,7 +123,7 @@
 //     @Transactional
 //     public void testGetIndexInfoByCodeAndDate() {
 //         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-//         IndexInfo indexInfo = indexInfoService.getIndexInfoByCodeAndDate("000001", Integer.parseInt(today));
+//         IndexInfoEntity indexInfo = indexInfoService.getIndexInfoByCodeAndDate("000001", Integer.parseInt(today));
 //         if (indexInfo != null) {
 //             System.out.println("查询到的指数信息: " + indexInfo);
 //         }

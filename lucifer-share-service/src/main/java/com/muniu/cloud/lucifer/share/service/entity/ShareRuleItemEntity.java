@@ -3,6 +3,8 @@ package com.muniu.cloud.lucifer.share.service.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.muniu.cloud.lucifer.commons.core.jpa.entity.BaseAutoIdEntity;
+import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaCreateColumn;
 import com.muniu.cloud.lucifer.share.service.constant.RuleDataSource;
 import com.muniu.cloud.lucifer.share.service.constant.RuleDateType;
 import com.muniu.cloud.lucifer.share.service.vo.SaveRuleParams;
@@ -26,25 +28,13 @@ import java.io.Serializable;
 @Data
 @ToString
 @TableName("share_rule_item")
-public class ShareRuleItem implements Serializable {
+public class ShareRuleItemEntity extends BaseAutoIdEntity implements JpaCreateColumn {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    /**
-     * ID
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    @TableId(type = IdType.AUTO)
-    private Long id;
-
-    /**
-     * 创建时间
-     */
-    @Column(name = "create_time", nullable = false)
-    private Long createTime;
+    @Column(name = "create_time", nullable = false, updatable = false, comment = "创建时间")
+    private long createTime;
 
     /**
      * cron表达式
@@ -56,7 +46,7 @@ public class ShareRuleItem implements Serializable {
      * 规则组
      */
     @Column(name = "rule_group", nullable = false)
-    private Long ruleGroup;
+    private long ruleGroup;
 
     /**
      * 规则数据源
@@ -97,11 +87,11 @@ public class ShareRuleItem implements Serializable {
 
 
 
-    public ShareRuleItem() {
+    public ShareRuleItemEntity() {
     }
 
 
-    public ShareRuleItem(Long createTime, Long groupId, SaveRuleParams saveRuleParams) {
+    public ShareRuleItemEntity(Long createTime, Long groupId, SaveRuleParams saveRuleParams) {
         this.createTime = createTime;
         this.cron = saveRuleParams.getCron();
         this.ruleGroup = groupId;

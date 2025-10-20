@@ -3,17 +3,18 @@ package com.muniu.cloud.lucifer.share.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.muniu.cloud.lucifer.commons.model.constants.Condition;
 import com.muniu.cloud.lucifer.share.service.config.ScheduledInterface;
-import com.muniu.cloud.lucifer.share.service.entity.BoardStock;
-import com.muniu.cloud.lucifer.share.service.mapper.ConceptStockMapper;
+import com.muniu.cloud.lucifer.share.service.dao.ConceptStockDao;
+import com.muniu.cloud.lucifer.share.service.entity.BoardStockEntity;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,8 +32,9 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class ConceptStockService extends ServiceImpl<ConceptStockMapper, BoardStock> implements ScheduledInterface {
+public class ConceptStockService implements ScheduledInterface {
 
+    private final ConceptStockDao conceptStockDao;
     private final AkToolsService akToolsService;
     private final TradingDateTimeService tradingDayService;
     private final TdConceptMarketService tdConceptMarketService;
@@ -44,11 +46,12 @@ public class ConceptStockService extends ServiceImpl<ConceptStockMapper, BoardSt
     private final RedisTemplate<String, Object> redisTemplate;
     
     @Autowired
-    public ConceptStockService(AkToolsService akToolsService, TradingDateTimeService tradingDayService, TdConceptMarketService tdConceptMarketService, RedisTemplate<String, Object> redisTemplate) {
+    public ConceptStockService(AkToolsService akToolsService, TradingDateTimeService tradingDayService, TdConceptMarketService tdConceptMarketService, RedisTemplate<String, Object> redisTemplate, ConceptStockDao conceptStockDao) {
         this.akToolsService = akToolsService;
         this.tradingDayService = tradingDayService;
         this.tdConceptMarketService = tdConceptMarketService;
         this.redisTemplate = redisTemplate;
+        this.conceptStockDao = conceptStockDao;
     }
     
     
@@ -139,10 +142,10 @@ public class ConceptStockService extends ServiceImpl<ConceptStockMapper, BoardSt
             log.warn("概念板块[{}]解析成份股代码为空", boardCode);
             return;
         }
-        
+
         // 查询数据库中该概念板块当前有效的成份股
-        List<BoardStock> dbStocks = this.lambdaQuery().eq(BoardStock::getBoardCode, boardCode).eq(BoardStock::getIsValid, Boolean.TRUE).list();
-        Set<String> dbStockCodes = dbStocks.stream().map(BoardStock::getStockCode).collect(Collectors.toSet());
+        List<BoardStockEntity> dbStocks = conceptStockDao.getByProperty(Lists.newArrayList(new Condition("boardCode", boardCode), new Condition("isValid", Boolean.TRUE)),true);
+        Set<String> dbStockCodes = dbStocks.stream().map(BoardStockEntity::getStockCode).collect(Collectors.toSet());
         // 需要新增的成份股
         List<String> toAddStockCodes = currentStockCodes.stream().filter(code -> !dbStockCodes.contains(code)).toList();
         // 需要标记为无效的成份股
@@ -150,14 +153,14 @@ public class ConceptStockService extends ServiceImpl<ConceptStockMapper, BoardSt
         long currentTime = System.currentTimeMillis();
         // 1. 处理新增的成份股
         if (!toAddStockCodes.isEmpty()) {
-            List<BoardStock> toAddStocks = toAddStockCodes.stream().map(stockCode -> new BoardStock(boardCode,stockCode,currentTime)).collect(Collectors.toList());
-            getBaseMapper().batchInsert(toAddStocks);
+            List<BoardStockEntity> toAddStocks = toAddStockCodes.stream().map(stockCode -> new BoardStockEntity(boardCode,stockCode)).collect(Collectors.toList());
+            conceptStockDao.save(toAddStocks);
             log.info("概念板块[{}]新增{}个成份股", boardCode, toAddStocks.size());
         }
         
         // 2. 处理需要标记为无效的成份股
         if (!toInvalidateStockCodes.isEmpty()) {
-            this.lambdaUpdate().eq(BoardStock::getBoardCode, boardCode).in(BoardStock::getStockCode, toInvalidateStockCodes).set(BoardStock::getIsValid, Boolean.FALSE).set(BoardStock::getUpdateTime, currentTime).update();
+            conceptStockDao.updateInvalidStocks(boardCode, toInvalidateStockCodes);
             log.info("概念板块[{}]移除{}个成份股", boardCode, toInvalidateStockCodes.size());
         }
         log.info("概念板块[{}]成份股同步完成，当前有效成份股{}个", boardCode, currentStockCodes.size());

@@ -7,7 +7,7 @@ import com.muniu.cloud.lucifer.share.service.constant.RuleDataSource;
 import com.muniu.cloud.lucifer.share.service.constant.RuleDateType;
 import com.muniu.cloud.lucifer.share.service.constant.RulesConnect;
 import com.muniu.cloud.lucifer.share.service.constant.RulesFields;
-import com.muniu.cloud.lucifer.share.service.entity.ShareRuleGroup;
+import com.muniu.cloud.lucifer.share.service.entity.ShareRuleGroupEntity;
 import com.muniu.cloud.lucifer.share.service.exception.FunctionException;
 import com.muniu.cloud.lucifer.share.service.impl.ShareRulesService;
 import com.muniu.cloud.lucifer.share.service.impl.function.RuleFunction;
@@ -84,7 +84,7 @@ public class ShareRulesController {
 
 
 //    @PostMapping("/group/query")
-//    public RestResponse<PageResult<ShareRuleGroup>> groupQuery(@CurrentUser String loginName, @RequestBody QueryRuleGroupPageParams pageParams) {
+//    public RestResponse<PageResult<ShareRuleGroupEntity>> groupQuery(@CurrentUser String loginName, @RequestBody QueryRuleGroupPageParams pageParams) {
 //        return shareRulesService.queryGroup(pageParams, loginName);
 //    }
 
@@ -108,7 +108,7 @@ public class ShareRulesController {
             )
         }
     )
-    public RestResponse<List<ShareRuleGroup>> groupQuery(
+    public RestResponse<List<ShareRuleGroupEntity>> groupQuery(
             @Parameter(description = "登录用户名", hidden = true) 
             @CurrentUser String loginName) {
         return shareRulesService.getGroupByUser(loginName);

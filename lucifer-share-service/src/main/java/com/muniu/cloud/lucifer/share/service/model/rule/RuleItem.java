@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.muniu.cloud.lucifer.commons.model.dto.BaseModel;
 import com.muniu.cloud.lucifer.share.service.constant.RulesFields;
 import com.muniu.cloud.lucifer.share.service.constant.RulesOperator;
-import com.muniu.cloud.lucifer.share.service.entity.ShareRuleItem;
+import com.muniu.cloud.lucifer.share.service.entity.ShareRuleItemEntity;
 import com.muniu.cloud.lucifer.share.service.exception.FunctionException;
 import com.muniu.cloud.lucifer.share.service.impl.function.RuleFunction;
 import com.muniu.cloud.lucifer.share.service.utils.FunctionParser;
@@ -39,7 +39,7 @@ public class RuleItem extends BaseModel implements RulesInterface {
     }
 
     @Override
-    public String toSql(ShareRuleItem ruleItem, Rule rule, Map<String, RuleFunction> functionMap) throws FunctionException {
+    public String toSql(ShareRuleItemEntity ruleItem, Rule rule, Map<String, RuleFunction> functionMap) throws FunctionException {
         RulesFields rulesField = RulesFields.getByName(field);
         if (ruleItem.getDataSource() == null || rulesField == null || rulesField.getRuleSource() != ruleItem.getDataSource()) {
             logger.warn("field = {} error", field);

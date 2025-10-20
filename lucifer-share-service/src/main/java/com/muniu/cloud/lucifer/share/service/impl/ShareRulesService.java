@@ -2,17 +2,16 @@ package com.muniu.cloud.lucifer.share.service.impl;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONReader;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.muniu.cloud.lucifer.commons.model.vo.RestResponse;
 import com.muniu.cloud.lucifer.share.service.constant.RuleDataSource;
-import com.muniu.cloud.lucifer.share.service.entity.ShareRuleGroup;
-import com.muniu.cloud.lucifer.share.service.entity.ShareRuleItem;
+import com.muniu.cloud.lucifer.share.service.dao.ShareRuleGroupDao;
+import com.muniu.cloud.lucifer.share.service.dao.ShareRuleItemDao;
+import com.muniu.cloud.lucifer.share.service.entity.ShareRuleGroupEntity;
+import com.muniu.cloud.lucifer.share.service.entity.ShareRuleItemEntity;
 import com.muniu.cloud.lucifer.share.service.exception.FunctionException;
 import com.muniu.cloud.lucifer.share.service.impl.function.RuleFunction;
-import com.muniu.cloud.lucifer.share.service.mapper.ShareRuleGroupMapper;
-import com.muniu.cloud.lucifer.share.service.mapper.ShareRuleItemMapper;
 import com.muniu.cloud.lucifer.share.service.model.rule.Rule;
 import com.muniu.cloud.lucifer.share.service.model.rule.RuleItem;
 import com.muniu.cloud.lucifer.share.service.vo.QueryRuleItemResult;
@@ -37,18 +36,18 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ShareRulesService {
 
-    private final ShareRuleGroupMapper shareRuleGroupMapper;
+    private final ShareRuleGroupDao shareRuleGroupDao;
 
-    private final ShareRuleItemMapper shareRuleItemMapper;
+    private final ShareRuleItemDao shareRuleItemDao;
 
     private final Map<String, RuleFunction> ruleFunctions;
 
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public ShareRulesService(ShareRuleGroupMapper shareRuleGroupMapper, ShareRuleItemMapper shareRuleItemMapper, List<RuleFunction> ruleFunctions,JdbcTemplate jdbcTemplate) {
-        this.shareRuleGroupMapper = shareRuleGroupMapper;
-        this.shareRuleItemMapper = shareRuleItemMapper;
+    public ShareRulesService(ShareRuleGroupDao shareRuleGroupDao, ShareRuleItemDao shareRuleItemDao, List<RuleFunction> ruleFunctions,JdbcTemplate jdbcTemplate) {
+        this.shareRuleGroupDao = shareRuleGroupDao;
+        this.shareRuleItemDao = shareRuleItemDao;
         this.ruleFunctions = ruleFunctions.stream().collect(Collectors.toMap(RuleFunction::getCode, e->e));
         this.jdbcTemplate = jdbcTemplate;
 
@@ -57,11 +56,11 @@ public class ShareRulesService {
 
 
     public List<QueryRuleItemResult> getRuleItemByGroup(Long groupId) {
-        List<ShareRuleItem> shareRuleItems = shareRuleItemMapper.selectList(new QueryWrapper<ShareRuleItem>().eq("rule_group", groupId).orderBy(true, false, "sort"));
-        if(CollectionUtils.isEmpty(shareRuleItems)){
+        List<ShareRuleItemEntity> shareRuleItemEntities = shareRuleItemDao.getByProperty("ruleGroup",groupId,"sort",false,true);
+        if(CollectionUtils.isEmpty(shareRuleItemEntities)){
             return Lists.newArrayList();
         }
-        return shareRuleItems.stream().map(e -> {
+        return shareRuleItemEntities.stream().map(e -> {
             log.info(e.getRuleValue());
             Rule group = JSON.parseObject(e.getRuleValue(), Rule.class, JSONReader.autoTypeFilter(true, Rule.class, RuleItem.class));
             return new QueryRuleItemResult(e.getCron(), e.getRuleGroup(), e.getDataSource(), group, e.getDateType(), e.getDateValue());
@@ -71,25 +70,22 @@ public class ShareRulesService {
 
 
 
-    public RestResponse<List<ShareRuleGroup>>  getGroupByUser(String userId) {
-        List<ShareRuleGroup> resultData = shareRuleGroupMapper.getRuleGroupByUser(userId, "create_time", false);
+    public RestResponse<List<ShareRuleGroupEntity>>  getGroupByUser(String userId) {
+        List<ShareRuleGroupEntity> resultData = shareRuleGroupDao.getByProperty("userId",userId,ShareRuleGroupEntity.CREATE_TIME_NAME,false,true);
         return RestResponse.success(resultData);
     }
 
 
     public RestResponse<Void> saveGroup(String userId, SaveRuleGroupParams saveRuleGroupParams) {
         long currentTime = System.currentTimeMillis();
-        ShareRuleGroup ruleGroup = new ShareRuleGroup(currentTime, userId, saveRuleGroupParams);
-        int result = shareRuleGroupMapper.insertRuleGroup(ruleGroup);
-        if (result != 1) {
-            return RestResponse.fail("保存失败");
-        }
+        ShareRuleGroupEntity ruleGroup = new ShareRuleGroupEntity(currentTime, userId, saveRuleGroupParams);
+        shareRuleGroupDao.save(ruleGroup);
         return RestResponse.success();
     }
 
 
     public RestResponse<Void> updateGroup(String userId, UpdateRuleGroupParams updateRuleGroupParams) {
-        ShareRuleGroup group = shareRuleGroupMapper.selectById(updateRuleGroupParams.id());
+        ShareRuleGroupEntity group = shareRuleGroupDao.getById(updateRuleGroupParams.id());
         if(group == null){
             return RestResponse.fail("规则组不存在");
         }
@@ -99,12 +95,8 @@ public class ShareRulesService {
         group.setUpdateTime(System.currentTimeMillis());
         group.setDescription(updateRuleGroupParams.description());
         group.setName(updateRuleGroupParams.name());
-        int result = shareRuleGroupMapper.updateRuleGroup(group);
-        if (result > 0) {
-            return RestResponse.success();
-        } else {
-            return RestResponse.fail("更新失败");
-        }
+        shareRuleGroupDao.update(group);
+        return RestResponse.success();
     }
 
 
@@ -112,7 +104,7 @@ public class ShareRulesService {
         if(groupId == null){
             return RestResponse.fail("规则组不存在");
         }
-        ShareRuleGroup group = shareRuleGroupMapper.selectById(groupId);
+        ShareRuleGroupEntity group = shareRuleGroupDao.getById(groupId);
         if(group == null){
             return RestResponse.fail("规则组不存在");
         }
@@ -120,7 +112,7 @@ public class ShareRulesService {
             return RestResponse.fail("无权限操作");
         }
         group.setDeleted(true);
-        int result = shareRuleGroupMapper.deleteRuleGroup(groupId);
+        int result = shareRuleGroupDao.deleteById(groupId);
         if (result > 0) {
             return RestResponse.success();
         } else {
@@ -131,44 +123,43 @@ public class ShareRulesService {
 
     @Transactional(rollbackFor = Exception.class)
     public RestResponse<Void> saveGroupItem(SaveRuleItemsParams updateRuleItem) {
-        ShareRuleGroup group = shareRuleGroupMapper.selectById(updateRuleItem.groupId());
+        ShareRuleGroupEntity group = shareRuleGroupDao.getById(updateRuleItem.groupId());
         if (group == null) {
             return RestResponse.fail("规则不存在");
         }
-        shareRuleItemMapper.deleteByMap(Map.of("rule_group", updateRuleItem.groupId()));
+        shareRuleItemDao.deleteByProperty("ruleGroup",updateRuleItem.groupId());
         if (CollectionUtils.isEmpty(updateRuleItem.rule())) {
             return RestResponse.success();
         }
-        List<ShareRuleItem> shareRuleItems = updateRuleItem.rule().stream().filter(rule -> {
+        List<ShareRuleItemEntity> shareRuleItemEntities = updateRuleItem.rule().stream().filter(rule -> {
                     Rule rules = JSON.parseObject(rule.getRuleValue(), Rule.class, JSONReader.autoTypeFilter(true, Rule.class, RuleItem.class));
                     return CollectionUtils.isNotEmpty(rules.getItems()) || CollectionUtils.isNotEmpty(rules.getGroups());
                 }
-        ).map(rule -> new ShareRuleItem(System.currentTimeMillis(), updateRuleItem.groupId(), rule)).toList();
-        if (CollectionUtils.isNotEmpty(shareRuleItems)) {
-            shareRuleItemMapper.insert(shareRuleItems);
+        ).map(rule -> new ShareRuleItemEntity(System.currentTimeMillis(), updateRuleItem.groupId(), rule)).toList();
+        if (CollectionUtils.isNotEmpty(shareRuleItemEntities)) {
+            shareRuleItemDao.batchSaveOrUpdate(shareRuleItemEntities);
         }
         return RestResponse.success();
     }
 
 
     public Set<String> processHistoryRules(Long groupId) throws FunctionException{
-        List<ShareRuleItem> shareRuleItems = shareRuleItemMapper.selectList(new QueryWrapper<ShareRuleItem>().eq("rule_group", groupId).orderBy(true, false, "sort"));
-        if(CollectionUtils.isEmpty(shareRuleItems)){
+        List<ShareRuleItemEntity> shareRuleItemEntities = shareRuleItemDao.getByProperty("ruleGroup",groupId,"sort",false,true);
+        if(CollectionUtils.isEmpty(shareRuleItemEntities)){
             return Sets.newHashSet();
         }
         Set<String> fastRuleResult = Sets.newHashSet();
-        for (ShareRuleItem shareRuleItem : shareRuleItems) {
-            Rule rule = JSON.parseObject(shareRuleItem.getRuleValue(), Rule.class, JSONReader.autoTypeFilter(true, Rule.class, RuleItem.class));
-            fastRuleResult = processHistoryRuleItem(shareRuleItem,rule,fastRuleResult);
+        for (ShareRuleItemEntity shareRuleItemEntity : shareRuleItemEntities) {
+            Rule rule = JSON.parseObject(shareRuleItemEntity.getRuleValue(), Rule.class, JSONReader.autoTypeFilter(true, Rule.class, RuleItem.class));
+            fastRuleResult = processHistoryRuleItem(shareRuleItemEntity,rule,fastRuleResult);
         }
         return fastRuleResult;
     }
 
-    public Set<String> processHistoryRuleItem(ShareRuleItem ruleItem, Rule rule, Set<String> fastRuleResult) throws FunctionException {
+    public Set<String> processHistoryRuleItem(ShareRuleItemEntity ruleItem, Rule rule, Set<String> fastRuleResult) throws FunctionException {
         String where = rule.toSql(ruleItem,rule,ruleFunctions);
         if (ruleItem.getDataSource() == RuleDataSource.HISTORY_SINGLE) {
             int date = Integer.parseInt(ruleItem.getDateValue().replace("-", ""));
-
             String sql = "SELECT share_code FROM td_share_hist_" + (date / 10000) + " WHERE ";
             sql += "date = " + date + " ";
             if (CollectionUtils.isNotEmpty(fastRuleResult)) {

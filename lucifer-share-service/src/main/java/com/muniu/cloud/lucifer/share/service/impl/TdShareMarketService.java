@@ -41,6 +41,7 @@ public class TdShareMarketService extends BaseShardingService<TdShareMarketMappe
 
 
 
+
     private final BlockingQueue<TdShareMarket> saveQueue = new LinkedBlockingQueue<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -106,7 +107,7 @@ public class TdShareMarketService extends BaseShardingService<TdShareMarketMappe
     @Transactional(rollbackFor = Exception.class)
     public void saveData() {
         List<TdShareMarket> batch = Lists.newArrayList();
-        saveQueue.drainTo(batch);
+        saveQueue.drainTo(batch, 1000);
         if (CollectionUtils.isEmpty(batch)) {
             return;
         }

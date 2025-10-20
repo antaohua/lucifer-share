@@ -12,7 +12,7 @@ import lombok.Data;
 @Table(name = "share_index_cons")
 @Data
 @TableName("share_index_cons")
-public class ShareIndexCons {
+public class ShareIndexConsEntity {
 
     @Id
     @Column(name = "id", length = 50, nullable = false)
