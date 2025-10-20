@@ -1,6 +1,5 @@
 package com.muniu.cloud.lucifer.share.service.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -11,7 +10,6 @@ import lombok.Data;
 @Entity
 @Table(name = "share_index_cons")
 @Data
-@TableName("share_index_cons")
 public class ShareIndexConsEntity {
 
     @Id

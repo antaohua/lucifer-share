@@ -1,8 +1,5 @@
 package com.muniu.cloud.lucifer.share.service.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.muniu.cloud.lucifer.commons.core.jpa.entity.BaseAutoIdEntity;
 import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaCreateColumn;
 import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaDeleteState;

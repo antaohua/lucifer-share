@@ -1,14 +1,10 @@
 package com.muniu.cloud.lucifer.share.service.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+
 import com.muniu.cloud.lucifer.commons.core.jpa.entity.BaseCustomIdEntity;
-import com.muniu.cloud.lucifer.commons.core.jpa.entity.BaseSnowflakeIdEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
