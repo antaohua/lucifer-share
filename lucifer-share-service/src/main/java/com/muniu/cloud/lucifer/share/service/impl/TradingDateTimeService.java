@@ -37,9 +37,9 @@ public class TradingDateTimeService {
 
 
     /**
-     * 每小时检查一次获取交易日数据
+     * 每天时检查一次获取交易日数据
      */
-    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "0 0 0 * * ?")
     public void syncTradingDays() throws IOException {
         log.info("定时任务：开始同步交易日数据");
         if (redisTemplate.hasKey(LuciferShareConstant.TRADING_TIME_KEY)) {
