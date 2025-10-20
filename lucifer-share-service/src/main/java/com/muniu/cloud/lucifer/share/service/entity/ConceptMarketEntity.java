@@ -8,12 +8,14 @@ import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaUpdateCloumn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 
 /**
  * 概念板块数据
  */
+@EqualsAndHashCode(callSuper = true)
 @Entity()
 @Table(name = "concept_market")
 @Data

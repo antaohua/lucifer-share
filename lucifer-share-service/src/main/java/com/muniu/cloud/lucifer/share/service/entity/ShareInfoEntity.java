@@ -1,14 +1,13 @@
 package com.muniu.cloud.lucifer.share.service.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.muniu.cloud.lucifer.commons.core.jpa.entity.BaseCustomIdEntity;
 import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaCreateColumn;
 import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaUpdateCloumn;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.io.Serial;
@@ -21,11 +20,11 @@ import java.io.Serial;
  * @author antaohua
  * @since 2024-12-26
  */
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "share_info")
 @Data
 @ToString
-@TableName("share_info")
 public class ShareInfoEntity extends BaseCustomIdEntity implements JpaCreateColumn, JpaUpdateCloumn {
 
     @Serial

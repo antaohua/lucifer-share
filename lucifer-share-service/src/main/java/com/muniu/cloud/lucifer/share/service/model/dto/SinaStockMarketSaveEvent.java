@@ -2,6 +2,7 @@ package com.muniu.cloud.lucifer.share.service.model.dto;
 
 import com.muniu.cloud.lucifer.commons.model.dto.BaseModel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -9,6 +10,7 @@ import java.math.RoundingMode;
 /**
  * @author antaohua
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class SinaStockMarketSaveEvent extends BaseModel {
     /** 股票标识符（如 bj833346） */

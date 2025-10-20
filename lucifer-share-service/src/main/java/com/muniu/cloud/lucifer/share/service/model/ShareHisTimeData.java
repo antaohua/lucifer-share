@@ -2,7 +2,9 @@ package com.muniu.cloud.lucifer.share.service.model;
 
 import com.muniu.cloud.lucifer.commons.model.dto.BaseModel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class ShareHisTimeData extends BaseModel {
 

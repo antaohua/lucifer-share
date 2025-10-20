@@ -11,14 +11,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 指数基本信息
  */
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "index_info")
 @Data
-@TableName("index_info")
 @Schema(description = "指数基本信息")
 public class IndexInfoEntity extends BaseCustomIdEntity {
     

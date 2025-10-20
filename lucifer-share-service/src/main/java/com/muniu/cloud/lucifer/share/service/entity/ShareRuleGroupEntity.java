@@ -10,6 +10,7 @@ import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaUpdateCloumn;
 import com.muniu.cloud.lucifer.share.service.vo.SaveRuleGroupParams;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 
@@ -24,11 +25,11 @@ import java.io.Serializable;
  * @author antaohua
  * @since 2024-12-26
  */
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "share_rule_group")
 @Data
 @ToString
-@TableName("share_rule_group")
 public class ShareRuleGroupEntity extends BaseAutoIdEntity implements JpaCreateColumn, JpaUpdateCloumn, JpaDeleteState {
 
     @Serial

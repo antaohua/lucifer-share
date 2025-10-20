@@ -6,14 +6,15 @@ import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaCreateColumn;
 import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaUpdateCloumn;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
  * 概念板块成份股关系实体类
  */
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "share_board_stock")
-@TableName("share_board_stock")
 @Data
 @ToString
 public class BoardStockEntity extends BaseSnowflakeIdEntity implements JpaCreateColumn, JpaUpdateCloumn {

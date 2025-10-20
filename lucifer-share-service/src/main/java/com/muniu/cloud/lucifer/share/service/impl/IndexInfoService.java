@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.muniu.cloud.lucifer.commons.model.constants.Condition;
 import com.muniu.cloud.lucifer.commons.model.constants.Operator;
 import com.muniu.cloud.lucifer.commons.model.page.PageParams;
+import com.muniu.cloud.lucifer.commons.model.page.PageResult;
 import com.muniu.cloud.lucifer.share.service.dao.IndexInfoDao;
 import com.muniu.cloud.lucifer.share.service.model.cache.IndexInfoCacheValue;
 import com.muniu.cloud.lucifer.share.service.constant.ShareIndexType;
@@ -206,7 +207,7 @@ public class IndexInfoService {
      * @param queryDTO 查询条件
      * @return 分页结果
      */
-    public List<IndexInfoEntity> queryIndexInfoPage(IndexInfoQueryDTO queryDTO) {
+    public PageResult<IndexInfoEntity> queryIndexInfoPage(IndexInfoQueryDTO queryDTO) {
         log.info("分页查询指数信息，参数: {}", JSON.toJSONString(queryDTO));
         // 构建查询条件
         List<Condition> conditions = Lists.newArrayList();
@@ -223,8 +224,8 @@ public class IndexInfoService {
         }
         // 默认按更新时间降序排序
         queryWrapper.orderByDesc(IndexInfoEntity::getUpdateTime);
-        PageParams pageParams = new PageParams(queryDTO.getPageNum(), queryDTO.getPageSize());
-        return indexInfoDao.getByPage(pageParams, conditions,null, true);
+        PageParams pageParams = new PageParams(queryDTO.getPageNum(), queryDTO.getPageSize(),conditions);
+        return indexInfoDao.getByPage(pageParams, true);
     }
     
     /**

@@ -1,5 +1,6 @@
 package com.muniu.cloud.lucifer.share.service.controller;
 
+import com.muniu.cloud.lucifer.commons.model.page.PageResult;
 import com.muniu.cloud.lucifer.commons.model.vo.RestResponse;
 import com.muniu.cloud.lucifer.share.service.model.cache.IndexInfoCacheValue;
 import com.muniu.cloud.lucifer.share.service.model.dto.IndexInfoQueryDTO;
@@ -183,10 +184,10 @@ public class IndexController {
             )
         }
     )
-    public RestResponse<List<IndexInfoEntity>> queryIndexPage(
+    public RestResponse<PageResult<IndexInfoEntity>> queryIndexPage(
             @Parameter(description = "查询条件", required = true) 
             @RequestBody IndexInfoQueryDTO queryDTO) {
-        List<IndexInfoEntity> page = indexInfoService.queryIndexInfoPage(queryDTO);
+        PageResult<IndexInfoEntity> page = indexInfoService.queryIndexInfoPage(queryDTO);
         return RestResponse.success(page);
     }
     

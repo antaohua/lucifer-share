@@ -68,7 +68,7 @@ public class IndexInfoCacheValue {
     }
 
     public IndexInfoCacheValue(IndexInfoEntity indexInfoEntity) {
-        this.indexCode = indexInfoEntity.getIndexCode();
+        this.indexCode = indexInfoEntity.getId();
         this.displayName = indexInfoEntity.getDisplayName();
         this.publishDate = indexInfoEntity.getPublishDate();
         this.source = indexInfoEntity.getSource();
@@ -165,7 +165,7 @@ public class IndexInfoCacheValue {
 
     public IndexInfoEntity toIndexInfo() {
         IndexInfoEntity indexInfoEntity = new IndexInfoEntity();
-        indexInfoEntity.setIndexCode(indexCode);
+        indexInfoEntity.setId(indexCode);
         indexInfoEntity.setDisplayName(displayName);
         indexInfoEntity.setPublishDate(publishDate);
         indexInfoEntity.setSource(source);
