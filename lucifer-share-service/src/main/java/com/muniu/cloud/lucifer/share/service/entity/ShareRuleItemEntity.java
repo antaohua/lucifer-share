@@ -6,9 +6,8 @@ import com.muniu.cloud.lucifer.share.service.constant.RuleDataSource;
 import com.muniu.cloud.lucifer.share.service.constant.RuleDateType;
 import com.muniu.cloud.lucifer.share.service.vo.SaveRuleParams;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
+
 import java.io.Serial;
 
 /**
@@ -24,68 +23,37 @@ import java.io.Serial;
 @Table(name = "share_rule_item")
 @Data
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class ShareRuleItemEntity extends BaseAutoIdEntity implements JpaCreateColumn {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Column(name = "create_time", nullable = false, updatable = false, comment = "创建时间")
     private long createTime;
 
-    /**
-     * cron表达式
-     */
-    @Column(name = "cron", length = 255)
+    @Column(name = "cron", length = 300, comment = "cron表达式")
     private String cron;
 
-    /**
-     * 规则组
-     */
-    @Column(name = "rule_group", nullable = false)
+    @Column(name = "rule_group", nullable = false, comment = "规则组")
     private long ruleGroup;
 
-    /**
-     * 规则数据源
-     */
     @Enumerated(EnumType.STRING)
-    @Column(name = "data_source", length = 50, nullable = false)
+    @Column(name = "data_source", length = 50, nullable = false, comment = "规则数据源")
     private RuleDataSource dataSource;
 
-    /**
-     * 规则值
-     */
-    @Column(name = "rule_value", length = 1000, nullable = false)
+    @Column(name = "rule_value", length = 1000, nullable = false, comment = "规则值")
     private String ruleValue;
 
-    /**
-     * 排序
-     */
-    @Column(name = "sort", nullable = false)
+    @Column(name = "sort", nullable = false, comment = "排序")
     private int sort;
 
-
-    /**
-     * 日期类型
-     */
     @Enumerated(EnumType.STRING)
-    @Column(name = "date_type", length = 50)
+    @Column(name = "date_type", length = 50, comment = "日期类型")
     private RuleDateType dateType;
 
-    /**
-     * 日期值
-     */
-    @Column(name = "date_value", length = 50)
+    @Column(name = "date_value", length = 50, comment = "日期值")
     private String dateValue;
-
-
-
-
-
-
-
-    public ShareRuleItemEntity() {
-    }
-
 
     public ShareRuleItemEntity(Long createTime, Long groupId, SaveRuleParams saveRuleParams) {
         this.createTime = createTime;

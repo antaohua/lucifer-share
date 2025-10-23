@@ -8,7 +8,7 @@ import com.muniu.cloud.lucifer.commons.core.http.LuciferHttpClient;
 import com.muniu.cloud.lucifer.commons.utils.exception.HttpClientException;
 import com.muniu.cloud.lucifer.share.service.constant.AdjustConstant;
 import com.muniu.cloud.lucifer.share.service.constant.PeriodConstant;
-import com.muniu.cloud.lucifer.share.service.entity.ConceptMarketEntity;
+import com.muniu.cloud.lucifer.share.service.entity.BoardMarketEntity;
 import com.muniu.cloud.lucifer.share.service.entity.MarketFundFlowEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -243,7 +243,7 @@ public class AkToolsService {
      * @return 概念板块数据JSON字符串
      * @throws IOException 请求异常
      */
-    public List<ConceptMarketEntity> stockBoardConceptNameEm() throws IOException {
+    public List<BoardMarketEntity> stockBoardConceptNameEm() throws IOException {
         String jsonData = get("stock_board_concept_name_em", null);
         if (StringUtils.isBlank(jsonData)) {
             return null;
@@ -252,11 +252,11 @@ public class AkToolsService {
         if (array == null || array.isEmpty()) {
             return null;
         }
-        List<ConceptMarketEntity> result = new ArrayList<>();
+        List<BoardMarketEntity> result = new ArrayList<>();
         long currentTime = System.currentTimeMillis();
         for (int i = 0; i < array.size(); i++) {
             JSONObject item = array.getJSONObject(i);
-            result.add(new ConceptMarketEntity(item,currentTime));
+            result.add(new BoardMarketEntity(item,currentTime));
         }
         return result;
     }

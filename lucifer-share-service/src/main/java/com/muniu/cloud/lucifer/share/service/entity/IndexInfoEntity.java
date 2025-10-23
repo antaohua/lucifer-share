@@ -2,6 +2,8 @@ package com.muniu.cloud.lucifer.share.service.entity;
 
 
 import com.muniu.cloud.lucifer.commons.core.jpa.entity.BaseCustomIdEntity;
+import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaCreateColumn;
+import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaUpdateCloumn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,76 +19,34 @@ import lombok.EqualsAndHashCode;
 @Table(name = "index_info")
 @Data
 @Schema(description = "指数基本信息")
-public class IndexInfoEntity extends BaseCustomIdEntity {
-    
-    /**
-     * 指数名称
-     */
-    @Column(name = "display_name", length = 100, nullable = false)
-    @Schema(description = "指数名称", example = "上证指数")
-    private String displayName;
-    
-    /**
-     * 发布日期 格式：yyyyMMdd
-     */
-    @Column(name = "publish_date", nullable = false)
-    @Schema(description = "发布日期，格式：yyyyMMdd", example = "19901219")
-    private Integer publishDate;
-    
-    /**
-     * 指数来源
-     */
-    @Column(name = "source", length = 10, nullable = false)
-    @Schema(description = "指数来源", example = "SH")
-    private String source;
-    
-    /**
-     * 更新日期 格式：yyyyMMdd
-     */
-    @Column(name = "update_date", nullable = false)
-    @Schema(description = "更新日期，格式：yyyyMMdd", example = "20230601")
-    private Integer updateDate;
-    
-    /**
-     * 创建时间
-     */
-    @Column(name = "create_time", nullable = false)
-    @Schema(description = "创建时间（毫秒时间戳）")
-    private Long createTime;
-    
-    /**
-     * 更新时间
-     */
-    @Column(name = "update_time", nullable = false)
-    @Schema(description = "更新时间（毫秒时间戳）")
-    private Long updateTime;
+public class IndexInfoEntity extends BaseCustomIdEntity implements JpaCreateColumn, JpaUpdateCloumn {
 
-    /**
-     * 指数历史数据最后更新时间（毫秒时间戳）
-     */
-    @Column(name = "index_hist_update")
-    @Schema(description = "指数历史数据最后更新日期", example = "20230601")
+    private long createTime;
+
+    private long updateTime;
+
+    @Column(name = "display_name", length = 100, nullable = false, comment = "指数名称")
+    private String displayName;
+
+    @Column(name = "publish_date", nullable = false, comment = "发布日期，格式：yyyyMMdd")
+    private Integer publishDate;
+
+    @Column(name = "source", length = 10, nullable = false, comment = "指数来源")
+    private String source;
+
+    @Column(name = "update_date", nullable = false, comment = "更新日期，格式：yyyyMMdd")
+    private Integer updateDate;
+
+    @Column(name = "index_hist_update", comment = "指数历史数据最后更新日期")
     private Integer indexHistUpdate;
-    
-    /**
-     * 指数成分股最后更新时间（毫秒时间戳）
-     */
-    @Column(name = "index_const_update")
-    @Schema(description = "指数成分股最后更新日期", example = "20230601")
+
+    @Column(name = "index_const_update", comment = "指数成分股最后更新日期")
     private Integer indexConstUpdate;
-    
-    /**
-     * 是否更新历史数据 1:更新 0:不更新
-     */
-    @Column(name = "update_history", nullable = false)
-    @Schema(description = "是否更新历史数据：1-更新 0-不更新", example = "1")
+
+    @Column(name = "update_history", nullable = false, comment = "是否更新历史数据：1-更新 0-不更新")
     private Byte updateHistory;
-    
-    /**
-     * 是否更新成分股 1:更新 0:不更新
-     */
-    @Column(name = "update_constituent", nullable = false)
-    @Schema(description = "是否更新成分股：1-更新 0-不更新", example = "1")
+
+    @Column(name = "update_constituent", nullable = false, comment = "是否更新成分股：1-更新 0-不更新")
     private Byte updateConstituent;
 
 }

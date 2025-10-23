@@ -1,8 +1,8 @@
 package com.muniu.cloud.lucifer.share.service.entity;
 
+import com.muniu.cloud.lucifer.commons.core.jpa.entity.BaseCustomIdEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -10,21 +10,17 @@ import lombok.Data;
 @Entity
 @Table(name = "share_index_cons")
 @Data
-public class ShareIndexConsEntity {
+public class ShareIndexConsEntity extends BaseCustomIdEntity {
 
-    @Id
-    @Column(name = "id", length = 50, nullable = false)
-    private String id;
-
-    @Column(name = "index_code", length = 10, nullable = false)
+    @Column(name = "index_code", length = 10, nullable = false, comment = "指数代码")
     private String indexCode;
 
-    @Column(name = "share_code", length = 10, nullable = false)
+    @Column(name = "share_code", length = 10, nullable = false, comment = "股票代码")
     private String shareCode;
 
-    @Column(name = "date", nullable = false)
+    @Column(name = "date", nullable = false, comment = "加入日期")
     private Integer date;
 
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", nullable = false, comment = "状态")
     private byte status;
 }

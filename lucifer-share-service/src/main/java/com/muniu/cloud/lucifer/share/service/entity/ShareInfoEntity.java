@@ -33,88 +33,47 @@ public class ShareInfoEntity extends BaseCustomIdEntity implements JpaCreateColu
     private long createTime;
 
     private long updateTime;
-    /**
-     * 交易所
-     */
-    @Column(name = "exchange", length = 10, nullable = false)
+
+    @Column(name = "exchange", length = 10, nullable = false, comment = "交易所")
     private String exchange;
 
-    /**
-     * 流通市值
-     */
-    @Column(name = "float_cap")
+    @Column(name = "float_cap", comment = "流通市值")
     private Long floatCap;
 
-    /**
-     * 流通股本
-     */
-    @Column(name = "float_shares")
+    @Column(name = "float_shares", comment = "流通股本")
     private Long floatShares;
 
-    /**
-     * 历史更新时间
-     */
-    @Column(name = "history_update_date")
+    @Column(name = "history_update_date", comment = "历史更新时间")
     private Integer historyUpdateDate;
 
-    /**
-     * 股上市日期
-     */
-    @Column(name = "list_date")
+    @Column(name = "list_date", comment = "股上市日期")
     private Integer listDate;
 
-    /**
-     * 市值
-     */
-    @Column(name = "market_cap")
+    @Column(name = "market_cap", comment = "市值")
     private Long marketCap;
 
-    /**
-     * 其他更新时间
-     */
-    @Column(name = "other_update_time")
+    @Column(name = "other_update_time",comment = "其他更新时间")
     private Long otherUpdateTime;
 
-    /**
-     * 板块
-     */
-    @Column(name = "section", length = 100)
+    @Column(name = "section", length = 100, comment = "板块")
     private String section;
 
-    /**
-     * 股简称
-     */
-    @Column(name = "share_name", length = 100, nullable = false)
+    @Column(name = "share_name", length = 100, nullable = false, comment = "股简称")
     private String shareName;
 
-    /**
-     * 股票状态
-     */
-    @Column(name = "share_status", length = 10, nullable = false)
+    @Column(name = "share_status", length = 10, nullable = false, comment = "股票状态")
     private String shareStatus;
 
-    /**
-     * 状态更新时间
-     */
-    @Column(name = "status_update_time")
+    @Column(name = "status_update_time", comment = "状态更新时间")
     private Long statusUpdateTime;
 
-    /**
-     * 分时数据更新时间
-     */
-    @Column(name = "time_line_update_date")
+    @Column(name = "time_line_update_date", comment = "分时数据更新时间")
     private Integer timeLineUpdateDate;
 
-    /**
-     * 总股本
-     */
-    @Column(name = "total_shares")
+    @Column(name = "total_shares", comment = "总股本")
     private Long totalShares;
 
-    /**
-     * 信息更新时间
-     */
-    @Column(name = "info_update_date")
+    @Column(name = "info_update_date", comment = "信息更新时间")
     private Integer infoUpdateDate;
 
 
