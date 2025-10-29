@@ -2,12 +2,18 @@ package com.muniu.cloud.lucifer.share.service.model.cache;
 
 import com.muniu.cloud.lucifer.share.service.entity.TradeIndexEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * 指数信息缓存对象
  * @author antaohua
  */
+@Setter
+@Getter
 @Schema(description = "指数信息缓存对象")
+@NoArgsConstructor
 public class IndexInfoCacheValue {
 
     /**
@@ -63,9 +69,7 @@ public class IndexInfoCacheValue {
      */
     @Schema(description = "指数成分股最后更新日期",example = "19901219")
     private Integer indexConstUpdate;
-    
-    public IndexInfoCacheValue() {
-    }
+
 
     public IndexInfoCacheValue(TradeIndexEntity tradeIndexEntity) {
         this.indexCode = tradeIndexEntity.getId();
@@ -88,78 +92,6 @@ public class IndexInfoCacheValue {
         this.updateConstituent = updateConstituent;
         this.updateHistory = updateHistory;
         this.indexHistUpdate = indexHistUpdate;
-        this.indexConstUpdate = indexConstUpdate;
-    }
-
-    public String getIndexCode() {
-        return indexCode;
-    }
-    
-    public void setIndexCode(String indexCode) {
-        this.indexCode = indexCode;
-    }
-    
-    public String getDisplayName() {
-        return displayName;
-    }
-    
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-    
-    public Integer getPublishDate() {
-        return publishDate;
-    }
-    
-    public void setPublishDate(Integer publishDate) {
-        this.publishDate = publishDate;
-    }
-    
-    public String getSource() {
-        return source;
-    }
-    
-    public void setSource(String source) {
-        this.source = source;
-    }
-    
-    public Integer getUpdateDate() {
-        return updateDate;
-    }
-    
-    public void setUpdateDate(Integer updateDate) {
-        this.updateDate = updateDate;
-    }
-
-    public Byte getUpdateConstituent() {
-        return updateConstituent;
-    }
-
-    public void setUpdateConstituent(Byte updateConstituent) {
-        this.updateConstituent = updateConstituent;
-    }
-
-    public Byte getUpdateHistory() {
-        return updateHistory;
-    }
-
-    public void setUpdateHistory(Byte updateHistory) {
-        this.updateHistory = updateHistory;
-    }
-
-    public Integer getIndexHistUpdate() {
-        return indexHistUpdate;
-    }
-
-    public void setIndexHistUpdate(Integer indexHistUpdate) {
-        this.indexHistUpdate = indexHistUpdate;
-    }
-
-    public Integer getIndexConstUpdate() {
-        return indexConstUpdate;
-    }
-
-    public void setIndexConstUpdate(Integer indexConstUpdate) {
         this.indexConstUpdate = indexConstUpdate;
     }
 

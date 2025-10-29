@@ -150,7 +150,6 @@ public class ConceptStockService implements ScheduledInterface {
         List<String> toAddStockCodes = currentStockCodes.stream().filter(code -> !dbStockCodes.contains(code)).toList();
         // 需要标记为无效的成份股
         List<String> toInvalidateStockCodes = dbStockCodes.stream().filter(code -> !currentStockCodes.contains(code)).collect(Collectors.toList());
-        long currentTime = System.currentTimeMillis();
         // 1. 处理新增的成份股
         if (!toAddStockCodes.isEmpty()) {
             List<TradeBoardConsEntity> toAddStocks = toAddStockCodes.stream().map(stockCode -> new TradeBoardConsEntity(boardCode,stockCode)).collect(Collectors.toList());

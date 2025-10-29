@@ -64,7 +64,7 @@ public class AkToolsService {
     /**
      * 日内分时数据-新浪
      * 接口: stock_intraday_sina
-     * 目标地址: https://vip.stock.finance.sina.com.cn/quotes_service/view/cn_bill.php?symbol=sz000001
+     * 目标地址: <a href="https://vip.stock.finance.sina.com.cn/quotes_service/view/cn_bill.php?symbol=sz000001">...</a>
      * 描述: 新浪财经-日内分时数据
      * 限量: 单次返回指定交易日的分时数据；只能获取近期的数据
      * 输入参数
