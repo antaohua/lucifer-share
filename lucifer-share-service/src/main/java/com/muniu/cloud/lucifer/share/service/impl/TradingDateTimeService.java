@@ -1,5 +1,6 @@
 package com.muniu.cloud.lucifer.share.service.impl;
 
+import com.muniu.cloud.lucifer.commons.core.redis.IntegerRedisTemplate;
 import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
 import com.muniu.cloud.lucifer.share.service.constant.LuciferShareConstant;
 import lombok.extern.slf4j.Slf4j;
@@ -23,13 +24,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TradingDateTimeService {
 
-    private final RedisTemplate<String,Integer> redisTemplate;
+    private final IntegerRedisTemplate redisTemplate;
 
     private final AkToolsService akToolsService;
 
 
 
-    public TradingDateTimeService(AkToolsService akToolsService, RedisTemplate<String,Integer> redisTemplate) {
+    public TradingDateTimeService(AkToolsService akToolsService, IntegerRedisTemplate redisTemplate) {
         this.akToolsService = akToolsService;
         this.redisTemplate = redisTemplate;
     }
@@ -40,7 +41,7 @@ public class TradingDateTimeService {
      * 每天时检查一次获取交易日数据
      */
     @Scheduled(cron = "0 0 0 * * ?")
-    public void syncTradingDays() throws IOException {
+    public void syncTradingDays() {
         log.info("定时任务：开始同步交易日数据");
         if (redisTemplate.hasKey(LuciferShareConstant.TRADING_TIME_KEY)) {
             Set<Integer> result = redisTemplate.opsForZSet().reverseRangeByScore(LuciferShareConstant.TRADING_TIME_KEY, Double.NEGATIVE_INFINITY, Double.MAX_VALUE, 0, 1);
@@ -48,9 +49,13 @@ public class TradingDateTimeService {
                 return;
             }
         }
-        List<Integer> tradingDays = akToolsService.toolTradeDateHistSina();
-        Set<ZSetOperations.TypedTuple<Integer>> tuples = tradingDays.stream().map(e -> new DefaultTypedTuple<>(e, e.doubleValue())).collect(Collectors.toSet());
-        redisTemplate.opsForZSet().addIfAbsent(LuciferShareConstant.TRADING_TIME_KEY, tuples);
+        try {
+            List<Integer> tradingDays = akToolsService.toolTradeDateHistSina();
+            Set<ZSetOperations.TypedTuple<Integer>> tuples = tradingDays.stream().map(e -> new DefaultTypedTuple<>(e, e.doubleValue())).collect(Collectors.toSet());
+            redisTemplate.opsForZSet().addIfAbsent(LuciferShareConstant.TRADING_TIME_KEY, tuples);
+        }catch (IOException e){
+            log.error(e.getMessage());
+        }
     }
 
 
@@ -63,8 +68,10 @@ public class TradingDateTimeService {
             LuciferShareConstant.LAST_TRADING_DATA = LocalDate.now();
         }else {
             int tradingDay = getPreviousTradingDay(Integer.parseInt(LocalDate.now().format(DateConstant.DATE_FORMATTER_YYYYMMDD)));
-            String dateStr = String.valueOf(tradingDay);
-            LuciferShareConstant.LAST_TRADING_DATA = LocalDate.parse(dateStr, DateConstant.DATE_FORMATTER_YYYYMMDD);
+            if(tradingDay > 0){
+                String dateStr = String.valueOf(tradingDay);
+                LuciferShareConstant.LAST_TRADING_DATA = LocalDate.parse(dateStr, DateConstant.DATE_FORMATTER_YYYYMMDD);
+            }
         }
 
 
@@ -88,6 +95,7 @@ public class TradingDateTimeService {
                 .rangeByScore(LuciferShareConstant.TRADING_TIME_KEY, startDate, endDate);
 
         if (tradingDays == null || tradingDays.isEmpty()) {
+            syncTradingDays();
             return List.of();
         }
         // 转成 List 返回
@@ -138,6 +146,7 @@ public class TradingDateTimeService {
         Set<Integer> result = redisTemplate.opsForZSet().rangeByScore(LuciferShareConstant.TRADING_TIME_KEY, date + 1, Double.MAX_VALUE, 0, 1);
 
         if (result == null || result.isEmpty()) {
+            syncTradingDays();
             return -1;
         }
         // 取第一个元素
@@ -156,6 +165,7 @@ public class TradingDateTimeService {
                 .reverseRangeByScore(LuciferShareConstant.TRADING_TIME_KEY, Double.NEGATIVE_INFINITY, date - 1, 0, 1);
 
         if (result == null || result.isEmpty()) {
+            syncTradingDays();
             return -1;
         }
         // 取第一个元素，即离 date 最近的上一个交易日
@@ -185,6 +195,7 @@ public class TradingDateTimeService {
                 .reverseRangeByScore(LuciferShareConstant.TRADING_TIME_KEY, Double.NEGATIVE_INFINITY, date - 1, off - 1, 1);
 
         if (result == null || result.isEmpty()) {
+            syncTradingDays();
             return -1;
         }
 
@@ -208,6 +219,7 @@ public class TradingDateTimeService {
                 .reverseRangeByScore(LuciferShareConstant.TRADING_TIME_KEY, Double.NEGATIVE_INFINITY, date - 1, 0, off);
 
         if (resultSet == null || resultSet.isEmpty()) {
+            syncTradingDays();
             return List.of();
         }
         // 倒序转升序
@@ -233,6 +245,7 @@ public class TradingDateTimeService {
                 .rangeByScore(LuciferShareConstant.TRADING_TIME_KEY, date + 1, Double.MAX_VALUE, off - 1, 1);
 
         if (result == null || result.isEmpty()) {
+            syncTradingDays();
             return -1;
         }
 

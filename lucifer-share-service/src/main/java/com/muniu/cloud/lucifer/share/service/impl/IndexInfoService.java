@@ -139,8 +139,12 @@ public class IndexInfoService {
      *
      */
     @Scheduled(cron = "0 0 8 * * ?")
-    @Transactional(rollbackFor = Exception.class)
     protected void syncIndexInfoData() {
+        saveIndexInfo();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void saveIndexInfo() {
         try {
             // 获取指数列表数据
             List<IndexInfoEntity> indexInfoEntityList = getIndexInfoList();
