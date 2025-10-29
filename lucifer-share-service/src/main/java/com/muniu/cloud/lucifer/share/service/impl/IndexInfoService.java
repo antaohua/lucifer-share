@@ -1,9 +1,6 @@
 package com.muniu.cloud.lucifer.share.service.impl;
 
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.muniu.cloud.lucifer.commons.model.constants.Condition;
 import com.muniu.cloud.lucifer.commons.model.constants.Operator;
@@ -11,7 +8,6 @@ import com.muniu.cloud.lucifer.commons.model.page.PageParams;
 import com.muniu.cloud.lucifer.commons.model.page.PageResult;
 import com.muniu.cloud.lucifer.share.service.dao.IndexInfoDao;
 import com.muniu.cloud.lucifer.share.service.model.cache.IndexInfoCacheValue;
-import com.muniu.cloud.lucifer.share.service.constant.ShareIndexType;
 import com.muniu.cloud.lucifer.share.service.model.dto.IndexInfoQueryDTO;
 import com.muniu.cloud.lucifer.share.service.model.dto.IndexInfoUpdateDTO;
 import com.muniu.cloud.lucifer.share.service.entity.IndexInfoEntity;
@@ -20,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,19 +31,13 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class IndexInfoService {
-
-    private static final byte DF = 0;
     
     // 指数缓存，key为指数代码，value为缓存值对象
     private final Map<String, IndexInfoCacheValue> indexCache = new ConcurrentHashMap<>();
-    private final TradingDateTimeService tradingDayService;
-    private final AkToolsService akToolsService;
     private final IndexInfoDao indexInfoDao;
 
     @Autowired
-    public IndexInfoService(IndexInfoDao indexInfoDao,AkToolsService akToolsService, TradingDateTimeService tradingDayService) {
-        this.akToolsService = akToolsService;
-        this.tradingDayService = tradingDayService;
+    public IndexInfoService(IndexInfoDao indexInfoDao) {
         this.indexInfoDao = indexInfoDao;
     }
     
@@ -64,10 +53,6 @@ public class IndexInfoService {
             if (CollectionUtils.isNotEmpty(indexInfoEntityList)) {
                 updateCache(indexInfoEntityList);
                 log.info("初始化指数缓存成功，共{}条", indexInfoEntityList.size());
-            } else {
-                log.info("数据库中未找到指数信息，尝试立即同步指数数据");
-                // 尝试同步数据
-                syncIndexInfoData();
             }
         } catch (Exception e) {
             log.error("初始化指数缓存失败", e);
@@ -133,32 +118,6 @@ public class IndexInfoService {
     }
     
 
-    /**
-     * 同步指数信息数据
-     * 每个交易日早上8点执行
-     *
-     */
-    @Scheduled(cron = "0 0 8 * * ?")
-    protected void syncIndexInfoData() {
-        saveIndexInfo();
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void saveIndexInfo() {
-        try {
-            // 获取指数列表数据
-            List<IndexInfoEntity> indexInfoEntityList = getIndexInfoList();
-            if (CollectionUtils.isNotEmpty(indexInfoEntityList)) {
-                indexInfoDao.save(indexInfoEntityList);
-                // 更新缓存
-                updateCache(indexInfoEntityList);
-            } else {
-                log.warn("未获取到指数信息数据");
-            }
-        } catch (Exception e) {
-            log.error("同步指数信息数据异常", e);
-        }
-    }
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -170,41 +129,6 @@ public class IndexInfoService {
         }
     }
 
-    /**
-     * 获取指数列表数据
-     * @return 指数列表数据
-     * @throws Exception 异常
-     */
-    public List<IndexInfoEntity> getIndexInfoList() throws Exception {
-        JSONArray baseIndexStockArray = JSON.parseArray(akToolsService.indexStockInfo());
-        Map<String,Integer> baseIndexStockMap = baseIndexStockArray.stream().collect(Collectors.toMap((e)->((JSONObject)e).getString("index_code"),e->Integer.valueOf(((JSONObject)e).getString("publish_date").replace("-",""))));
-        int tradingDay = tradingDayService.getLstTradingDay();
-        List<IndexInfoEntity> result = Lists.newArrayList();
-        for (ShareIndexType indexType : ShareIndexType.values()) {
-            String jsonData = akToolsService.stockZhIndexSpotEm(indexType.getName());
-            if (StringUtils.isBlank(jsonData)) {
-                continue;
-            }
-            long currentTime = System.currentTimeMillis();
-            JSONArray array = JSON.parseArray(jsonData);
-            for (int i = 0; i < array.size(); i++) {
-                JSONObject jsonObject = array.getJSONObject(i);
-                String indexCode = jsonObject.getString("代码");
-                IndexInfoEntity indexInfoEntity = new IndexInfoEntity();
-                indexInfoEntity.setId(indexCode);
-                indexInfoEntity.setDisplayName(jsonObject.getString("名称"));
-                indexInfoEntity.setSource(indexType.getCode());
-                indexInfoEntity.setPublishDate(baseIndexStockMap.get(indexCode) == null ? 0 : baseIndexStockMap.get(indexCode));
-                indexInfoEntity.setUpdateDate(tradingDay);
-                indexInfoEntity.setCreateTime(currentTime);
-                indexInfoEntity.setUpdateTime(currentTime);
-                indexInfoEntity.setUpdateConstituent(DF);
-                indexInfoEntity.setUpdateHistory(DF);
-                result.add(indexInfoEntity);
-            }
-        }
-        return result;
-    }
 
     /**
      * 根据查询条件分页查询指数信息
@@ -215,7 +139,6 @@ public class IndexInfoService {
         log.info("分页查询指数信息，参数: {}", JSON.toJSONString(queryDTO));
         // 构建查询条件
         List<Condition> conditions = Lists.newArrayList();
-        LambdaQueryWrapper<IndexInfoEntity> queryWrapper = new LambdaQueryWrapper<>();
         // 按条件查询
         if (StringUtils.isNotBlank(queryDTO.getIndexCode())) {
             conditions.add(new Condition("id", Operator.LIKE, queryDTO.getIndexCode()));
@@ -226,8 +149,6 @@ public class IndexInfoService {
         if (StringUtils.isNotBlank(queryDTO.getSource())) {
             conditions.add(new Condition("source", queryDTO.getSource()));
         }
-        // 默认按更新时间降序排序
-        queryWrapper.orderByDesc(IndexInfoEntity::getUpdateTime);
         PageParams pageParams = new PageParams(queryDTO.getPageNum(), queryDTO.getPageSize(),conditions);
         return indexInfoDao.getByPage(pageParams, true);
     }

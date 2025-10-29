@@ -3,6 +3,7 @@ package com.muniu.cloud.lucifer.share.service.impl;
 import com.muniu.cloud.lucifer.commons.core.redis.IntegerRedisTemplate;
 import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
 import com.muniu.cloud.lucifer.share.service.constant.LuciferShareConstant;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -58,12 +59,16 @@ public class TradingDateTimeService {
         }
     }
 
+    @PostConstruct
+    public void initLastTradingData(){
+        updatedCurrentTradingDay();
+    }
 
     /**
      * 更新当前交易日
      */
     @Scheduled(cron = "0 * * * * ?")
-    public void updatedCurrentTradingDay() throws IOException {
+    public void updatedCurrentTradingDay() {
         if(isTradingDay() && LocalTime.now().isAfter(LuciferShareConstant.TRADING_TIME_START)){
             LuciferShareConstant.LAST_TRADING_DATA = LocalDate.now();
         }else {
