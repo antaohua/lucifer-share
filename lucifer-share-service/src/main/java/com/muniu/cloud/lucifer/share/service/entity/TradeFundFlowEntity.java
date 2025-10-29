@@ -9,9 +9,9 @@ import java.math.BigDecimal;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "market_fund_flow")
+@Table(name = "trade_fund_flow",comment = "资金流向数据表")
 @Data
-public class MarketFundFlowEntity extends BaseSnowflakeIdEntity {
+public class TradeFundFlowEntity extends BaseSnowflakeIdEntity {
 
     @Column(name = "trade_date", nullable = false, comment = "交易日期，格式：20240925")
     private Integer tradeDate;

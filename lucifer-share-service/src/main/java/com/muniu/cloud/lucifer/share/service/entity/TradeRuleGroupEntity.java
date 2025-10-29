@@ -10,7 +10,6 @@ import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
-import java.io.Serializable;
 
 /**
  * <p>
@@ -22,12 +21,12 @@ import java.io.Serializable;
  */
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "share_rule_group")
+@Table(name = "trade_rule_group")
 @Data
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class ShareRuleGroupEntity extends BaseAutoIdEntity implements JpaCreateColumn, JpaUpdateCloumn, JpaDeleteState {
+public class TradeRuleGroupEntity extends BaseAutoIdEntity implements JpaCreateColumn, JpaUpdateCloumn, JpaDeleteState {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -48,7 +47,7 @@ public class ShareRuleGroupEntity extends BaseAutoIdEntity implements JpaCreateC
     private String name;
 
     //新增构造函数
-    public ShareRuleGroupEntity(Long createTime, String userId, SaveRuleGroupParams saveRuleGroupParams) {
+    public TradeRuleGroupEntity(Long createTime, String userId, SaveRuleGroupParams saveRuleGroupParams) {
         this.createTime = createTime;
         this.deleted = false;
         this.description = StringUtils.isBlank(saveRuleGroupParams.description()) ? "" : saveRuleGroupParams.description();

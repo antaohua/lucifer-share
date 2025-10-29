@@ -16,10 +16,10 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "index_info")
+@Table(name = "trade_index")
 @Data
 @Schema(description = "指数基本信息")
-public class IndexInfoEntity extends BaseCustomIdEntity implements JpaCreateColumn, JpaUpdateCloumn {
+public class TradeIndexEntity extends BaseCustomIdEntity implements JpaCreateColumn, JpaUpdateCloumn {
 
     private long createTime;
 

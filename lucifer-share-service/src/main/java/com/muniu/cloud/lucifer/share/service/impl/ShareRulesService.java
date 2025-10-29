@@ -6,10 +6,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.muniu.cloud.lucifer.commons.model.vo.RestResponse;
 import com.muniu.cloud.lucifer.share.service.constant.RuleDataSource;
-import com.muniu.cloud.lucifer.share.service.dao.ShareRuleGroupDao;
-import com.muniu.cloud.lucifer.share.service.dao.ShareRuleItemDao;
-import com.muniu.cloud.lucifer.share.service.entity.ShareRuleGroupEntity;
-import com.muniu.cloud.lucifer.share.service.entity.ShareRuleItemEntity;
+import com.muniu.cloud.lucifer.share.service.dao.TradeRuleGroupDao;
+import com.muniu.cloud.lucifer.share.service.dao.TradeRuleItemDao;
+import com.muniu.cloud.lucifer.share.service.entity.TradeRuleGroupEntity;
+import com.muniu.cloud.lucifer.share.service.entity.TradeRuleItemEntity;
 import com.muniu.cloud.lucifer.share.service.exception.FunctionException;
 import com.muniu.cloud.lucifer.share.service.impl.function.RuleFunction;
 import com.muniu.cloud.lucifer.share.service.model.rule.Rule;
@@ -36,18 +36,18 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ShareRulesService {
 
-    private final ShareRuleGroupDao shareRuleGroupDao;
+    private final TradeRuleGroupDao tradeRuleGroupDao;
 
-    private final ShareRuleItemDao shareRuleItemDao;
+    private final TradeRuleItemDao tradeRuleItemDao;
 
     private final Map<String, RuleFunction> ruleFunctions;
 
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public ShareRulesService(ShareRuleGroupDao shareRuleGroupDao, ShareRuleItemDao shareRuleItemDao, List<RuleFunction> ruleFunctions,JdbcTemplate jdbcTemplate) {
-        this.shareRuleGroupDao = shareRuleGroupDao;
-        this.shareRuleItemDao = shareRuleItemDao;
+    public ShareRulesService(TradeRuleGroupDao tradeRuleGroupDao, TradeRuleItemDao tradeRuleItemDao, List<RuleFunction> ruleFunctions, JdbcTemplate jdbcTemplate) {
+        this.tradeRuleGroupDao = tradeRuleGroupDao;
+        this.tradeRuleItemDao = tradeRuleItemDao;
         this.ruleFunctions = ruleFunctions.stream().collect(Collectors.toMap(RuleFunction::getCode, e->e));
         this.jdbcTemplate = jdbcTemplate;
 
@@ -56,7 +56,7 @@ public class ShareRulesService {
 
 
     public List<QueryRuleItemResult> getRuleItemByGroup(Long groupId) {
-        List<ShareRuleItemEntity> shareRuleItemEntities = shareRuleItemDao.getByProperty("ruleGroup",groupId,"sort",false,true);
+        List<TradeRuleItemEntity> shareRuleItemEntities = tradeRuleItemDao.getByProperty("ruleGroup",groupId,"sort",false,true);
         if(CollectionUtils.isEmpty(shareRuleItemEntities)){
             return Lists.newArrayList();
         }
@@ -70,22 +70,22 @@ public class ShareRulesService {
 
 
 
-    public RestResponse<List<ShareRuleGroupEntity>>  getGroupByUser(String userId) {
-        List<ShareRuleGroupEntity> resultData = shareRuleGroupDao.getByProperty("userId",userId,ShareRuleGroupEntity.CREATE_TIME_NAME,false,true);
+    public RestResponse<List<TradeRuleGroupEntity>>  getGroupByUser(String userId) {
+        List<TradeRuleGroupEntity> resultData = tradeRuleGroupDao.getByProperty("userId",userId, TradeRuleGroupEntity.CREATE_TIME_NAME,false,true);
         return RestResponse.success(resultData);
     }
 
 
     public RestResponse<Void> saveGroup(String userId, SaveRuleGroupParams saveRuleGroupParams) {
         long currentTime = System.currentTimeMillis();
-        ShareRuleGroupEntity ruleGroup = new ShareRuleGroupEntity(currentTime, userId, saveRuleGroupParams);
-        shareRuleGroupDao.save(ruleGroup);
+        TradeRuleGroupEntity ruleGroup = new TradeRuleGroupEntity(currentTime, userId, saveRuleGroupParams);
+        tradeRuleGroupDao.save(ruleGroup);
         return RestResponse.success();
     }
 
 
     public RestResponse<Void> updateGroup(String userId, UpdateRuleGroupParams updateRuleGroupParams) {
-        ShareRuleGroupEntity group = shareRuleGroupDao.getById(updateRuleGroupParams.id());
+        TradeRuleGroupEntity group = tradeRuleGroupDao.getById(updateRuleGroupParams.id());
         if(group == null){
             return RestResponse.fail("规则组不存在");
         }
@@ -95,7 +95,7 @@ public class ShareRulesService {
         group.setUpdateTime(System.currentTimeMillis());
         group.setDescription(updateRuleGroupParams.description());
         group.setName(updateRuleGroupParams.name());
-        shareRuleGroupDao.update(group);
+        tradeRuleGroupDao.update(group);
         return RestResponse.success();
     }
 
@@ -104,7 +104,7 @@ public class ShareRulesService {
         if(groupId == null){
             return RestResponse.fail("规则组不存在");
         }
-        ShareRuleGroupEntity group = shareRuleGroupDao.getById(groupId);
+        TradeRuleGroupEntity group = tradeRuleGroupDao.getById(groupId);
         if(group == null){
             return RestResponse.fail("规则组不存在");
         }
@@ -112,7 +112,7 @@ public class ShareRulesService {
             return RestResponse.fail("无权限操作");
         }
         group.setDeleted(true);
-        int result = shareRuleGroupDao.deleteById(groupId);
+        int result = tradeRuleGroupDao.deleteById(groupId);
         if (result > 0) {
             return RestResponse.success();
         } else {
@@ -123,40 +123,40 @@ public class ShareRulesService {
 
     @Transactional(rollbackFor = Exception.class)
     public RestResponse<Void> saveGroupItem(SaveRuleItemsParams updateRuleItem) {
-        ShareRuleGroupEntity group = shareRuleGroupDao.getById(updateRuleItem.groupId());
+        TradeRuleGroupEntity group = tradeRuleGroupDao.getById(updateRuleItem.groupId());
         if (group == null) {
             return RestResponse.fail("规则不存在");
         }
-        shareRuleItemDao.deleteByProperty("ruleGroup",updateRuleItem.groupId());
+        tradeRuleItemDao.deleteByProperty("ruleGroup",updateRuleItem.groupId());
         if (CollectionUtils.isEmpty(updateRuleItem.rule())) {
             return RestResponse.success();
         }
-        List<ShareRuleItemEntity> shareRuleItemEntities = updateRuleItem.rule().stream().filter(rule -> {
+        List<TradeRuleItemEntity> shareRuleItemEntities = updateRuleItem.rule().stream().filter(rule -> {
                     Rule rules = JSON.parseObject(rule.getRuleValue(), Rule.class, JSONReader.autoTypeFilter(true, Rule.class, RuleItem.class));
                     return CollectionUtils.isNotEmpty(rules.getItems()) || CollectionUtils.isNotEmpty(rules.getGroups());
                 }
-        ).map(rule -> new ShareRuleItemEntity(System.currentTimeMillis(), updateRuleItem.groupId(), rule)).toList();
+        ).map(rule -> new TradeRuleItemEntity(System.currentTimeMillis(), updateRuleItem.groupId(), rule)).toList();
         if (CollectionUtils.isNotEmpty(shareRuleItemEntities)) {
-            shareRuleItemDao.batchSaveOrUpdate(shareRuleItemEntities);
+            tradeRuleItemDao.batchSaveOrUpdate(shareRuleItemEntities);
         }
         return RestResponse.success();
     }
 
 
     public Set<String> processHistoryRules(Long groupId) throws FunctionException{
-        List<ShareRuleItemEntity> shareRuleItemEntities = shareRuleItemDao.getByProperty("ruleGroup",groupId,"sort",false,true);
+        List<TradeRuleItemEntity> shareRuleItemEntities = tradeRuleItemDao.getByProperty("ruleGroup",groupId,"sort",false,true);
         if(CollectionUtils.isEmpty(shareRuleItemEntities)){
             return Sets.newHashSet();
         }
         Set<String> fastRuleResult = Sets.newHashSet();
-        for (ShareRuleItemEntity shareRuleItemEntity : shareRuleItemEntities) {
-            Rule rule = JSON.parseObject(shareRuleItemEntity.getRuleValue(), Rule.class, JSONReader.autoTypeFilter(true, Rule.class, RuleItem.class));
-            fastRuleResult = processHistoryRuleItem(shareRuleItemEntity,rule,fastRuleResult);
+        for (TradeRuleItemEntity tradeRuleItemEntity : shareRuleItemEntities) {
+            Rule rule = JSON.parseObject(tradeRuleItemEntity.getRuleValue(), Rule.class, JSONReader.autoTypeFilter(true, Rule.class, RuleItem.class));
+            fastRuleResult = processHistoryRuleItem(tradeRuleItemEntity,rule,fastRuleResult);
         }
         return fastRuleResult;
     }
 
-    public Set<String> processHistoryRuleItem(ShareRuleItemEntity ruleItem, Rule rule, Set<String> fastRuleResult) throws FunctionException {
+    public Set<String> processHistoryRuleItem(TradeRuleItemEntity ruleItem, Rule rule, Set<String> fastRuleResult) throws FunctionException {
         String where = rule.toSql(ruleItem,rule,ruleFunctions);
         if (ruleItem.getDataSource() == RuleDataSource.HISTORY_SINGLE) {
             int date = Integer.parseInt(ruleItem.getDateValue().replace("-", ""));

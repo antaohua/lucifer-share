@@ -4,7 +4,7 @@ import com.alibaba.fastjson2.annotation.JSONField;
 import com.google.common.collect.Lists;
 import com.muniu.cloud.lucifer.commons.model.dto.BaseModel;
 import com.muniu.cloud.lucifer.share.service.constant.RulesConnect;
-import com.muniu.cloud.lucifer.share.service.entity.ShareRuleItemEntity;
+import com.muniu.cloud.lucifer.share.service.entity.TradeRuleItemEntity;
 import com.muniu.cloud.lucifer.share.service.exception.FunctionException;
 import com.muniu.cloud.lucifer.share.service.impl.function.RuleFunction;
 import lombok.Setter;
@@ -54,7 +54,7 @@ public class Rule extends BaseModel implements RulesInterface {
    }
 
    @Override
-   public String toSql(ShareRuleItemEntity ruleItem , Rule rule, Map<String, RuleFunction> functionMap)throws FunctionException {
+   public String toSql(TradeRuleItemEntity ruleItem , Rule rule, Map<String, RuleFunction> functionMap)throws FunctionException {
       StringBuilder sb = new StringBuilder();
       String op = connect.getCode();
       sb.append("(");

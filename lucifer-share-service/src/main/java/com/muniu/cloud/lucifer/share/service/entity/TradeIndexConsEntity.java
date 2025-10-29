@@ -8,9 +8,9 @@ import lombok.Data;
 
 
 @Entity
-@Table(name = "share_index_cons")
+@Table(name = "trade_index_cons",comment = "指数股票关系表")
 @Data
-public class ShareIndexConsEntity extends BaseCustomIdEntity {
+public class TradeIndexConsEntity extends BaseCustomIdEntity {
 
     @Column(name = "index_code", length = 10, nullable = false, comment = "指数代码")
     private String indexCode;

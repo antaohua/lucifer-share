@@ -5,7 +5,6 @@ import com.muniu.cloud.lucifer.share.service.constant.LuciferShareConstant;
 import com.muniu.cloud.lucifer.share.service.constant.ShareBoard;
 import com.muniu.cloud.lucifer.share.service.constant.ShareExchange;
 import com.muniu.cloud.lucifer.share.service.constant.ShareStatus;
-import com.muniu.cloud.lucifer.share.service.entity.ShareInfoEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -89,12 +88,5 @@ public class ShareInfoCacheValue {
 
 
 
-    public ShareInfoCacheValue(ShareInfoEntity entity) {
-        this.section = ShareBoard.fromKey(entity.getSection());
-        this.shareName = entity.getShareName();
-        this.listDate = entity.getListDate() == null ? 0 : entity.getListDate();
-        this.exchange = ShareExchange.getExchangeConstant(entity.getExchange());
-        this.status = ShareStatus.fromCode(entity.getShareStatus());
-        this.historyUpdateDate = Optional.ofNullable(entity.getHistoryUpdateDate()).orElse(0);
-    }
+
 }

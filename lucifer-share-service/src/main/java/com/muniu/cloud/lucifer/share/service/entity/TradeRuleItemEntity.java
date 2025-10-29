@@ -20,12 +20,12 @@ import java.io.Serial;
  */
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "share_rule_item")
+@Table(name = "trade_rule_item")
 @Data
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class ShareRuleItemEntity extends BaseAutoIdEntity implements JpaCreateColumn {
+public class TradeRuleItemEntity extends BaseAutoIdEntity implements JpaCreateColumn {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -39,7 +39,7 @@ public class ShareRuleItemEntity extends BaseAutoIdEntity implements JpaCreateCo
     private long ruleGroup;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "data_source", length = 50, nullable = false, comment = "规则数据源")
+    @Column(columnDefinition = "varchar(32) not null comment '规则数据源'")
     private RuleDataSource dataSource;
 
     @Column(name = "rule_value", length = 1000, nullable = false, comment = "规则值")
@@ -49,13 +49,13 @@ public class ShareRuleItemEntity extends BaseAutoIdEntity implements JpaCreateCo
     private int sort;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "date_type", length = 50, comment = "日期类型")
+    @Column(columnDefinition = "varchar(32) not null comment '日期类型'")
     private RuleDateType dateType;
 
     @Column(name = "date_value", length = 50, comment = "日期值")
     private String dateValue;
 
-    public ShareRuleItemEntity(Long createTime, Long groupId, SaveRuleParams saveRuleParams) {
+    public TradeRuleItemEntity(Long createTime, Long groupId, SaveRuleParams saveRuleParams) {
         this.createTime = createTime;
         this.cron = saveRuleParams.getCron();
         this.ruleGroup = groupId;

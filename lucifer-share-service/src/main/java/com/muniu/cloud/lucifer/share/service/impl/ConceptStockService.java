@@ -6,8 +6,8 @@ import com.alibaba.fastjson2.JSONObject;
 import com.google.common.collect.Lists;
 import com.muniu.cloud.lucifer.commons.model.constants.Condition;
 import com.muniu.cloud.lucifer.share.service.config.ScheduledInterface;
-import com.muniu.cloud.lucifer.share.service.dao.ConceptStockDao;
-import com.muniu.cloud.lucifer.share.service.entity.BoardStockEntity;
+import com.muniu.cloud.lucifer.share.service.dao.TradeBoardConsDao;
+import com.muniu.cloud.lucifer.share.service.entity.TradeBoardConsEntity;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ConceptStockService implements ScheduledInterface {
 
-    private final ConceptStockDao conceptStockDao;
+    private final TradeBoardConsDao tradeBoardConsDao;
     private final AkToolsService akToolsService;
     private final TradingDateTimeService tradingDayService;
     private final TdConceptMarketService tdConceptMarketService;
@@ -46,12 +46,12 @@ public class ConceptStockService implements ScheduledInterface {
     private final RedisTemplate<String, Object> redisTemplate;
     
     @Autowired
-    public ConceptStockService(AkToolsService akToolsService, TradingDateTimeService tradingDayService, TdConceptMarketService tdConceptMarketService, RedisTemplate<String, Object> redisTemplate, ConceptStockDao conceptStockDao) {
+    public ConceptStockService(AkToolsService akToolsService, TradingDateTimeService tradingDayService, TdConceptMarketService tdConceptMarketService, RedisTemplate<String, Object> redisTemplate, TradeBoardConsDao tradeBoardConsDao) {
         this.akToolsService = akToolsService;
         this.tradingDayService = tradingDayService;
         this.tdConceptMarketService = tdConceptMarketService;
         this.redisTemplate = redisTemplate;
-        this.conceptStockDao = conceptStockDao;
+        this.tradeBoardConsDao = tradeBoardConsDao;
     }
     
     
@@ -144,8 +144,8 @@ public class ConceptStockService implements ScheduledInterface {
         }
 
         // 查询数据库中该概念板块当前有效的成份股
-        List<BoardStockEntity> dbStocks = conceptStockDao.getByProperty(Lists.newArrayList(new Condition("boardCode", boardCode), new Condition("isValid", Boolean.TRUE)),true);
-        Set<String> dbStockCodes = dbStocks.stream().map(BoardStockEntity::getStockCode).collect(Collectors.toSet());
+        List<TradeBoardConsEntity> dbStocks = tradeBoardConsDao.getByProperty(Lists.newArrayList(new Condition("boardCode", boardCode), new Condition("isValid", Boolean.TRUE)),true);
+        Set<String> dbStockCodes = dbStocks.stream().map(TradeBoardConsEntity::getStockCode).collect(Collectors.toSet());
         // 需要新增的成份股
         List<String> toAddStockCodes = currentStockCodes.stream().filter(code -> !dbStockCodes.contains(code)).toList();
         // 需要标记为无效的成份股
@@ -153,14 +153,14 @@ public class ConceptStockService implements ScheduledInterface {
         long currentTime = System.currentTimeMillis();
         // 1. 处理新增的成份股
         if (!toAddStockCodes.isEmpty()) {
-            List<BoardStockEntity> toAddStocks = toAddStockCodes.stream().map(stockCode -> new BoardStockEntity(boardCode,stockCode)).collect(Collectors.toList());
-            conceptStockDao.save(toAddStocks);
+            List<TradeBoardConsEntity> toAddStocks = toAddStockCodes.stream().map(stockCode -> new TradeBoardConsEntity(boardCode,stockCode)).collect(Collectors.toList());
+            tradeBoardConsDao.save(toAddStocks);
             log.info("概念板块[{}]新增{}个成份股", boardCode, toAddStocks.size());
         }
         
         // 2. 处理需要标记为无效的成份股
         if (!toInvalidateStockCodes.isEmpty()) {
-            conceptStockDao.updateInvalidStocks(boardCode, toInvalidateStockCodes);
+            tradeBoardConsDao.updateInvalidStocks(boardCode, toInvalidateStockCodes);
             log.info("概念板块[{}]移除{}个成份股", boardCode, toInvalidateStockCodes.size());
         }
         log.info("概念板块[{}]成份股同步完成，当前有效成份股{}个", boardCode, currentStockCodes.size());
