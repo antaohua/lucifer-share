@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.google.common.collect.Maps;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferHttpClient;
+import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
 import com.muniu.cloud.lucifer.commons.utils.exception.HttpClientException;
 import com.muniu.cloud.lucifer.share.service.constant.AdjustConstant;
 import com.muniu.cloud.lucifer.share.service.constant.PeriodConstant;
@@ -64,7 +65,7 @@ public class AkToolsService {
     /**
      * 日内分时数据-新浪
      * 接口: stock_intraday_sina
-     * 目标地址: https://vip.stock.finance.sina.com.cn/quotes_service/view/cn_bill.php?symbol=sz000001
+     * 目标地址: <a href="https://vip.stock.finance.sina.com.cn/quotes_service/view/cn_bill.php?symbol=sz000001">...</a>
      * 描述: 新浪财经-日内分时数据
      * 限量: 单次返回指定交易日的分时数据；只能获取近期的数据
      * 输入参数
@@ -164,9 +165,7 @@ public class AkToolsService {
                 // 转换日期格式
                 String dateStr = map.get("日期");
                 LocalDate date = LocalDate.parse(dateStr);
-                int tradeDate = Integer.parseInt(date.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
-                
-                // 创建上证数据
+                int tradeDate = Integer.parseInt(date.format(DateConstant.DATE_FORMATTER_YYYYMMDD));
                 MarketFundFlowEntity shFlow = new MarketFundFlowEntity();
                 shFlow.setTradeDate(tradeDate);
                 shFlow.setMarketType("SH");

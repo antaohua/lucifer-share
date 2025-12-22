@@ -5,11 +5,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 
 @Entity
 @Table(name = "share_index_cons")
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class ShareIndexConsEntity extends BaseCustomIdEntity {
 
     @Column(name = "index_code", length = 10, nullable = false, comment = "指数代码")

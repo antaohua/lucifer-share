@@ -19,7 +19,7 @@
     </modules>
 
     <properties>
-        <lucifer.commons.version>1.0.251020-e18298e</lucifer.commons.version>
+        <lucifer.commons.version>1.0.251028-a9ebf4f</lucifer.commons.version>
         <lucifer.system.version>1.0.251013-0d143d4</lucifer.system.version>
     </properties>
     <dependencyManagement>
@@ -53,10 +53,6 @@
                 <groupId>com.muniu.cloud</groupId>
                 <artifactId>lucifer-share-service</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.spring</groupId>
-                <artifactId>springboot-starter-data-jpa</artifactId>
             </dependency>
         </dependencies>
     </dependencyManagement>

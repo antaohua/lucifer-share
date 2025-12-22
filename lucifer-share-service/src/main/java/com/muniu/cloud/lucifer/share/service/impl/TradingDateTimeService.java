@@ -3,6 +3,7 @@ package com.muniu.cloud.lucifer.share.service.impl;
 import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
 import com.muniu.cloud.lucifer.share.service.constant.LuciferShareConstant;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -29,7 +30,7 @@ public class TradingDateTimeService {
 
 
 
-    public TradingDateTimeService(AkToolsService akToolsService, RedisTemplate<String,Integer> redisTemplate) {
+    public TradingDateTimeService(AkToolsService akToolsService,@Qualifier("integerRedisTemplate") RedisTemplate<String,Integer> redisTemplate) {
         this.akToolsService = akToolsService;
         this.redisTemplate = redisTemplate;
     }

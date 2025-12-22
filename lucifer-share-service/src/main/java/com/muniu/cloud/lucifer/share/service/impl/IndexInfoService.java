@@ -20,6 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,8 +57,8 @@ public class IndexInfoService {
     /**
      * 初始化缓存，从数据库加载指数信息
      */
-    @PostConstruct
-    @Transactional
+    @EventListener(ApplicationReadyEvent.class)
+    @Transactional(rollbackFor = Exception.class)
     public void initCache() {
         try {
             // 从数据库加载所有指数信息
