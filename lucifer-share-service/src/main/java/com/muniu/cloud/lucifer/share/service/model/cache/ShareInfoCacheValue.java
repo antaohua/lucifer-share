@@ -72,14 +72,17 @@ public class ShareInfoCacheValue {
     public ShareInfoCacheValue(HashOperations<String, String, String> hashOps , String shareCode) {
         if (shareCode == null || shareCode.isEmpty()) return;
         Map<String, String> data = hashOps.entries(LuciferShareConstant.getRedisShareStatusKey(shareCode));
-        if (data.containsKey(HASH_CODE)) return;
+//        if (!data.containsKey(HASH_CODE)) {
+//            return;
+//        }
         this.code = data.get(HASH_CODE);
         this.shareName = data.get(HASH_NAME);
         this.exchange = ShareExchange.getExchangeConstant(data.get(HASH_EXCHANGE));
-        this.status = ShareStatus.valueOf(data.get(HASH_STATUS));
-        this.listDate = Integer.parseInt(data.get(HASH_EXCHANGE));
-        this.board = ShareBoard.valueOf(data.get(HASH_BOARD));
-        this.historyUpdateDate = Integer.parseInt(data.get(HASH_HISTORY) == null ? "0" : data.get(HASH_HISTORY));
+        this.status = ShareStatus.fromCode(data.get(HASH_STATUS));
+//        String date = data.getOrDefault(HASH_EXCHANGE, "0");
+//        this.listDate = Integer.parseInt(date.equals("unknown") ? "0" : date);
+        this.board = ShareBoard.fromKey(data.get(HASH_BOARD));
+        this.historyUpdateDate = Integer.parseInt(data.getOrDefault(HASH_HISTORY,"0"));
     }
 
 

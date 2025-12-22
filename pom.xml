@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.muniu.cloud</groupId>
         <artifactId>lucifer-super</artifactId>
-        <version>1.0-251016-e3b0663</version>
+        <version>1.0-251220-505cca9</version>
     </parent>
 
     <artifactId>lucifer-share</artifactId>
@@ -19,8 +19,8 @@
     </modules>
 
     <properties>
-        <lucifer.commons.version>1.0.251029-d10f0e6</lucifer.commons.version>
-        <lucifer.system.version>1.0.251013-0d143d4</lucifer.system.version>
+        <lucifer.commons.version>1.0.251221-6f6bac9</lucifer.commons.version>
+        <lucifer.system.version>1.0.251220-56a311b</lucifer.system.version>
     </properties>
     <dependencyManagement>
         <dependencies>

@@ -22,7 +22,7 @@ public class TradeBoardConsDao extends JpaBaseDao<Long, TradeBoardConsEntity> {
         if (toInvalidateStockCodes == null || toInvalidateStockCodes.isEmpty()) {
             return 0;
         }
-        List<Condition> conditions = Lists.newArrayList(new Condition("boardCode",boardCode),new Condition("stockCode", Operator.IN, toInvalidateStockCodes));
+        List<Condition> conditions = Lists.newArrayList(Condition.build("boardCode",boardCode),Condition.build("stockCode", Operator.IN, toInvalidateStockCodes));
         return updateByProperty(Map.of("isValid", false), conditions);
     }
 

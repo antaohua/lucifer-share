@@ -33,9 +33,9 @@ public class ScheduledConfig {
 //        if(isDebug){
 //            return;
 //        }
-        if(!tradingDayService.isTradingTime()){
-            return;
-        }
+//        if(!tradingDayService.isTradingTime()){
+//            return;
+//        }
         SpringContextUtils.getBean(SinaShareMarketApiClient.class).scheduled();
     }
 

@@ -144,7 +144,7 @@ public class ConceptStockService implements ScheduledInterface {
         }
 
         // 查询数据库中该概念板块当前有效的成份股
-        List<TradeBoardConsEntity> dbStocks = tradeBoardConsDao.getByProperty(Lists.newArrayList(new Condition("boardCode", boardCode), new Condition("isValid", Boolean.TRUE)),true);
+        List<TradeBoardConsEntity> dbStocks = tradeBoardConsDao.getByProperty(Lists.newArrayList(Condition.build("boardCode", boardCode), Condition.build("isValid", Boolean.TRUE)),true);
         Set<String> dbStockCodes = dbStocks.stream().map(TradeBoardConsEntity::getStockCode).collect(Collectors.toSet());
         // 需要新增的成份股
         List<String> toAddStockCodes = currentStockCodes.stream().filter(code -> !dbStockCodes.contains(code)).toList();

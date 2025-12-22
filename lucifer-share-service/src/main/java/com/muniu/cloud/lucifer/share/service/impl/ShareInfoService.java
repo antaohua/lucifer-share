@@ -80,7 +80,7 @@ public class ShareInfoService{
     public void updateShareHistoryUpdateDate(String shareCode, int day) {
         if(redisTemplate.hasKey(shareCode)){
             HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
-            hashOps.putIfAbsent(LuciferShareConstant.getRedisShareStatusKey(shareCode),ShareInfoCacheValue.HASH_HISTORY,String.valueOf(day));
+            hashOps.putIfAbsent(LuciferShareConstant.getRedisShareStatusKey(shareCode), ShareInfoCacheValue.HASH_HISTORY, String.valueOf(day));
         }
     }
 

@@ -141,13 +141,13 @@ public class IndexInfoService {
         List<Condition> conditions = Lists.newArrayList();
         // 按条件查询
         if (StringUtils.isNotBlank(queryDTO.getIndexCode())) {
-            conditions.add(new Condition("id", Operator.LIKE, queryDTO.getIndexCode()));
+            conditions.add(Condition.build("id", Operator.LIKE, queryDTO.getIndexCode()));
         }
         if (StringUtils.isNotBlank(queryDTO.getDisplayName())) {
-            conditions.add(new Condition("displayName", Operator.LIKE, queryDTO.getDisplayName()));
+            conditions.add(Condition.build("displayName", Operator.LIKE, queryDTO.getDisplayName()));
         }
         if (StringUtils.isNotBlank(queryDTO.getSource())) {
-            conditions.add(new Condition("source", queryDTO.getSource()));
+            conditions.add(Condition.build("source", queryDTO.getSource()));
         }
         PageParams pageParams = new PageParams(queryDTO.getPageNum(), queryDTO.getPageSize(),conditions);
         return tradeIndexDao.getByPage(pageParams, true);

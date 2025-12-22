@@ -19,7 +19,7 @@ public class TradeIndexDao extends JpaBaseDao<String, TradeIndexEntity> {
     public void updateHistUpdate(String indexCode, Integer indexHistUpdate) {
         updateByProperty(
                 Map.of("indexHistUpdate", indexHistUpdate),
-                List.of(new Condition("indexCode", indexCode))
+                List.of(Condition.build("indexCode", indexCode))
         );
     }
 }

@@ -26,9 +26,9 @@ public class EastmoneyStockHistApiClient {
     private final LuciferHttpClient staticProxyHttpClient;
 
 
-    public EastmoneyStockHistApiClient(@Qualifier("autoProxyHttpClient") LuciferHttpClient autoProxyHttpClient, @Qualifier("staticProxyClient") LuciferHttpClient staticProxyHttpClient) {
+    public EastmoneyStockHistApiClient(@Qualifier("autoProxyHttpClient") LuciferHttpClient autoProxyHttpClient) {
         this.autoProxyHttpClient = autoProxyHttpClient;
-        this.staticProxyHttpClient = staticProxyHttpClient;
+        this.staticProxyHttpClient = autoProxyHttpClient;
     }
 
 

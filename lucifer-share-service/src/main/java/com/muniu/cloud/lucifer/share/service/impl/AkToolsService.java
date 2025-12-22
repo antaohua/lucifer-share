@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.google.common.collect.Maps;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferHttpClient;
+import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
 import com.muniu.cloud.lucifer.commons.utils.exception.HttpClientException;
 import com.muniu.cloud.lucifer.share.service.constant.AdjustConstant;
 import com.muniu.cloud.lucifer.share.service.constant.PeriodConstant;
@@ -164,12 +165,12 @@ public class AkToolsService {
                 // 转换日期格式
                 String dateStr = map.get("日期");
                 LocalDate date = LocalDate.parse(dateStr);
-                int tradeDate = Integer.parseInt(date.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+
                 
                 // 创建上证数据
                 TradeFundFlowEntity shFlow = new TradeFundFlowEntity();
                 int tradeDate = Integer.parseInt(date.format(DateConstant.DATE_FORMATTER_YYYYMMDD));
-                MarketFundFlowEntity shFlow = new MarketFundFlowEntity();
+
                 shFlow.setTradeDate(tradeDate);
                 shFlow.setMarketType("SH");
                 shFlow.setClosingPrice(new BigDecimal(map.get("上证-收盘价")));
