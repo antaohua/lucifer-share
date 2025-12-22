@@ -2,8 +2,8 @@ package com.muniu.cloud.lucifer.share.service.impl;
 
 import com.muniu.cloud.lucifer.commons.model.constants.Condition;
 import com.muniu.cloud.lucifer.commons.model.constants.Operator;
-import com.muniu.cloud.lucifer.share.service.dao.MarketFundFlowDao;
-import com.muniu.cloud.lucifer.share.service.entity.MarketFundFlowEntity;
+import com.muniu.cloud.lucifer.share.service.dao.TradeFundFlowDao;
+import com.muniu.cloud.lucifer.share.service.entity.TradeFundFlowEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,14 +19,14 @@ public class StockMarketFundFlowService {
 
     private final AkToolsService akToolsService;
 
-    private final MarketFundFlowDao marketFundFlowDao;
+    private final TradeFundFlowDao tradeFundFlowDao;
 
     private final TradingDateTimeService tradingDayService;
 
     @Autowired
-    public StockMarketFundFlowService(AkToolsService akToolsService, MarketFundFlowDao marketFundFlowDao, TradingDateTimeService tradingDayService) {
+    public StockMarketFundFlowService(AkToolsService akToolsService, TradeFundFlowDao tradeFundFlowDao, TradingDateTimeService tradingDayService) {
         this.akToolsService = akToolsService;
-        this.marketFundFlowDao = marketFundFlowDao;
+        this.tradeFundFlowDao = tradeFundFlowDao;
         this.tradingDayService = tradingDayService;
     }
 
@@ -38,9 +38,9 @@ public class StockMarketFundFlowService {
             return;
         }
         try {
-            List<MarketFundFlowEntity> fundFlows = akToolsService.marketFundFlow();
-            for (MarketFundFlowEntity flow : fundFlows) {
-                marketFundFlowDao.save(flow);
+            List<TradeFundFlowEntity> fundFlows = akToolsService.marketFundFlow();
+            for (TradeFundFlowEntity flow : fundFlows) {
+                tradeFundFlowDao.save(flow);
             }
             
             log.info("同步资金流向数据成功，数据条数: {}", fundFlows.size());
@@ -55,8 +55,8 @@ public class StockMarketFundFlowService {
      * @param tradeDate 交易日期，格式：20240925
      * @return 资金流向数据列表
      */
-    public List<MarketFundFlowEntity> queryByDate(Integer tradeDate) {
-        return marketFundFlowDao.getByProperty(Map.of("tradeDate",tradeDate),false);
+    public List<TradeFundFlowEntity> queryByDate(Integer tradeDate) {
+        return tradeFundFlowDao.getByProperty(Map.of("tradeDate",tradeDate),false);
     }
     
     /**
@@ -65,8 +65,8 @@ public class StockMarketFundFlowService {
      * @param tradeDate 交易日期，格式：20240925
      * @return 资金流向数据列表
      */
-    public List<MarketFundFlowEntity> queryByMarketTypeAndDate(String marketType, Integer tradeDate) {
-        return marketFundFlowDao.getByProperty(Map.of("marketType",marketType,"tradeDate",tradeDate),false);
+    public List<TradeFundFlowEntity> queryByMarketTypeAndDate(String marketType, Integer tradeDate) {
+        return tradeFundFlowDao.getByProperty(Map.of("marketType",marketType,"tradeDate",tradeDate),false);
     }
     
     /**
@@ -76,11 +76,11 @@ public class StockMarketFundFlowService {
      * @param endDate 结束日期，格式：20240925
      * @return 资金流向数据列表
      */
-    public List<MarketFundFlowEntity> queryByMarketTypeAndDateRange(String marketType, Integer startDate, Integer endDate) {
+    public List<TradeFundFlowEntity> queryByMarketTypeAndDateRange(String marketType, Integer startDate, Integer endDate) {
         List<Condition> whereConditions = List.of(
                 Condition.build("marketType", Operator.EQUALS, marketType),
                 Condition.build("tradeDate", Operator.GREATER_THAN_OR_EQUALS,startDate),
             Condition.build("tradeDate", Operator.LESS_THAN_OR_EQUALS, endDate));
-        return marketFundFlowDao.getByProperty(whereConditions,false);
+        return tradeFundFlowDao.getByProperty(whereConditions,false);
     }
 }

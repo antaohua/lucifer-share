@@ -1,7 +1,7 @@
 package com.muniu.cloud.lucifer.share.service.controller;
 
 import com.muniu.cloud.lucifer.commons.model.vo.RestResponse;
-import com.muniu.cloud.lucifer.share.service.entity.MarketFundFlowEntity;
+import com.muniu.cloud.lucifer.share.service.entity.TradeFundFlowEntity;
 import com.muniu.cloud.lucifer.share.service.impl.StockMarketFundFlowService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -52,7 +52,7 @@ public class StockMarketFundFlowController {
             )
         }
     )
-    public RestResponse<List<MarketFundFlowEntity>> queryByDate(
+    public RestResponse<List<TradeFundFlowEntity>> queryByDate(
             @Parameter(description = "交易日期，格式：yyyyMMdd", example = "20240325", required = true) 
             @PathVariable("tradeDate") Integer tradeDate) {
         return RestResponse.success(stockMarketFundFlowService.queryByDate(tradeDate));
@@ -79,7 +79,7 @@ public class StockMarketFundFlowController {
             )
         }
     )
-    public RestResponse<List<MarketFundFlowEntity>> queryByMarketTypeAndDate(
+    public RestResponse<List<TradeFundFlowEntity>> queryByMarketTypeAndDate(
             @Parameter(description = "市场类型：SH-上证，SZ-深证", example = "SH", required = true) 
             @PathVariable("marketType") String marketType,
             @Parameter(description = "交易日期，格式：yyyyMMdd", example = "20240325", required = true) 
@@ -109,7 +109,7 @@ public class StockMarketFundFlowController {
             )
         }
     )
-    public RestResponse<List<MarketFundFlowEntity>> queryByMarketTypeAndDateRange(
+    public RestResponse<List<TradeFundFlowEntity>> queryByMarketTypeAndDateRange(
             @Parameter(description = "市场类型：SH-上证，SZ-深证", example = "SH", required = true) 
             @PathVariable("marketType") String marketType,
             @Parameter(description = "开始日期，格式：yyyyMMdd", example = "20240301", required = true) 

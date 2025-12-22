@@ -4,9 +4,10 @@ import com.alibaba.fastjson2.annotation.JSONField;
 import com.google.common.collect.Lists;
 import com.muniu.cloud.lucifer.commons.model.dto.BaseModel;
 import com.muniu.cloud.lucifer.share.service.constant.RulesConnect;
-import com.muniu.cloud.lucifer.share.service.entity.ShareRuleItemEntity;
+import com.muniu.cloud.lucifer.share.service.entity.TradeRuleItemEntity;
 import com.muniu.cloud.lucifer.share.service.exception.FunctionException;
 import com.muniu.cloud.lucifer.share.service.impl.function.RuleFunction;
+import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @Setter
+@Getter
 public class Rule extends BaseModel implements RulesInterface {
 
 
@@ -32,7 +34,7 @@ public class Rule extends BaseModel implements RulesInterface {
       groups.add(group);
    }
 
-   @JSONField(name = "items", serialize = true)
+   @JSONField(name = "items")
    public List<RuleItem> getItems() {
       return items.isEmpty() ? null : items;
    }
@@ -40,11 +42,6 @@ public class Rule extends BaseModel implements RulesInterface {
     public void addItem(RuleItem item) {
         items.add(item);
     }
-
-
-   public RulesConnect getConnect() {
-      return connect;
-   }
 
     public Rule() {
    }
@@ -54,7 +51,7 @@ public class Rule extends BaseModel implements RulesInterface {
    }
 
    @Override
-   public String toSql(ShareRuleItemEntity ruleItem , Rule rule, Map<String, RuleFunction> functionMap)throws FunctionException {
+   public String toSql(TradeRuleItemEntity ruleItem , Rule rule, Map<String, RuleFunction> functionMap)throws FunctionException {
       StringBuilder sb = new StringBuilder();
       String op = connect.getCode();
       sb.append("(");

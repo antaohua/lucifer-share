@@ -13,12 +13,12 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "share_board_stock", comment = "概念板块成份股关系表", indexes = {
+@Table(name = "trade_board_cons", comment = "概念板块成份股关系表", indexes = {
         @Index(columnList = "board_code,stock_code", name = "idx_board_stock", unique = true, options = "USING BTREE"),
         @Index(columnList = "stock_code", name = "idx_stock")
 })
 @Data
-public class BoardStockEntity extends BaseSnowflakeIdEntity implements JpaCreateColumn, JpaUpdateCloumn {
+public class TradeBoardConsEntity extends BaseSnowflakeIdEntity implements JpaCreateColumn, JpaUpdateCloumn {
 
     private long createTime;
 
@@ -34,12 +34,12 @@ public class BoardStockEntity extends BaseSnowflakeIdEntity implements JpaCreate
     private Boolean isValid;
 
 
-    public BoardStockEntity(String boardCode, String stockCode) {
+    public TradeBoardConsEntity(String boardCode, String stockCode) {
         this.boardCode = boardCode;
         this.stockCode = stockCode;
         this.isValid = true;
     }
 
-    public BoardStockEntity() {
+    public TradeBoardConsEntity() {
     }
 }

@@ -1,13 +1,19 @@
 package com.muniu.cloud.lucifer.share.service.model.cache;
 
-import com.muniu.cloud.lucifer.share.service.entity.IndexInfoEntity;
+import com.muniu.cloud.lucifer.share.service.entity.TradeIndexEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * 指数信息缓存对象
  * @author antaohua
  */
+@Setter
+@Getter
 @Schema(description = "指数信息缓存对象")
+@NoArgsConstructor
 public class IndexInfoCacheValue {
 
     /**
@@ -63,20 +69,18 @@ public class IndexInfoCacheValue {
      */
     @Schema(description = "指数成分股最后更新日期",example = "19901219")
     private Integer indexConstUpdate;
-    
-    public IndexInfoCacheValue() {
-    }
 
-    public IndexInfoCacheValue(IndexInfoEntity indexInfoEntity) {
-        this.indexCode = indexInfoEntity.getId();
-        this.displayName = indexInfoEntity.getDisplayName();
-        this.publishDate = indexInfoEntity.getPublishDate();
-        this.source = indexInfoEntity.getSource();
-        this.updateDate = indexInfoEntity.getUpdateDate();
-        this.updateConstituent = indexInfoEntity.getUpdateConstituent();
-        this.updateHistory = indexInfoEntity.getUpdateHistory();
-        this.indexHistUpdate = indexInfoEntity.getIndexHistUpdate();
-        this.indexConstUpdate = indexInfoEntity.getIndexConstUpdate();
+
+    public IndexInfoCacheValue(TradeIndexEntity tradeIndexEntity) {
+        this.indexCode = tradeIndexEntity.getId();
+        this.displayName = tradeIndexEntity.getDisplayName();
+        this.publishDate = tradeIndexEntity.getPublishDate();
+        this.source = tradeIndexEntity.getSource();
+        this.updateDate = tradeIndexEntity.getUpdateDate();
+        this.updateConstituent = tradeIndexEntity.getUpdateConstituent();
+        this.updateHistory = tradeIndexEntity.getUpdateHistory();
+        this.indexHistUpdate = tradeIndexEntity.getIndexHistUpdate();
+        this.indexConstUpdate = tradeIndexEntity.getIndexConstUpdate();
     }
 
     public IndexInfoCacheValue(String indexCode, String displayName, Integer publishDate, String source, Integer updateDate, Byte updateConstituent, Byte updateHistory, Integer indexHistUpdate, Integer indexConstUpdate) {
@@ -91,89 +95,17 @@ public class IndexInfoCacheValue {
         this.indexConstUpdate = indexConstUpdate;
     }
 
-    public String getIndexCode() {
-        return indexCode;
-    }
-    
-    public void setIndexCode(String indexCode) {
-        this.indexCode = indexCode;
-    }
-    
-    public String getDisplayName() {
-        return displayName;
-    }
-    
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-    
-    public Integer getPublishDate() {
-        return publishDate;
-    }
-    
-    public void setPublishDate(Integer publishDate) {
-        this.publishDate = publishDate;
-    }
-    
-    public String getSource() {
-        return source;
-    }
-    
-    public void setSource(String source) {
-        this.source = source;
-    }
-    
-    public Integer getUpdateDate() {
-        return updateDate;
-    }
-    
-    public void setUpdateDate(Integer updateDate) {
-        this.updateDate = updateDate;
-    }
-
-    public Byte getUpdateConstituent() {
-        return updateConstituent;
-    }
-
-    public void setUpdateConstituent(Byte updateConstituent) {
-        this.updateConstituent = updateConstituent;
-    }
-
-    public Byte getUpdateHistory() {
-        return updateHistory;
-    }
-
-    public void setUpdateHistory(Byte updateHistory) {
-        this.updateHistory = updateHistory;
-    }
-
-    public Integer getIndexHistUpdate() {
-        return indexHistUpdate;
-    }
-
-    public void setIndexHistUpdate(Integer indexHistUpdate) {
-        this.indexHistUpdate = indexHistUpdate;
-    }
-
-    public Integer getIndexConstUpdate() {
-        return indexConstUpdate;
-    }
-
-    public void setIndexConstUpdate(Integer indexConstUpdate) {
-        this.indexConstUpdate = indexConstUpdate;
-    }
-
-    public IndexInfoEntity toIndexInfo() {
-        IndexInfoEntity indexInfoEntity = new IndexInfoEntity();
-        indexInfoEntity.setId(indexCode);
-        indexInfoEntity.setDisplayName(displayName);
-        indexInfoEntity.setPublishDate(publishDate);
-        indexInfoEntity.setSource(source);
-        indexInfoEntity.setUpdateDate(updateDate);
-        indexInfoEntity.setUpdateConstituent(updateConstituent);
-        indexInfoEntity.setUpdateHistory(updateHistory);
-        indexInfoEntity.setIndexHistUpdate(indexHistUpdate);
-        indexInfoEntity.setIndexConstUpdate(indexConstUpdate);
-        return indexInfoEntity;
+    public TradeIndexEntity toIndexInfo() {
+        TradeIndexEntity tradeIndexEntity = new TradeIndexEntity();
+        tradeIndexEntity.setId(indexCode);
+        tradeIndexEntity.setDisplayName(displayName);
+        tradeIndexEntity.setPublishDate(publishDate);
+        tradeIndexEntity.setSource(source);
+        tradeIndexEntity.setUpdateDate(updateDate);
+        tradeIndexEntity.setUpdateConstituent(updateConstituent);
+        tradeIndexEntity.setUpdateHistory(updateHistory);
+        tradeIndexEntity.setIndexHistUpdate(indexHistUpdate);
+        tradeIndexEntity.setIndexConstUpdate(indexConstUpdate);
+        return tradeIndexEntity;
     }
 }

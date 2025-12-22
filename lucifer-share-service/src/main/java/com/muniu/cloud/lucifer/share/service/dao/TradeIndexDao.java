@@ -2,17 +2,17 @@ package com.muniu.cloud.lucifer.share.service.dao;
 
 import com.muniu.cloud.lucifer.commons.core.jpa.JpaBaseDao;
 import com.muniu.cloud.lucifer.commons.model.constants.Condition;
-import com.muniu.cloud.lucifer.share.service.entity.IndexInfoEntity;
+import com.muniu.cloud.lucifer.share.service.entity.TradeIndexEntity;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
 
 @Repository
-public class IndexInfoDao extends JpaBaseDao<String,IndexInfoEntity> {
+public class TradeIndexDao extends JpaBaseDao<String, TradeIndexEntity> {
     @Override
-    public Class<IndexInfoEntity> getEntityClass() {
-        return IndexInfoEntity.class;
+    public Class<TradeIndexEntity> getEntityClass() {
+        return TradeIndexEntity.class;
     }
 
 

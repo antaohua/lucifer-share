@@ -5,7 +5,7 @@ import com.muniu.cloud.lucifer.commons.model.vo.RestResponse;
 import com.muniu.cloud.lucifer.share.service.model.cache.IndexInfoCacheValue;
 import com.muniu.cloud.lucifer.share.service.model.dto.IndexInfoQueryDTO;
 import com.muniu.cloud.lucifer.share.service.model.dto.IndexInfoUpdateDTO;
-import com.muniu.cloud.lucifer.share.service.entity.IndexInfoEntity;
+import com.muniu.cloud.lucifer.share.service.entity.TradeIndexEntity;
 import com.muniu.cloud.lucifer.share.service.impl.IndexInfoService;
 import com.muniu.cloud.lucifer.share.service.impl.TdIndexHistService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -184,10 +184,10 @@ public class IndexController {
             )
         }
     )
-    public RestResponse<PageResult<IndexInfoEntity>> queryIndexPage(
+    public RestResponse<PageResult<TradeIndexEntity>> queryIndexPage(
             @Parameter(description = "查询条件", required = true) 
             @RequestBody IndexInfoQueryDTO queryDTO) {
-        PageResult<IndexInfoEntity> page = indexInfoService.queryIndexInfoPage(queryDTO);
+        PageResult<TradeIndexEntity> page = indexInfoService.queryIndexInfoPage(queryDTO);
         return RestResponse.success(page);
     }
     

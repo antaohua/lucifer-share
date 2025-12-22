@@ -15,10 +15,10 @@ import java.math.BigDecimal;
  */
 
 @Entity
-@Table(name = "concept_market", comment = "概念板块数据")
+@Table(name = "trade_board_market", comment = "概念板块数据")
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class BoardMarketEntity extends BaseSnowflakeIdEntity implements JpaUpdateCloumn, JpaCreateColumn {
+public class TradeBoardMarketEntity extends BaseSnowflakeIdEntity implements JpaUpdateCloumn, JpaCreateColumn {
 
     private long updateTime;
 
@@ -61,10 +61,10 @@ public class BoardMarketEntity extends BaseSnowflakeIdEntity implements JpaUpdat
     private Integer rank;
 
 
-    public BoardMarketEntity() {
+    public TradeBoardMarketEntity() {
     }
 
-    public BoardMarketEntity(JSONObject item, long currentTime) {
+    public TradeBoardMarketEntity(JSONObject item, long currentTime) {
         setRank(item.getInteger("排名"));
         setBoardName(item.getString("板块名称"));
         setBoardCode(item.getString("板块代码"));

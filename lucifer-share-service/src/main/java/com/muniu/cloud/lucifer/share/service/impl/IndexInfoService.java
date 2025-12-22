@@ -1,28 +1,21 @@
 package com.muniu.cloud.lucifer.share.service.impl;
 
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.muniu.cloud.lucifer.commons.model.constants.Condition;
 import com.muniu.cloud.lucifer.commons.model.constants.Operator;
 import com.muniu.cloud.lucifer.commons.model.page.PageParams;
 import com.muniu.cloud.lucifer.commons.model.page.PageResult;
-import com.muniu.cloud.lucifer.share.service.dao.IndexInfoDao;
+import com.muniu.cloud.lucifer.share.service.dao.TradeIndexDao;
 import com.muniu.cloud.lucifer.share.service.model.cache.IndexInfoCacheValue;
-import com.muniu.cloud.lucifer.share.service.constant.ShareIndexType;
 import com.muniu.cloud.lucifer.share.service.model.dto.IndexInfoQueryDTO;
 import com.muniu.cloud.lucifer.share.service.model.dto.IndexInfoUpdateDTO;
-import com.muniu.cloud.lucifer.share.service.entity.IndexInfoEntity;
+import com.muniu.cloud.lucifer.share.service.entity.TradeIndexEntity;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,38 +31,28 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class IndexInfoService {
-
-    private static final byte DF = 0;
     
     // 指数缓存，key为指数代码，value为缓存值对象
     private final Map<String, IndexInfoCacheValue> indexCache = new ConcurrentHashMap<>();
-    private final TradingDateTimeService tradingDayService;
-    private final AkToolsService akToolsService;
-    private final IndexInfoDao indexInfoDao;
+    private final TradeIndexDao tradeIndexDao;
 
     @Autowired
-    public IndexInfoService(IndexInfoDao indexInfoDao,AkToolsService akToolsService, TradingDateTimeService tradingDayService) {
-        this.akToolsService = akToolsService;
-        this.tradingDayService = tradingDayService;
-        this.indexInfoDao = indexInfoDao;
+    public IndexInfoService(TradeIndexDao tradeIndexDao) {
+        this.tradeIndexDao = tradeIndexDao;
     }
-    
+
     /**
      * 初始化缓存，从数据库加载指数信息
      */
-    @EventListener(ApplicationReadyEvent.class)
-    @Transactional(rollbackFor = Exception.class)
+    @PostConstruct
+    @Transactional
     public void initCache() {
         try {
             // 从数据库加载所有指数信息
-            List<IndexInfoEntity> indexInfoEntityList = indexInfoDao.getAll(false);
-            if (CollectionUtils.isNotEmpty(indexInfoEntityList)) {
-                updateCache(indexInfoEntityList);
-                log.info("初始化指数缓存成功，共{}条", indexInfoEntityList.size());
-            } else {
-                log.info("数据库中未找到指数信息，尝试立即同步指数数据");
-                // 尝试同步数据
-                syncIndexInfoData();
+            List<TradeIndexEntity> tradeIndexEntityList = tradeIndexDao.getAll(false);
+            if (CollectionUtils.isNotEmpty(tradeIndexEntityList)) {
+                updateCache(tradeIndexEntityList);
+                log.info("初始化指数缓存成功，共{}条", tradeIndexEntityList.size());
             }
         } catch (Exception e) {
             log.error("初始化指数缓存失败", e);
@@ -78,15 +61,15 @@ public class IndexInfoService {
     
     /**
      * 更新缓存
-     * @param indexInfoEntityList 指数信息列表
+     * @param tradeIndexEntityList 指数信息列表
      */
-    private void updateCache(List<IndexInfoEntity> indexInfoEntityList) {
-        if (CollectionUtils.isEmpty(indexInfoEntityList)) {
+    private void updateCache(List<TradeIndexEntity> tradeIndexEntityList) {
+        if (CollectionUtils.isEmpty(tradeIndexEntityList)) {
             return;
         }
         // 清空原有缓存
         indexCache.clear();
-        indexInfoEntityList.stream().map(IndexInfoCacheValue::new).forEach(e-> indexCache.put(e.getIndexCode(), e));
+        tradeIndexEntityList.stream().map(IndexInfoCacheValue::new).forEach(e-> indexCache.put(e.getIndexCode(), e));
         log.info("更新指数缓存成功，当前缓存大小: {}", indexCache.size());
     }
     
@@ -135,85 +118,27 @@ public class IndexInfoService {
     }
     
 
-    /**
-     * 同步指数信息数据
-     * 每个交易日早上8点执行
-     *
-     */
-    @Scheduled(cron = "0 0 8 * * ?")
-    @Transactional(rollbackFor = Exception.class)
-    protected void syncIndexInfoData() {
-        try {
-            // 获取指数列表数据
-            List<IndexInfoEntity> indexInfoEntityList = getIndexInfoList();
-            if (CollectionUtils.isNotEmpty(indexInfoEntityList)) {
-                indexInfoDao.save(indexInfoEntityList);
-                // 更新缓存
-                updateCache(indexInfoEntityList);
-            } else {
-                log.warn("未获取到指数信息数据");
-            }
-        } catch (Exception e) {
-            log.error("同步指数信息数据异常", e);
-        }
-    }
 
 
     @Transactional(rollbackFor = Exception.class)
     public void updateHistUpdate(String indexCode, Integer indexHistUpdate){
-        indexInfoDao.updateHistUpdate(indexCode, indexHistUpdate);
+        tradeIndexDao.updateHistUpdate(indexCode, indexHistUpdate);
         IndexInfoCacheValue cacheValue = indexCache.get(indexCode);
         if(cacheValue != null){
             cacheValue.setIndexHistUpdate(indexHistUpdate);
         }
     }
 
-    /**
-     * 获取指数列表数据
-     * @return 指数列表数据
-     * @throws Exception 异常
-     */
-    public List<IndexInfoEntity> getIndexInfoList() throws Exception {
-        JSONArray baseIndexStockArray = JSON.parseArray(akToolsService.indexStockInfo());
-        Map<String,Integer> baseIndexStockMap = baseIndexStockArray.stream().collect(Collectors.toMap((e)->((JSONObject)e).getString("index_code"),e->Integer.valueOf(((JSONObject)e).getString("publish_date").replace("-",""))));
-        int tradingDay = tradingDayService.getLstTradingDay();
-        List<IndexInfoEntity> result = Lists.newArrayList();
-        for (ShareIndexType indexType : ShareIndexType.values()) {
-            String jsonData = akToolsService.stockZhIndexSpotEm(indexType.getName());
-            if (StringUtils.isBlank(jsonData)) {
-                continue;
-            }
-            long currentTime = System.currentTimeMillis();
-            JSONArray array = JSON.parseArray(jsonData);
-            for (int i = 0; i < array.size(); i++) {
-                JSONObject jsonObject = array.getJSONObject(i);
-                String indexCode = jsonObject.getString("代码");
-                IndexInfoEntity indexInfoEntity = new IndexInfoEntity();
-                indexInfoEntity.setId(indexCode);
-                indexInfoEntity.setDisplayName(jsonObject.getString("名称"));
-                indexInfoEntity.setSource(indexType.getCode());
-                indexInfoEntity.setPublishDate(baseIndexStockMap.get(indexCode) == null ? 0 : baseIndexStockMap.get(indexCode));
-                indexInfoEntity.setUpdateDate(tradingDay);
-                indexInfoEntity.setCreateTime(currentTime);
-                indexInfoEntity.setUpdateTime(currentTime);
-                indexInfoEntity.setUpdateConstituent(DF);
-                indexInfoEntity.setUpdateHistory(DF);
-                result.add(indexInfoEntity);
-            }
-        }
-        return result;
-    }
 
     /**
      * 根据查询条件分页查询指数信息
      * @param queryDTO 查询条件
      * @return 分页结果
      */
-    public PageResult<IndexInfoEntity> queryIndexInfoPage(IndexInfoQueryDTO queryDTO) {
+    public PageResult<TradeIndexEntity> queryIndexInfoPage(IndexInfoQueryDTO queryDTO) {
         log.info("分页查询指数信息，参数: {}", JSON.toJSONString(queryDTO));
         // 构建查询条件
         List<Condition> conditions = Lists.newArrayList();
-        LambdaQueryWrapper<IndexInfoEntity> queryWrapper = new LambdaQueryWrapper<>();
         // 按条件查询
         if (StringUtils.isNotBlank(queryDTO.getIndexCode())) {
             conditions.add(new Condition("id", Operator.LIKE, queryDTO.getIndexCode()));
@@ -224,10 +149,8 @@ public class IndexInfoService {
         if (StringUtils.isNotBlank(queryDTO.getSource())) {
             conditions.add(new Condition("source", queryDTO.getSource()));
         }
-        // 默认按更新时间降序排序
-        queryWrapper.orderByDesc(IndexInfoEntity::getUpdateTime);
         PageParams pageParams = new PageParams(queryDTO.getPageNum(), queryDTO.getPageSize(),conditions);
-        return indexInfoDao.getByPage(pageParams, true);
+        return tradeIndexDao.getByPage(pageParams, true);
     }
     
     /**
@@ -239,20 +162,20 @@ public class IndexInfoService {
     public boolean updateIndexSettings(IndexInfoUpdateDTO updateDTO) {
         log.info("更新指数设置，参数: {}", JSON.toJSONString(updateDTO));
         // 检查指数是否存在
-        IndexInfoEntity indexInfoEntity = indexInfoDao.getById(updateDTO.getIndexCode());
-        if (indexInfoEntity == null || StringUtils.isBlank(indexInfoEntity.getId())) {
+        TradeIndexEntity tradeIndexEntity = tradeIndexDao.getById(updateDTO.getIndexCode());
+        if (tradeIndexEntity == null || StringUtils.isBlank(tradeIndexEntity.getId())) {
             log.error("更新失败: 指数[{}]不存在", updateDTO.getIndexCode());
             return false;
         }
-        indexInfoEntity.setUpdateHistory(updateDTO.getUpdateHistory());
-        indexInfoEntity.setUpdateConstituent(updateDTO.getUpdateConstituent());
-        indexInfoEntity.setSource(updateDTO.getSource());
+        tradeIndexEntity.setUpdateHistory(updateDTO.getUpdateHistory());
+        tradeIndexEntity.setUpdateConstituent(updateDTO.getUpdateConstituent());
+        tradeIndexEntity.setSource(updateDTO.getSource());
         // 执行更新
         Map<String,Object> pramMap = Map.of("source",updateDTO.getSource(),
                 "updateHistory",updateDTO.getUpdateHistory(),
                 "updateConstituent",updateDTO.getUpdateConstituent());
-        indexCache.put(updateDTO.getIndexCode(),new IndexInfoCacheValue(indexInfoEntity));
-        return indexInfoDao.updateById(updateDTO.getIndexCode(),pramMap)>0;
+        indexCache.put(updateDTO.getIndexCode(),new IndexInfoCacheValue(tradeIndexEntity));
+        return tradeIndexDao.updateById(updateDTO.getIndexCode(),pramMap)>0;
     }
 
 } 

@@ -7,7 +7,7 @@ import com.muniu.cloud.lucifer.share.service.constant.RuleDataSource;
 import com.muniu.cloud.lucifer.share.service.constant.RuleDateType;
 import com.muniu.cloud.lucifer.share.service.constant.RulesConnect;
 import com.muniu.cloud.lucifer.share.service.constant.RulesFields;
-import com.muniu.cloud.lucifer.share.service.entity.ShareRuleGroupEntity;
+import com.muniu.cloud.lucifer.share.service.entity.TradeRuleGroupEntity;
 import com.muniu.cloud.lucifer.share.service.exception.FunctionException;
 import com.muniu.cloud.lucifer.share.service.impl.ShareRulesService;
 import com.muniu.cloud.lucifer.share.service.impl.function.RuleFunction;
@@ -108,7 +108,7 @@ public class ShareRulesController {
             )
         }
     )
-    public RestResponse<List<ShareRuleGroupEntity>> groupQuery(
+    public RestResponse<List<TradeRuleGroupEntity>> groupQuery(
             @Parameter(description = "登录用户名", hidden = true) 
             @CurrentUser String loginName) {
         return shareRulesService.getGroupByUser(loginName);

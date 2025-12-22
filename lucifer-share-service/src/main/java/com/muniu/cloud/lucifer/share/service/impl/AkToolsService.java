@@ -5,12 +5,11 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.google.common.collect.Maps;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferHttpClient;
-import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
 import com.muniu.cloud.lucifer.commons.utils.exception.HttpClientException;
 import com.muniu.cloud.lucifer.share.service.constant.AdjustConstant;
 import com.muniu.cloud.lucifer.share.service.constant.PeriodConstant;
-import com.muniu.cloud.lucifer.share.service.entity.BoardMarketEntity;
-import com.muniu.cloud.lucifer.share.service.entity.MarketFundFlowEntity;
+import com.muniu.cloud.lucifer.share.service.entity.TradeBoardMarketEntity;
+import com.muniu.cloud.lucifer.share.service.entity.TradeFundFlowEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -65,7 +64,7 @@ public class AkToolsService {
     /**
      * 日内分时数据-新浪
      * 接口: stock_intraday_sina
-     * 目标地址: <a href="https://vip.stock.finance.sina.com.cn/quotes_service/view/cn_bill.php?symbol=sz000001">...</a>
+     * 目标地址: https://vip.stock.finance.sina.com.cn/quotes_service/view/cn_bill.php?symbol=sz000001
      * 描述: 新浪财经-日内分时数据
      * 限量: 单次返回指定交易日的分时数据；只能获取近期的数据
      * 输入参数
@@ -147,7 +146,7 @@ public class AkToolsService {
     /**
      * 获取市场资金流向数据
      */
-    public List<MarketFundFlowEntity> marketFundFlow() throws IOException {
+    public List<TradeFundFlowEntity> marketFundFlow() throws IOException {
         String jsonString =  get("stock_market_fund_flow", null);
         
         List<Map<String,String>> list = Objects.requireNonNull(JSON.parseArray(jsonString, Map.class)).stream().map(e-> {
@@ -158,13 +157,17 @@ public class AkToolsService {
             return map;
         }).collect(Collectors.toList());
         
-        List<MarketFundFlowEntity> result = new ArrayList<>();
+        List<TradeFundFlowEntity> result = new ArrayList<>();
         Optional.of(list)
             .orElse(Collections.emptyList())
             .forEach(map -> {
                 // 转换日期格式
                 String dateStr = map.get("日期");
                 LocalDate date = LocalDate.parse(dateStr);
+                int tradeDate = Integer.parseInt(date.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+                
+                // 创建上证数据
+                TradeFundFlowEntity shFlow = new TradeFundFlowEntity();
                 int tradeDate = Integer.parseInt(date.format(DateConstant.DATE_FORMATTER_YYYYMMDD));
                 MarketFundFlowEntity shFlow = new MarketFundFlowEntity();
                 shFlow.setTradeDate(tradeDate);
@@ -175,7 +178,7 @@ public class AkToolsService {
                 result.add(shFlow);
                 
                 // 创建深证数据
-                MarketFundFlowEntity szFlow = new MarketFundFlowEntity();
+                TradeFundFlowEntity szFlow = new TradeFundFlowEntity();
                 szFlow.setTradeDate(tradeDate);
                 szFlow.setMarketType("SZ");
                 szFlow.setClosingPrice(new BigDecimal(map.get("深证-收盘价")));
@@ -187,7 +190,7 @@ public class AkToolsService {
         return result;
     }
     
-    private static void setCommonFieldsStatic(MarketFundFlowEntity entity, Map<String,String> map) {
+    private static void setCommonFieldsStatic(TradeFundFlowEntity entity, Map<String,String> map) {
         entity.setMainNetInflow(new BigDecimal(map.get("主力净流入-净额")));
         entity.setMainNetInflowRate(new BigDecimal(map.get("主力净流入-净占比")));
         entity.setSuperNetInflow(new BigDecimal(map.get("超大单净流入-净额")));
@@ -239,10 +242,15 @@ public class AkToolsService {
 
     /**
      * 东方财富-概念板块
+     * 东方财富-概念板块
+     * 接口: stock_board_concept_name_em
+     * 目标地址: <a href="https://quote.eastmoney.com/center/boardlist.html#concept_board">...</a>
+     * 描述: 东方财富网-行情中心-沪深京板块-概念板块
+     * 限量: 单次返回当前时刻所有概念板块的实时行情数据
      * @return 概念板块数据JSON字符串
      * @throws IOException 请求异常
      */
-    public List<BoardMarketEntity> stockBoardConceptNameEm() throws IOException {
+    public List<TradeBoardMarketEntity> stockBoardConceptNameEm() throws IOException {
         String jsonData = get("stock_board_concept_name_em", null);
         if (StringUtils.isBlank(jsonData)) {
             return null;
@@ -251,11 +259,11 @@ public class AkToolsService {
         if (array == null || array.isEmpty()) {
             return null;
         }
-        List<BoardMarketEntity> result = new ArrayList<>();
+        List<TradeBoardMarketEntity> result = new ArrayList<>();
         long currentTime = System.currentTimeMillis();
         for (int i = 0; i < array.size(); i++) {
             JSONObject item = array.getJSONObject(i);
-            result.add(new BoardMarketEntity(item,currentTime));
+            result.add(new TradeBoardMarketEntity(item,currentTime));
         }
         return result;
     }

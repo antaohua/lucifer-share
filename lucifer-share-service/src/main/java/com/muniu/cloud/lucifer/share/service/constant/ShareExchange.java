@@ -1,5 +1,8 @@
 package com.muniu.cloud.lucifer.share.service.constant;
 
+import lombok.Getter;
+
+@Getter
 public enum ShareExchange {
     SZ("SZ", "深圳交易所", "深证"),
     SH("SH", "上海交易所", "上证"),
@@ -21,18 +24,6 @@ public enum ShareExchange {
         this.code = code;
         this.name = name;
         this.shortName = shortName;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getShortName() {
-        return shortName;
     }
 
     public static ShareExchange getExchangeConstant(String code) {
