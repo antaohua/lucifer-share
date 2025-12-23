@@ -20,6 +20,8 @@ public class TdShareMarket implements Serializable {
     @TableId(value = "id", type = IdType.INPUT)
     private String id;
 
+
+    private String shareName;
     /**
      * 日期
      */

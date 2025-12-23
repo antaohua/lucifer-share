@@ -289,7 +289,7 @@ public class TradingDateTimeService {
      */
     public boolean isTradingTime() {
         LocalTime now = LocalTime.now();
-        return now.isAfter(LocalTime.of(9, 10)) && now.isBefore(LocalTime.of(16, 0));
+        return now.isAfter(LocalTime.of(9, 15)) && now.isBefore(LocalTime.of(15, 2));
     }
 
 } 

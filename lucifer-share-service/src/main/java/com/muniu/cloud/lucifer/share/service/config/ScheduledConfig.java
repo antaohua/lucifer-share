@@ -27,15 +27,12 @@ public class ScheduledConfig {
      * 获取实时股票数据（当前所有A股数据）
      * 交易时段运行
      * */
-//    @Scheduled(cron = "0 * * * * MON-FRI")
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 * * * * MON-FRI")
+//    @Scheduled(cron = "0 * * * * *")
     public void sinaShareMarket() throws Exception{
-//        if(isDebug){
-//            return;
-//        }
-//        if(!tradingDayService.isTradingTime()){
-//            return;
-//        }
+        if(!tradingDayService.isTradingTime()){
+            return;
+        }
         SpringContextUtils.getBean(SinaShareMarketApiClient.class).scheduled();
     }
 
@@ -61,13 +58,10 @@ public class ScheduledConfig {
      * */
     @Scheduled(cron = "*/6 * * * * *")
     public void shareHist() throws Exception {
-//        if(isDebug){
+        LocalTime now = LocalTime.now();
+//        if (tradingDayService.isTradingDay(LocalDate.now()) && (now.isAfter(LocalTime.of(9, 15)) && now.isBefore(LocalTime.of(15, 30)))) {
 //            return;
 //        }
-        LocalTime now = LocalTime.now();
-        if (tradingDayService.isTradingDay(LocalDate.now()) && (now.isAfter(LocalTime.of(8, 15)) && now.isBefore(LocalTime.of(18, 0)))) {
-            return;
-        }
         SpringContextUtils.getBean(TdShareHistService.class).scheduled();
 
     }
@@ -101,11 +95,6 @@ public class ScheduledConfig {
         }
         SpringContextUtils.getBean(ConceptStockService.class).scheduled();
     }
-
-
-
-
-
 }
 
 

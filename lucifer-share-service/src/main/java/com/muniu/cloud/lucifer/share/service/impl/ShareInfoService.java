@@ -9,7 +9,10 @@ import com.muniu.cloud.lucifer.share.service.constant.ShareExchange;
 import com.muniu.cloud.lucifer.share.service.model.cache.ShareInfoCacheValue;
 import com.muniu.cloud.lucifer.share.service.constant.ShareStatus;
 import com.muniu.cloud.lucifer.share.service.model.dto.SinaStockMarketSaveEvent;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RTopic;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -29,13 +32,23 @@ public class ShareInfoService{
 
     private final RedisTemplate<String, String> redisTemplate;
 
+    private final RedissonClient redisson;
+
     @Autowired
-    public ShareInfoService(RedisTemplate<String, String> redisTemplate) {
+    public ShareInfoService(RedisTemplate<String, String> redisTemplate, RedissonClient redisson) {
+        this.redisson = redisson;
         this.redisTemplate = redisTemplate;
     }
 
+    @PostConstruct
+    public void init(){
+        RTopic topic = redisson.getTopic("mq:stock:market");
+        topic.addListener(SinaStockMarketSaveEvent.class, (channel, msg) -> {
+            sinaStockMarketSaveEventHandle(msg);
+        });
+    }
 
-    @AsyncEventListener
+
     public void sinaStockMarketSaveEventHandle(SinaStockMarketSaveEvent event) {
         String redisShareSetKey = LuciferShareConstant.getRedisShareSetKey();
         String redisShareStatusKey = LuciferShareConstant.getRedisShareStatusKey(event.getCode());

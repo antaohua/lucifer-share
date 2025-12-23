@@ -3,7 +3,7 @@
 <mapper namespace="com.muniu.cloud.lucifer.share.service.mapper.TdShareMarketMapper">
 
     <update id="createTable">
-        CREATE TABLE IF NOT EXISTS td_share_market_${sharding}
+        CREATE TABLE IF NOT EXISTS ${tableName}
         (
             `id`                     varchar(20)  NOT NULL,
             `amplitude`              decimal(7, 3)                                         COMMENT '振幅',
@@ -21,6 +21,7 @@
             `pb_ratio`               decimal(15, 4)                                        COMMENT '市净率',
             `previous_close`         decimal(15, 4)                                        COMMENT '昨收',
             `share_code`             varchar(10)  NOT NULL COMMENT '股票代码',
+            `share_name`             varchar(50)  COMMENT '股票名称',
             `speed`                  decimal(7, 3)                                         COMMENT '涨速',
             `total_market_cap`       decimal(19, 3)                                        COMMENT '总市值',
             `turnover`               decimal(15, 4)                                        COMMENT '成交额',
@@ -32,7 +33,7 @@
             PRIMARY KEY (`id`) USING BTREE,
             INDEX `idx_share_code_time` (`share_code` ASC, `time` DESC) USING BTREE
         ) ENGINE = InnoDB
-          DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '实时行情数据-日期:${sharding}';
+          DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '实时行情数据';
     </update>
 
     <insert id="insertBatch" parameterType="java.util.List">
@@ -47,6 +48,27 @@
             #{item.shareCode}, #{item.speed}, #{item.totalMarketCap}, #{item.turnover}, #{item.turnoverRate},
             #{item.volume}, #{item.volumeRatio}, #{item.limitDown}, #{item.limitUp})
         </foreach>
+        ON DUPLICATE KEY UPDATE
+        amplitude              = VALUES(amplitude),
+        change_amount          = VALUES(change_amount),
+        change_rate            = VALUES(change_rate),
+        circulating_market_cap = VALUES(circulating_market_cap),
+        dynamic_pe             = VALUES(dynamic_pe),
+        time                   = VALUES(time),
+        highest                = VALUES(highest),
+        latest_price           = VALUES(latest_price),
+        lowest                 = VALUES(lowest),
+        opening_price          = VALUES(opening_price),
+        pb_ratio               = VALUES(pb_ratio),
+        previous_close         = VALUES(previous_close),
+        speed                  = VALUES(speed),
+        total_market_cap       = VALUES(total_market_cap),
+        turnover               = VALUES(turnover),
+        turnover_rate          = VALUES(turnover_rate),
+        volume                 = VALUES(volume),
+        volume_ratio           = VALUES(volume_ratio),
+        limit_down             = VALUES(limit_down),
+        limit_up               = VALUES(limit_up)
     </insert>
 
 

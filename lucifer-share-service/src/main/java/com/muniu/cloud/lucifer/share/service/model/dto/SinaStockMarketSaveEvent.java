@@ -13,6 +13,32 @@ import java.math.RoundingMode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class SinaStockMarketSaveEvent extends BaseModel {
+
+
+
+//    {
+//                        "symbol" : "bj920252",
+//                            "code" : "920252",
+//                            "name" : "天宏锂电",
+//                            "trade" : "33.630",
+//                            "pricechange" : 2.97,
+//                            "changepercent" : 9.687,
+//                            "buy" : "33.620",
+//                            "sell" : "33.630",
+//                            "settlement" : "30.660",
+//                            "open" : "30.500",
+//                            "high" : "35.000",
+//                            "low" : "30.340",
+//                            "volume" : 9787185,
+//                            "amount" : 317853530,
+//                            "ticktime" : "13:37:57",
+//                            "per" : 480.429,
+//                            "pb" : 13.223,
+//                            "mktcap" : 345214.186395,
+//                            "nmc" : 229461.656757,
+//                            "turnoverratio" : 14.34414
+//                    }
+
     /** 股票标识符（如 bj833346） */
     private String symbol;
 
@@ -31,11 +57,11 @@ public class SinaStockMarketSaveEvent extends BaseModel {
     /** 涨跌幅（%） */
     private double changepercent;
 
-//    /** 买一价 */
-//    private String buy;
-//
-//    /** 卖一价 */
-//    private String sell;
+    /** 买一价 */
+    private String buy;
+
+    /** 卖一价 */
+    private String sell;
 
     /** 昨日收盘价 */
     private String settlement;

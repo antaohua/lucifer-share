@@ -3,7 +3,7 @@
 <mapper namespace="com.muniu.cloud.lucifer.share.service.mapper.TdIndexHistMapper">
 
     <update id="createTable">
-        CREATE TABLE IF NOT EXISTS td_index_hist_${sharding}
+        CREATE TABLE IF NOT EXISTS ${tableName}
         (
             `id`           varchar(20) NOT NULL,
             `index_code`   varchar(10) NOT NULL COMMENT '指数代码',

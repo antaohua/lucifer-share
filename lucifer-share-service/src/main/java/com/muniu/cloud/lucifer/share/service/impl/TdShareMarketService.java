@@ -6,18 +6,23 @@ import com.muniu.cloud.lucifer.commons.core.annotation.AsyncEventListener;
 import com.muniu.cloud.lucifer.commons.core.mybatisplus.BaseShardingService;
 import com.muniu.cloud.lucifer.commons.core.utls.SpringContextUtils;
 import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
-import com.muniu.cloud.lucifer.share.service.model.cache.ShareInfoCacheValue;
+import com.muniu.cloud.lucifer.share.service.constant.ShareBoard;
+import com.muniu.cloud.lucifer.share.service.constant.ShareStatus;
 import com.muniu.cloud.lucifer.share.service.entity.TdShareMarket;
 import com.muniu.cloud.lucifer.share.service.mapper.TdShareMarketMapper;
 import com.muniu.cloud.lucifer.share.service.model.dto.SinaStockMarketSaveEvent;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RTopic;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -35,19 +40,17 @@ public class TdShareMarketService extends BaseShardingService<TdShareMarketMappe
 
     private static final int TIME_INTERVAL = 3;
 
-    private final ShareInfoService shareInfoService;
-
     private final TdShareMarketMapper tdShareMarketMapper;
 
-
+    private final RedissonClient redisson;
 
 
     private final BlockingQueue<TdShareMarket> saveQueue = new LinkedBlockingQueue<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @Autowired
-    public TdShareMarketService(ShareInfoService shareInfoService, TdShareMarketMapper tdShareMarketMapper) {
-        this.shareInfoService = shareInfoService;
+    public TdShareMarketService(TdShareMarketMapper tdShareMarketMapper , RedissonClient redisson) {
+        this.redisson = redisson;
         this.tdShareMarketMapper = tdShareMarketMapper;
         scheduler.scheduleAtFixedRate(() -> SpringContextUtils.getBean(TdShareMarketService.class).saveData(), 0, TIME_INTERVAL, TimeUnit.SECONDS);
     }
@@ -60,9 +63,17 @@ public class TdShareMarketService extends BaseShardingService<TdShareMarketMappe
     }
 
 
+
+    @PostConstruct
+    private void init(){
+        RTopic topic = redisson.getTopic("mq:stock:market");
+        topic.addListener(SinaStockMarketSaveEvent.class, (channel, msg) -> {
+            sinaStockMarketSaveEventHandle(msg);
+        });
+    }
+
     // 监听事件
-    @AsyncEventListener
-    public void sinaStockMarketSaveEventHandle(SinaStockMarketSaveEvent event) {
+    private void sinaStockMarketSaveEventHandle(SinaStockMarketSaveEvent event) {
         int day = Integer.parseInt(DateUtil.format(new Date(event.getLoadTime()), DateConstant.DATE_FORMAT_YYYYMMDD));
         TdShareMarket shareMarketEntity = new TdShareMarket();
         shareMarketEntity.setDate(day);
@@ -85,14 +96,16 @@ public class TdShareMarketService extends BaseShardingService<TdShareMarketMappe
         shareMarketEntity.setPbRatio(new BigDecimal(event.getPb()));
         shareMarketEntity.setTotalMarketCap(new BigDecimal(event.getMktcap()));
         shareMarketEntity.setCirculatingMarketCap(new BigDecimal(event.getNmc()));
-
+        shareMarketEntity.setShareName(event.getName());
         //没有昨日收盘价时和今日开盘价 不做涨停和跌停计算
         if (shareMarketEntity.getPreviousClose() != null && shareMarketEntity.getOpeningPrice() != null) {
-            ShareInfoCacheValue cacheValue = shareInfoService.getShareInfoCache(shareMarketEntity.getShareCode());
-            BigDecimal limitDown = cacheValue == null ? BigDecimal.ZERO : cacheValue.getSection().minPrice(shareMarketEntity.getPreviousClose(), cacheValue.getStatus());
-            BigDecimal limitUp = cacheValue == null ? BigDecimal.ZERO : cacheValue.getSection().maxPrice(shareMarketEntity.getPreviousClose(), cacheValue.getStatus());
+            ShareBoard board = ShareBoard.getBoard(shareMarketEntity.getShareCode());
+            ShareStatus status = ShareStatus.getStatus(event.getName());
+            BigDecimal limitDown = board == null ? BigDecimal.ZERO : board.minPrice(shareMarketEntity.getPreviousClose(), status);
+            BigDecimal limitUp = board == null ? BigDecimal.ZERO : board.maxPrice(shareMarketEntity.getPreviousClose(), status);
             shareMarketEntity.setLimitUp(limitUp);
             shareMarketEntity.setLimitDown(limitDown);
+
         }
 //        List<Integer> previousTradingDays = tradingDayService.getPreviousTradingDays(day, 5);
 //        List<TdShareMarket> shareMarkets = null;

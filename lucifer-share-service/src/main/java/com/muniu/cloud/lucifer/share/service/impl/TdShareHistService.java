@@ -6,6 +6,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.muniu.cloud.lucifer.commons.core.mybatisplus.BaseShardingService;
 import com.muniu.cloud.lucifer.share.service.clients.EastmoneyStockHistApiClient;
 import com.muniu.cloud.lucifer.share.service.config.ScheduledInterface;
+import com.muniu.cloud.lucifer.share.service.constant.ShareBoard;
 import com.muniu.cloud.lucifer.share.service.model.cache.ShareInfoCacheValue;
 import com.muniu.cloud.lucifer.share.service.constant.ShareStatus;
 import com.muniu.cloud.lucifer.share.service.entity.TdShareHist;
@@ -53,43 +54,21 @@ public class TdShareHistService extends BaseShardingService<TdShareHistMapper, T
 
     @Transactional(rollbackFor = Exception.class)
     public void scheduled() throws Exception {
-        LocalTime now = LocalTime.now();
-        int day = Integer.parseInt(LocalDate.now().format(DATE_FORMATTER_YYYYMMDD));
-        if (!tradingDayService.isTradingDay(LocalDate.now()) || now.isBefore(LocalTime.of(9, 0))) {
-            day = tradingDayService.getPreviousTradingDay(day);
-        }
-
+        int day = tradingDayService.isTradingTime() ? tradingDayService.getPreviousTradingDay(tradingDayService.getLstTradingDay()) : tradingDayService.getLstTradingDay();
         List<ShareInfoCacheValue> shareInfoCacheValues = shareInfoService.getAll();
-        ShareInfoCacheValue cacheValue = null;
-        for (ShareInfoCacheValue entry : shareInfoCacheValues) {
-            if (entry.getStatus() != ShareStatus.DEMISTED && entry.getHistoryUpdateDate() < day && entry.getListDate() < day) {
-                cacheValue = entry;
-                break;
-            }
-        }
+        ShareInfoCacheValue cacheValue = shareInfoCacheValues.stream().filter(e-> e.getStatus() != ShareStatus.DEMISTED && e.getHistoryUpdateDate() < day && e.getListDate() < day).findFirst().orElse(null);
         if (cacheValue == null) {
             return;
         }
-        Integer fastDay = Math.max(cacheValue.getHistoryUpdateDate(), 0);
-        if(fastDay == 0){
-            int year = day / 10000;
-            TdShareHist hist;
-            int listYear = cacheValue.getListDate() > 0 ? cacheValue.getListDate() / 10000 : 1990;
-            do {
-                createTable("td_share_hist_", String.valueOf(year));
-                hist = getBaseMapper().selectShareLastDate(cacheValue.getCode(), year);
-                if (hist != null) {
-                    fastDay = hist.getDate();
-                    break;
-                }
-                year--;
-            }while (year >= listYear);
+        int fastDay = cacheValue.getHistoryUpdateDate();
+        int fastYear = fastDay == 0 ? 1990: fastDay / 10000;
+        int lastYear = day / 10000;
+        for (int i = fastYear; i <= lastYear; i++) {
+            createTable("td_share_hist_", String.valueOf(i));
         }
 
-        if (fastDay == day) {
-            if (fastDay != cacheValue.getHistoryUpdateDate()) {
-                shareInfoService.updateShareHistoryUpdateDate(cacheValue.getCode(), day);
-            }
+        if (fastDay == day && fastDay != cacheValue.getHistoryUpdateDate()) {
+            shareInfoService.updateShareHistoryUpdateDate(cacheValue.getCode(), day);
             log.info("已更新无需再更新 day:{},fastDay:{},shareCode={}", day, fastDay, cacheValue.getCode());
             return;
         }
@@ -126,11 +105,13 @@ public class TdShareHistService extends BaseShardingService<TdShareHistMapper, T
         shareHistEntity.setChangeAmount(BigDecimal.valueOf(item.getDouble("涨跌额")));
         shareHistEntity.setTurnoverRate(BigDecimal.valueOf(item.getDouble("换手率")));
         shareHistEntity.setCreateTime(createTime);
-        ShareInfoCacheValue cacheValue = shareInfoService.getShareInfoCache(shareHistEntity.getShareCode());
+
         BigDecimal yesterdayClosePrice = new BigDecimal(0).add(shareHistEntity.getClosePrice()).subtract(shareHistEntity.getChangeAmount());
         shareHistEntity.setPreviousClose(yesterdayClosePrice);
-        BigDecimal limitDown = cacheValue.getSection().minPrice(yesterdayClosePrice, cacheValue.getStatus());
-        BigDecimal limitUp = cacheValue.getSection().maxPrice(yesterdayClosePrice, cacheValue.getStatus());
+        ShareBoard section = ShareBoard.fromKey(shareHistEntity.getShareCode());
+        ShareStatus status = ShareStatus.getStatus(item.getString("name"));
+        BigDecimal limitDown = section.minPrice(yesterdayClosePrice, status);
+        BigDecimal limitUp = section.maxPrice(yesterdayClosePrice, status);
         shareHistEntity.setLimitUp(limitUp);
         shareHistEntity.setLimitDown(limitDown);
         return shareHistEntity;

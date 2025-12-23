@@ -3,7 +3,7 @@
 <mapper namespace="com.muniu.cloud.lucifer.share.service.mapper.TdIndexMarketMapper">
 
     <update id="createTable">
-        CREATE TABLE IF NOT EXISTS td_index_market_${sharding}
+        CREATE TABLE IF NOT EXISTS ${tableName}
         (
             `id`             varchar(25)  NOT NULL,
             `amplitude`      decimal(7, 3)                                         COMMENT '振幅',

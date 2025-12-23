@@ -3,7 +3,7 @@
 <mapper namespace="com.muniu.cloud.lucifer.share.service.mapper.TdShareHistMapper">
 
     <select id="createTable" parameterType="string" resultType="int" statementType="STATEMENT">
-        CREATE TABLE IF NOT EXISTS td_share_hist_${sharding}
+        CREATE TABLE IF NOT EXISTS ${tableName}
         (
             `id`             varchar(20) NOT NULL,
             `share_code`     varchar(10) NOT NULL COMMENT '股票代码',
@@ -48,7 +48,7 @@
             UNIQUE INDEX `uk_date_share` (`date` ASC, `share_code` ASC) USING BTREE,
             INDEX `idx_share_code_date`(`share_code` ASC, `date` ASC) USING BTREE
         ) ENGINE = InnoDB
-          CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '股票历史行情数据-年:${sharding}';
+          CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '股票历史行情数据';
     </select>
 
     <insert id="insertOrUpdateBatch" parameterType="java.util.List">

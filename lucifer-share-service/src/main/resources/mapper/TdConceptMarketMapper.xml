@@ -4,7 +4,7 @@
 
     <!-- 创建分表 -->
     <update id="createTable">
-        CREATE TABLE IF NOT EXISTS td_concept_market_${month}
+        CREATE TABLE IF NOT EXISTS ${tableName}
         (
             `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
             `board_code` varchar(20) NOT NULL COMMENT '板块代码',
@@ -23,7 +23,7 @@
             PRIMARY KEY (`id`),
             KEY `idx_board_code_time` (`board_code`, `update_time`),
             KEY `idx_update_time` (`update_time`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='概念板块表（月份:${month}）';
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='概念板块表';
     </update>
 
     <!-- 批量插入或更新概念板块数据 -->

@@ -3,7 +3,7 @@
 <mapper namespace="com.muniu.cloud.lucifer.share.service.mapper.TdStockRealTimeMapper">
 
     <select id="createTable" parameterType="string" resultType="int" statementType="STATEMENT">
-        CREATE TABLE IF NOT EXISTS ${tableNamePrefix}_${sharding}
+        CREATE TABLE IF NOT EXISTS ${tableName}
         (
             `id`                     varchar(20)  NOT NULL,
             `code`                   varchar(10)  NOT NULL COMMENT '股票代码',
@@ -16,7 +16,7 @@
             PRIMARY KEY (`id`) USING BTREE,
             UNIQUE INDEX `idx_code_date_time` (`code` ASC, `tickDate` DESC, `tickTime` ASC) USING BTREE
         ) ENGINE = InnoDB
-          DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '实时行情数据-日期:${sharding}';
+          DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '实时行情数据';
     </select>
 
 
