@@ -6,6 +6,7 @@ import com.muniu.cloud.lucifer.commons.core.annotation.AsyncEventListener;
 import com.muniu.cloud.lucifer.commons.core.mybatisplus.BaseShardingService;
 import com.muniu.cloud.lucifer.commons.core.utls.SpringContextUtils;
 import com.muniu.cloud.lucifer.commons.utils.constants.DateConstant;
+import com.muniu.cloud.lucifer.share.service.constant.LuciferShareConstant;
 import com.muniu.cloud.lucifer.share.service.constant.ShareBoard;
 import com.muniu.cloud.lucifer.share.service.constant.ShareStatus;
 import com.muniu.cloud.lucifer.share.service.entity.TdShareMarket;
@@ -66,7 +67,7 @@ public class TdShareMarketService extends BaseShardingService<TdShareMarketMappe
 
     @PostConstruct
     private void init(){
-        RTopic topic = redisson.getTopic("mq:stock:market");
+        RTopic topic = redisson.getTopic(LuciferShareConstant.REDIS_STOCK_MARKET);
         topic.addListener(SinaStockMarketSaveEvent.class, (channel, msg) -> {
             sinaStockMarketSaveEventHandle(msg);
         });

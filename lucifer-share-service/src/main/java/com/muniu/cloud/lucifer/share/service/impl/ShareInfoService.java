@@ -42,7 +42,7 @@ public class ShareInfoService{
 
     @PostConstruct
     public void init(){
-        RTopic topic = redisson.getTopic("mq:stock:market");
+        RTopic topic = redisson.getTopic(LuciferShareConstant.REDIS_STOCK_MARKET);
         topic.addListener(SinaStockMarketSaveEvent.class, (channel, msg) -> {
             sinaStockMarketSaveEventHandle(msg);
         });

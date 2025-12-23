@@ -5,6 +5,7 @@ import com.muniu.cloud.lucifer.commons.core.http.LuciferHttpCallback;
 import com.muniu.cloud.lucifer.commons.core.http.LuciferHttpClient;
 import com.muniu.cloud.lucifer.commons.utils.exception.HttpClientException;
 import com.muniu.cloud.lucifer.share.service.config.ScheduledInterface;
+import com.muniu.cloud.lucifer.share.service.constant.LuciferShareConstant;
 import com.muniu.cloud.lucifer.share.service.model.dto.SinaStockMarketSaveEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -22,14 +23,9 @@ import java.util.List;
 @Slf4j
 public class SinaShareMarketApiClient implements ScheduledInterface {
 
-
-
     private final LuciferHttpClient autoProxyHttpClient;
 
     private final RedissonClient redisson;
-
-
-
 
     @Autowired
     public SinaShareMarketApiClient(@Qualifier("autoProxyHttpClient") LuciferHttpClient autoProxyHttpClient,RedissonClient redisson) {
@@ -46,10 +42,10 @@ public class SinaShareMarketApiClient implements ScheduledInterface {
             autoProxyHttpClient.getAsync("https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=" + page + "&num=" + pageSize + "&sort=symbol&asc=1&node=hs_a&symbol=&_s_r_a=page", new LuciferHttpCallback() {
                 @Override
                 public void onSuccess(String response) {
-                    RTopic topic = redisson.getTopic("mq:stock:market");
+                    RTopic topic = redisson.getTopic(LuciferShareConstant.REDIS_STOCK_MARKET);
                     String jsonString = new String(response.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
                     List<SinaStockMarketSaveEvent> sinaStockMarketSaveEventList = JSON.parseArray(jsonString, SinaStockMarketSaveEvent.class);
-                    if(CollectionUtils.isEmpty(sinaStockMarketSaveEventList)){
+                    if (CollectionUtils.isEmpty(sinaStockMarketSaveEventList)) {
                         return;
                     }
                     sinaStockMarketSaveEventList.forEach(sinaStockMarketSaveEvent -> sinaStockMarketSaveEvent.setLoadTime(loadTime));

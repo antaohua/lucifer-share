@@ -194,15 +194,12 @@ public class TradingDateTimeService {
         if (off <= 0) {
             throw new IllegalArgumentException("off 必须大于0");
         }
-
         Set<Integer> result = redisTemplate.opsForZSet()
                 .reverseRangeByScore(LuciferShareConstant.TRADING_TIME_KEY, Double.NEGATIVE_INFINITY, date - 1, off - 1, 1);
-
         if (result == null || result.isEmpty()) {
             syncTradingDays();
             return -1;
         }
-
         return result.iterator().next();
     }
 
@@ -243,7 +240,6 @@ public class TradingDateTimeService {
         if (off <= 0) {
             throw new IllegalArgumentException("off 必须大于0");
         }
-
         // 从指定日期之后开始取，第 off 个交易日
         Set<Integer> result = redisTemplate.opsForZSet()
                 .rangeByScore(LuciferShareConstant.TRADING_TIME_KEY, date + 1, Double.MAX_VALUE, off - 1, 1);

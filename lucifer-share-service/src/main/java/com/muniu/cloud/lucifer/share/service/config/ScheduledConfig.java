@@ -27,8 +27,7 @@ public class ScheduledConfig {
      * 获取实时股票数据（当前所有A股数据）
      * 交易时段运行
      * */
-    @Scheduled(cron = "0 * * * * MON-FRI")
-//    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 * * * * *")
     public void sinaShareMarket() throws Exception{
         if(!tradingDayService.isTradingTime()){
             return;
@@ -59,9 +58,9 @@ public class ScheduledConfig {
     @Scheduled(cron = "*/6 * * * * *")
     public void shareHist() throws Exception {
         LocalTime now = LocalTime.now();
-//        if (tradingDayService.isTradingDay(LocalDate.now()) && (now.isAfter(LocalTime.of(9, 15)) && now.isBefore(LocalTime.of(15, 30)))) {
-//            return;
-//        }
+        if (tradingDayService.isTradingDay(LocalDate.now()) && (now.isAfter(LocalTime.of(9, 15)) && now.isBefore(LocalTime.of(15, 30)))) {
+            return;
+        }
         SpringContextUtils.getBean(TdShareHistService.class).scheduled();
 
     }

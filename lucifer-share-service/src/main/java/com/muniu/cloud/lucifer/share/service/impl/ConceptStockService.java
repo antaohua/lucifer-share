@@ -6,6 +6,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.google.common.collect.Lists;
 import com.muniu.cloud.lucifer.commons.model.constants.Condition;
 import com.muniu.cloud.lucifer.share.service.config.ScheduledInterface;
+import com.muniu.cloud.lucifer.share.service.constant.LuciferShareConstant;
 import com.muniu.cloud.lucifer.share.service.dao.TradeBoardConsDao;
 import com.muniu.cloud.lucifer.share.service.entity.TradeBoardConsEntity;
 
@@ -38,10 +39,7 @@ public class ConceptStockService implements ScheduledInterface {
     private final AkToolsService akToolsService;
     private final TradingDateTimeService tradingDayService;
     private final TdConceptMarketService tdConceptMarketService;
-    /**
-     * Redis中存储概念板块更新日期的key
-     */
-    private static final String CONCEPT_STOCK_UPDATE_KEY = "share:concept:stock";
+
 
     private final RedisTemplate<String, Object> redisTemplate;
     
@@ -73,8 +71,8 @@ public class ConceptStockService implements ScheduledInterface {
             // 从Redis中获取所有概念板块的更新状态
             HashOperations<String, String, Object> hashOps = redisTemplate.opsForHash();
             String boardCodeToUpdate = null;
-            if(redisTemplate.hasKey(CONCEPT_STOCK_UPDATE_KEY)){
-                Map<String,Object> boardCodesCache = hashOps.entries(CONCEPT_STOCK_UPDATE_KEY);
+            if(redisTemplate.hasKey(LuciferShareConstant.CONCEPT_STOCK_UPDATE_KEY)){
+                Map<String,Object> boardCodesCache = hashOps.entries(LuciferShareConstant.CONCEPT_STOCK_UPDATE_KEY);
                 for (String boardCode : boardCodes) {
                     if (!boardCodesCache.containsKey(boardCode)) {
                         boardCodeToUpdate = boardCode;
@@ -98,7 +96,7 @@ public class ConceptStockService implements ScheduledInterface {
             syncBoardStocks(boardCodeToUpdate);
             
             // 更新Redis中的记录
-            hashOps.put(CONCEPT_STOCK_UPDATE_KEY, boardCodeToUpdate, String.valueOf(today));
+            hashOps.put(LuciferShareConstant.CONCEPT_STOCK_UPDATE_KEY, boardCodeToUpdate, String.valueOf(today));
             log.info("概念板块[{}]成份股同步成功，已更新Redis记录", boardCodeToUpdate);
             
         } catch (Exception e) {
