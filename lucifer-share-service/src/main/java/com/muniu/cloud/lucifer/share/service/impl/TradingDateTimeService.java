@@ -52,6 +52,9 @@ public class TradingDateTimeService {
         try {
             List<Integer> tradingDays = akToolsService.toolTradeDateHistSina();
             Set<ZSetOperations.TypedTuple<Integer>> tuples = tradingDays.stream().map(e -> new DefaultTypedTuple<>(e, e.doubleValue())).collect(Collectors.toSet());
+            if(tuples.isEmpty()){
+                return;
+            }
             redisTemplate.opsForZSet().addIfAbsent(LuciferShareConstant.TRADING_TIME_KEY, tuples);
         }catch (IOException e){
             log.error(e.getMessage());
@@ -70,18 +73,13 @@ public class TradingDateTimeService {
     public void updatedCurrentTradingDay() {
         if(isTradingDay() && LocalTime.now().isAfter(LuciferShareConstant.TRADING_TIME_START)){
             LuciferShareConstant.LAST_TRADING_DATA = LocalDate.now();
-        }else {
-            int tradingDay = getPreviousTradingDay(Integer.parseInt(LocalDate.now().format(DateConstant.DATE_FORMATTER_YYYYMMDD)));
-            if(tradingDay > 0){
-                String dateStr = String.valueOf(tradingDay);
-                LuciferShareConstant.LAST_TRADING_DATA = LocalDate.parse(dateStr, DateConstant.DATE_FORMATTER_YYYYMMDD);
-            }
+            return;
         }
-
-
-
-
-
+        int tradingDay = getPreviousTradingDay(Integer.parseInt(LocalDate.now().format(DateConstant.DATE_FORMATTER_YYYYMMDD)));
+        if(tradingDay > 0){
+            String dateStr = String.valueOf(tradingDay);
+            LuciferShareConstant.LAST_TRADING_DATA = LocalDate.parse(dateStr, DateConstant.DATE_FORMATTER_YYYYMMDD);
+        }
     }
 
 

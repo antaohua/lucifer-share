@@ -22,7 +22,7 @@ public class LuciferShareConstant {
     public static final LocalTime AFTERNOON_START  = LocalTime.of(13, 0);
     public static final LocalTime AFTERNOON_END    = LocalTime.of(15, 1);
 
-    public static final String TRADING_TIME_KEY = "DATE:TRADING_DAY";
+    public static final String TRADING_TIME_KEY = "DATE:TRADING:DAY";
 
     private static final String REDIS_SHARE_STATUS = "SHARE:DATE:STATUS:";
 

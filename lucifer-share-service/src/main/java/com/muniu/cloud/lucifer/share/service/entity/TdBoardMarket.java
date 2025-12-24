@@ -1,11 +1,12 @@
 package com.muniu.cloud.lucifer.share.service.entity;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.alibaba.fastjson2.annotation.JSONField;
 import com.muniu.cloud.lucifer.commons.core.jpa.entity.BaseSnowflakeIdEntity;
 import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaCreateColumn;
 import com.muniu.cloud.lucifer.commons.core.jpa.interfaces.JpaUpdateCloumn;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -16,10 +17,9 @@ import java.math.BigDecimal;
  */
 
 @Entity
-@Table(name = "trade_board_market", comment = "概念板块数据")
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class TradeBoardMarketEntity extends BaseSnowflakeIdEntity implements JpaUpdateCloumn, JpaCreateColumn {
+public class TdBoardMarket extends BaseSnowflakeIdEntity implements JpaUpdateCloumn, JpaCreateColumn {
 
 
     private long updateTime;
@@ -63,10 +63,10 @@ public class TradeBoardMarketEntity extends BaseSnowflakeIdEntity implements Jpa
     private Integer rank;
 
 
-    public TradeBoardMarketEntity() {
+    public TdBoardMarket() {
     }
 
-    public TradeBoardMarketEntity(JSONObject item, long currentTime) {
+    public TdBoardMarket(JSONObject item, long currentTime) {
         setRank(item.getInteger("排名"));
         setBoardName(item.getString("板块名称"));
         setBoardCode(item.getString("板块代码"));

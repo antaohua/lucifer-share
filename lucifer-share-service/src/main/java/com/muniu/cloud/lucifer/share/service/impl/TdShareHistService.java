@@ -4,7 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.muniu.cloud.lucifer.commons.core.mybatisplus.BaseShardingService;
-import com.muniu.cloud.lucifer.share.service.clients.EastmoneyStockHistApiClient;
+import com.muniu.cloud.lucifer.share.service.clients.EastmoneyShareHistApiClient;
 import com.muniu.cloud.lucifer.share.service.config.ScheduledInterface;
 import com.muniu.cloud.lucifer.share.service.constant.ShareBoard;
 import com.muniu.cloud.lucifer.share.service.model.cache.ShareInfoCacheValue;
@@ -32,12 +32,12 @@ public class TdShareHistService extends BaseShardingService<TdShareHistMapper, T
 
     private final TradingDateTimeService tradingDayService;
 
-    private final EastmoneyStockHistApiClient akToolsService;
+    private final EastmoneyShareHistApiClient akToolsService;
 
 
     @Autowired
     public TdShareHistService(ShareInfoService shareInfoService,
-                              TradingDateTimeService tradingDayService, EastmoneyStockHistApiClient akToolsService) {
+                              TradingDateTimeService tradingDayService, EastmoneyShareHistApiClient akToolsService) {
         this.shareInfoService = shareInfoService;
         this.tradingDayService = tradingDayService;
         this.akToolsService = akToolsService;

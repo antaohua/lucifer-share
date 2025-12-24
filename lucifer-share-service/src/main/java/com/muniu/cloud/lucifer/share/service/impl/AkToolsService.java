@@ -61,58 +61,58 @@ public class AkToolsService {
     }
 
 
-    /**
-     * 日内分时数据-新浪
-     * 接口: stock_intraday_sina
-     * 目标地址: https://vip.stock.finance.sina.com.cn/quotes_service/view/cn_bill.php?symbol=sz000001
-     * 描述: 新浪财经-日内分时数据
-     * 限量: 单次返回指定交易日的分时数据；只能获取近期的数据
-     * 输入参数
-     * 名称	类型	描述
-     * symbol	str	symbol="sz000001"; 带市场标识的股票代码
-     * date	str	date="20240321"; 交易日
-     * */
-    public String stockIntradaySina(String symbol,String date) throws IOException {
-        Map<String, String> parameter = new HashMap<>();
-        parameter.put("symbol", symbol);
-        parameter.put("date", date);
-        return get("stock_intraday_sina",parameter);
-    }
+//    /**
+//     * 日内分时数据-新浪
+//     * 接口: stock_intraday_sina
+//     * 目标地址: https://vip.stock.finance.sina.com.cn/quotes_service/view/cn_bill.php?symbol=sz000001
+//     * 描述: 新浪财经-日内分时数据
+//     * 限量: 单次返回指定交易日的分时数据；只能获取近期的数据
+//     * 输入参数
+//     * 名称	类型	描述
+//     * symbol	str	symbol="sz000001"; 带市场标识的股票代码
+//     * date	str	date="20240321"; 交易日
+//     * */
+//    public String stockIntradaySina(String symbol,String date) throws IOException {
+//        Map<String, String> parameter = new HashMap<>();
+//        parameter.put("symbol", symbol);
+//        parameter.put("date", date);
+//        return get("stock_intraday_sina",parameter);
+//    }
 
-    /**
-     * 股票市场总貌-上海证券交易所
-     * stock_sse_summary
-     */
-    public String stockSseSummary() throws IOException {
-        return get("stock_sse_summary", null);
-    }
-
-    /**
-     * 实时行情数据-东财-沪深京 A 股
-     * stock_zh_a_spot_em
-     */
-
-    public String stockZhASpotEm() throws Exception {
-        return get("stock_zh_a_spot_em", null);
-    }
-
-
-    /**
-     * 股票列表-A股
-     */
-    public String stockInfoANameCode() throws IOException {
-        return get("stock_info_a_code_name", null);
-    }
+//    /**
+//     * 股票市场总貌-上海证券交易所
+//     * stock_sse_summary
+//     */
+//    public String stockSseSummary() throws IOException {
+//        return get("stock_sse_summary", null);
+//    }
+//
+//    /**
+//     * 实时行情数据-东财-沪深京 A 股
+//     * stock_zh_a_spot_em
+//     */
+//
+//    public String stockZhASpotEm() throws Exception {
+//        return get("stock_zh_a_spot_em", null);
+//    }
 
 
-    /**
-     * 个股信息查询
-     */
-    public String stockIndividualInfoEm(String shareCode) throws IOException {
-        Map<String, String> parameter = new HashMap<>();
-        parameter.put("symbol", shareCode);
-        return get("stock_individual_info_em", parameter);
-    }
+//    /**
+//     * 股票列表-A股
+//     */
+//    public String stockInfoANameCode() throws IOException {
+//        return get("stock_info_a_code_name", null);
+//    }
+
+
+//    /**
+//     * 个股信息查询
+//     */
+//    public String stockIndividualInfoEm(String shareCode) throws IOException {
+//        Map<String, String> parameter = new HashMap<>();
+//        parameter.put("symbol", shareCode);
+//        return get("stock_individual_info_em", parameter);
+//    }
 
 
     /**
@@ -124,20 +124,20 @@ public class AkToolsService {
         return Optional.ofNullable(array).orElse(new JSONArray()).stream().map(b -> Integer.parseInt(((JSONObject) b).getString("trade_date").split("T")[0].replace("-", ""))).toList();
     }
 
-    /**
-     * 个股历史行情
-     */
-    public String stockZhAHist(String shareCode, PeriodConstant period, AdjustConstant adjust, String startDate, String endDate) throws IOException {
-        Map<String, String> parameter = new HashMap<>();
-        parameter.put("symbol", shareCode);
-        parameter.put("period", period.getCode());
-        parameter.put("start_date", startDate);
-        parameter.put("end_date", endDate);
-        if (adjust == null && adjust != AdjustConstant.NONE) {
-            parameter.put("adjust", adjust.getCode());
-        }
-        return get("stock_zh_a_hist", parameter);
-    }
+//    /**
+//     * 个股历史行情
+//     */
+//    public String stockZhAHist(String shareCode, PeriodConstant period, AdjustConstant adjust, String startDate, String endDate) throws IOException {
+//        Map<String, String> parameter = new HashMap<>();
+//        parameter.put("symbol", shareCode);
+//        parameter.put("period", period.getCode());
+//        parameter.put("start_date", startDate);
+//        parameter.put("end_date", endDate);
+//        if (adjust == null && adjust != AdjustConstant.NONE) {
+//            parameter.put("adjust", adjust.getCode());
+//        }
+//        return get("stock_zh_a_hist", parameter);
+//    }
 
 
 
@@ -231,14 +231,14 @@ public class AkToolsService {
         return get("stock_zh_index_daily_em", parameter);
     }
 
-    /**
-     * 获取指数列表数据
-     * @return 返回指数列表数据
-     * @throws IOException 请求异常
-     */
-    public String indexStockInfo() throws IOException {
-        return get("index_stock_info", null);
-    }
+//    /**
+//     * 获取指数列表数据
+//     * @return 返回指数列表数据
+//     * @throws IOException 请求异常
+//     */
+//    public String indexStockInfo() throws IOException {
+//        return get("index_stock_info", null);
+//    }
 
     /**
      * 东方财富-概念板块

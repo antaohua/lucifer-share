@@ -20,15 +20,15 @@ import java.util.Map;
 
 @Component
 @Slf4j
-public class EastmoneyStockHistApiClient {
+public class EastmoneyShareHistApiClient {
 
     private final LuciferHttpClient autoProxyHttpClient;
-    private final LuciferHttpClient staticProxyHttpClient;
+//    private final LuciferHttpClient staticProxyHttpClient;
 
 
-    public EastmoneyStockHistApiClient(@Qualifier("autoProxyHttpClient") LuciferHttpClient autoProxyHttpClient) {
+    public EastmoneyShareHistApiClient(@Qualifier("autoProxyHttpClient") LuciferHttpClient autoProxyHttpClient) {
         this.autoProxyHttpClient = autoProxyHttpClient;
-        this.staticProxyHttpClient = autoProxyHttpClient;
+//        this.staticProxyHttpClient = autoProxyHttpClient;
     }
 
 
@@ -37,10 +37,10 @@ public class EastmoneyStockHistApiClient {
         String url = buildStockDataUrl(shareCode, PeriodConstant.DAY.getCode(), AdjustConstant.NONE.getCode(), startDate, endDate);
         String body = null;
         try {
-            body= staticProxyHttpClient.get(url);
+            body= autoProxyHttpClient.get(url);
         }catch (HttpClientException e){
-            log.error("error :staticProxyHttpClient shareCode:{}, startDate:{}, endDate={}, error:{}", shareCode, startDate, endDate, e.getMessage());
-            body = autoProxyHttpClient.get(url);
+            log.error("error :staticProxyHttpClient shareCode:{}, startDate:{}, endDate={}, error:{}", shareCode, startDate, endDate, e.getMessage(), e);
+            return  null;
         }
         JSONObject root = JSON.parseObject(body);
         JSONObject dataNode = root.getJSONObject("data");
@@ -122,42 +122,41 @@ public class EastmoneyStockHistApiClient {
         urlBuilder.addQueryParameter("secid", marketCode + "." + symbol);
         urlBuilder.addQueryParameter("beg", startDate);
         urlBuilder.addQueryParameter("end", endDate);
-
         // 返回构建的 URL 字符串
         return urlBuilder.build().toString();
     }
 
 
-    public static void main(String[] args) {
-        String body = "{\"rc\":0,\"rt\":17,\"svr\":181669733,\"lt\":1,\"full\":0,\"dlmkts\":\"\",\"data\":{\"code\":\"600000\",\"market\":1,\"name\":\"浦发银行\",\"decimal\":2,\"dktotal\":6159,\"preKPrice\":12.45,\"klines\":[\"2025-09-24,12.45,12.22,12.54,12.06,1027559,1255684176.00,3.86,-1.85,-0.23,0.34\",\"2025-09-25,12.23,12.43,12.55,12.13,1288851,1599981440.00,3.44,1.72,0.21,0.42\"]}}\n";
-        JSONObject root = JSON.parseObject(body);
-        JSONObject dataNode = root.getJSONObject("data");
-
-
-        JSONArray klinesNode = dataNode.getJSONArray("klines");
-
-
-        List<KlineRecord> records = new ArrayList<>();
-        for (int i = 0; i < klinesNode.size(); i++) {
-            String[] parts = klinesNode.getString(i).split(",");
-            KlineRecord record = new KlineRecord();
-            record.日期 = parts[0];
-            record.开盘 = Double.parseDouble(parts[1]);
-            record.收盘 = Double.parseDouble(parts[2]);
-            record.最高 = Double.parseDouble(parts[3]);
-            record.最低 = Double.parseDouble(parts[4]);
-            record.成交量 = Long.parseLong(parts[5]);
-            record.成交额 = Double.parseDouble(parts[6]);
-            record.振幅 = Double.parseDouble(parts[7]);
-            record.涨跌幅 = Double.parseDouble(parts[8]);
-            record.涨跌额 = Double.parseDouble(parts[9]);
-            record.换手率 = Double.parseDouble(parts[10]);
-            record.股票代码 = dataNode.getString("code");
-            record.name = dataNode.getString("name");
-            records.add(record);
-        }
-        System.out.println(JSON.toJSONString(records));
-    }
+//    public static void main(String[] args) {
+//        String body = "{\"rc\":0,\"rt\":17,\"svr\":181669733,\"lt\":1,\"full\":0,\"dlmkts\":\"\",\"data\":{\"code\":\"600000\",\"market\":1,\"name\":\"浦发银行\",\"decimal\":2,\"dktotal\":6159,\"preKPrice\":12.45,\"klines\":[\"2025-09-24,12.45,12.22,12.54,12.06,1027559,1255684176.00,3.86,-1.85,-0.23,0.34\",\"2025-09-25,12.23,12.43,12.55,12.13,1288851,1599981440.00,3.44,1.72,0.21,0.42\"]}}\n";
+//        JSONObject root = JSON.parseObject(body);
+//        JSONObject dataNode = root.getJSONObject("data");
+//
+//
+//        JSONArray klinesNode = dataNode.getJSONArray("klines");
+//
+//
+//        List<KlineRecord> records = new ArrayList<>();
+//        for (int i = 0; i < klinesNode.size(); i++) {
+//            String[] parts = klinesNode.getString(i).split(",");
+//            KlineRecord record = new KlineRecord();
+//            record.日期 = parts[0];
+//            record.开盘 = Double.parseDouble(parts[1]);
+//            record.收盘 = Double.parseDouble(parts[2]);
+//            record.最高 = Double.parseDouble(parts[3]);
+//            record.最低 = Double.parseDouble(parts[4]);
+//            record.成交量 = Long.parseLong(parts[5]);
+//            record.成交额 = Double.parseDouble(parts[6]);
+//            record.振幅 = Double.parseDouble(parts[7]);
+//            record.涨跌幅 = Double.parseDouble(parts[8]);
+//            record.涨跌额 = Double.parseDouble(parts[9]);
+//            record.换手率 = Double.parseDouble(parts[10]);
+//            record.股票代码 = dataNode.getString("code");
+//            record.name = dataNode.getString("name");
+//            records.add(record);
+//        }
+//        System.out.println(JSON.toJSONString(records));
+//    }
 
 
 }

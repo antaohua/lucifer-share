@@ -3,6 +3,7 @@ package com.muniu.cloud.lucifer.share.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.google.common.collect.Lists;
 import com.muniu.cloud.lucifer.commons.core.mybatisplus.BaseShardingService;
+import com.muniu.cloud.lucifer.share.service.clients.EastmoneyBoardMarketApiClient;
 import com.muniu.cloud.lucifer.share.service.config.ScheduledInterface;
 import com.muniu.cloud.lucifer.share.service.entity.TradeBoardMarketEntity;
 import com.muniu.cloud.lucifer.share.service.mapper.TdConceptMarketMapper;
@@ -47,16 +48,16 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
      */
     private final Object cacheLock = new Object();
 
-    private final AkToolsService akToolsService;
+    private final EastmoneyBoardMarketApiClient eastmoneyBoardMarketApiClient;
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final TradingDateTimeService tradingDayService;
     
     @Autowired
-    public TdConceptMarketService(RedisTemplate<String, Object> redisTemplate, TradingDateTimeService tradingDayService, AkToolsService akToolsService) {
+    public TdConceptMarketService(RedisTemplate<String, Object> redisTemplate, TradingDateTimeService tradingDayService, EastmoneyBoardMarketApiClient eastmoneyBoardMarketApiClient) {
         this.redisTemplate = redisTemplate;
         this.tradingDayService = tradingDayService;
-        this.akToolsService = akToolsService;
+        this.eastmoneyBoardMarketApiClient = eastmoneyBoardMarketApiClient;
     }
     
 
@@ -84,7 +85,7 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
             synchronized (cacheLock){
                 if(CollectionUtils.isEmpty(CONCEPT_BOARD_CODES)){
                     try {
-                        List<TradeBoardMarketEntity> boardList = akToolsService.stockBoardConceptNameEm();
+                        List<EastmoneyBoardMarketApiClient.ConceptBoardDTO> boardList = eastmoneyBoardMarketApiClient.boardMarket();
                         updateConceptBoardCodes(boardList);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
