@@ -17,9 +17,10 @@
             <groupId>com.muniu.cloud</groupId>
             <artifactId>lucifer-share-service</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-actuator</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.muniu.cloud</groupId>
+            <artifactId>lucifer-system-service</artifactId>
+            <version>${lucifer.system.version}</version>
+        </dependency>
     </dependencies>
 </project>

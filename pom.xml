@@ -64,7 +64,7 @@
     <repositories>
         <repository>
             <id>nexus-antaohua</id>
-            <url>https://nexus.antaohua.com:5668/content/groups/public/</url>
+            <url>https://nexus.antaohua.com:8443/content/groups/public/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -76,17 +76,17 @@
     <distributionManagement>
         <repository>
             <id>nexus-antaohua</id>
-            <url>https://nexus.antaohua.com:5668/content/repositories/releases/</url>
+            <url>https://nexus.antaohua.com:8443/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
             <id>nexus-antaohua</id>
-            <url>https://nexus.antaohua.com:5668/content/repositories/snapshots/</url>
+            <url>https://nexus.antaohua.com:8443/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
     <pluginRepositories>
         <pluginRepository>
             <id>nexus-antaohua-plugins</id>
-            <url>https://nexus.antaohua.com:5668/content/groups/public/</url>
+            <url>https://nexus.antaohua.com:8443/content/groups/public/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>

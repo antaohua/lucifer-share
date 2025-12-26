@@ -11,17 +11,17 @@
         <server>
             <id>nexus-antaohua</id>
             <username>antaohua</username>
-            <password>1q2w3e4r</password>
+            <password>1q2w3e4rQ</password>
         </server>
         <server>
             <id>nexus-antaohua-public</id>
             <username>antaohua</username>
-            <password>1q2w3e4r</password>
+            <password>1q2w3e4rQ</password>
         </server>
         <server>
             <id>nexus-antaohua-plugins</id>
             <username>antaohua</username>
-            <password>1q2w3e4r</password>
+            <password>1q2w3e4rQ</password>
         </server>
     </servers>
 </settings>
