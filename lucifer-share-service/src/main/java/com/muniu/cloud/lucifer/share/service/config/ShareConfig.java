@@ -65,7 +65,7 @@ public class ShareConfig {
 
     @Bean(name = "autoProxyHttpClient")
     public LuciferHttpClient autoProxyHttpClient() {
-        return new LuciferAutoProxyHttpClient(client -> {
+        return new LuciferAutoProxyHttpClient(LuciferLoadStrategy.REQUEST_HASH, client -> {
             String json = httpClient().get(proxyUrl);
             JSONObject object = JSON.parseObject(json);
             if (object.getInteger("code") != 1 || object.getJSONArray("data") == null || object.getJSONArray("data").isEmpty()) {
@@ -82,7 +82,7 @@ public class ShareConfig {
             long timestamp = localDateTime.atZone(ZoneId.of("Asia/Shanghai")).toInstant().toEpochMilli();
             log.info("load proxy config success . ip = {} , port = {} , timestamp = {} , t={}", obj.getString("ip"), obj.getInteger("port"), timestamp - 10000, timestamp);
             return new LuciferProxy(Proxy.Type.HTTP, obj.getString("ip"), obj.getInteger("port"), authKey, password, timestamp - 10000);
-        });
+        }, 2);
     }
 
 
