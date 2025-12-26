@@ -9,6 +9,7 @@ import com.muniu.cloud.lucifer.commons.core.http.LuciferHttpClient;
 import com.muniu.cloud.lucifer.commons.utils.exception.HttpClientException;
 import com.muniu.cloud.lucifer.share.service.constant.AdjustConstant;
 import com.muniu.cloud.lucifer.share.service.constant.PeriodConstant;
+import com.muniu.cloud.lucifer.share.service.entity.TradeBoardMarketEntity;
 import lombok.Data;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -174,6 +176,26 @@ public class EastmoneyBoardMarketApiClient {
         /** 是否 ST（概念一般为 0） */
         @JSONField(name = "f141")
         private Integer isSt;
+
+        public TradeBoardMarketEntity toTradeBoardMarketEntity() {
+            TradeBoardMarketEntity entity = new TradeBoardMarketEntity();
+            entity.setBoardCode(this.boardCode);
+            entity.setBoardName(this.boardName);
+            entity.setLatestPrice(BigDecimal.valueOf(latestPrice));
+            entity.setChangeAmount(BigDecimal.valueOf(changeAmount));
+            entity.setChangeRate(BigDecimal.valueOf(changeRate));
+            entity.setTotalMarketValue(this.totalMarketValue);
+            entity.setTurnoverRate(BigDecimal.valueOf(turnoverRate));
+            entity.setUpCount(this.riseCount);
+            entity.setDownCount(this.fallCount);
+            entity.setLeadingStock(this.leadingStock);
+            entity.setLeadingStockChangeRate(BigDecimal.valueOf(leadingStockRate));
+            entity.setUpdateTime(this.updateTime * 1000); // 转换为毫秒
+            entity.setCreateTime(System.currentTimeMillis());
+            entity.setRank(0); // 排名字段未提供，设置为0或根据需要处理
+
+            return entity;
+        }
     }
 
 

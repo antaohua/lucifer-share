@@ -84,12 +84,8 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
         if(CollectionUtils.isEmpty(CONCEPT_BOARD_CODES)){
             synchronized (cacheLock){
                 if(CollectionUtils.isEmpty(CONCEPT_BOARD_CODES)){
-                    try {
-                        List<EastmoneyBoardMarketApiClient.ConceptBoardDTO> boardList = eastmoneyBoardMarketApiClient.boardMarket();
-                        updateConceptBoardCodes(boardList);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    List<EastmoneyBoardMarketApiClient.ConceptBoardDTO> boardList = eastmoneyBoardMarketApiClient.boardMarket();
+                    updateConceptBoardCodes(boardList.stream().map(EastmoneyBoardMarketApiClient.ConceptBoardDTO::toTradeBoardMarketEntity).collect(Collectors.toList()));
                 }
             }
         }
@@ -116,7 +112,7 @@ public class TdConceptMarketService extends BaseShardingService<TdConceptMarketM
         }
         log.info("开始同步概念板块数据");
         // 获取概念板块数据
-        List<TradeBoardMarketEntity> boardList = akToolsService.stockBoardConceptNameEm();
+        List<TradeBoardMarketEntity> boardList = eastmoneyBoardMarketApiClient.boardMarket().stream().map(EastmoneyBoardMarketApiClient.ConceptBoardDTO::toTradeBoardMarketEntity).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(boardList)) {
             log.warn("未获取到概念板块数据");
             return;
